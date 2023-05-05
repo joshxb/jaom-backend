@@ -110,19 +110,23 @@ class UserController extends Controller
             });
         }
 
+        $total_users = $users->count();
         if (!empty($range)) {
             if ($range == 1) {
                 $users->orderBy('id')->take(10);
             } elseif ($range > 1) {
                 $start = ($range - 1) * 10 + 1;
-                $end = $start + 9;
-                $users->whereBetween('id', [$start, $end]);
+                $users->orderBy('id')->skip($start - 1)->take(10);
             }
         }
 
         $users = $users->get();
+        $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
-        return response()->json(['data' => $users]);
+        return response()->json([
+            'data' => $users,
+            'max_range' => $max_range,
+        ]);
     }
 
 }

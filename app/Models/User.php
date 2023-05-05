@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\GroupChat;
+use App\Models\GroupMessage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,7 +26,7 @@ class User extends Authenticatable
         'phone',
         'password',
         'status',
-        'image'
+        'image',
     ];
 
     /**
@@ -44,4 +46,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function groups()
+    {
+        return $this->belongsToMany(GroupChat::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(GroupMessage::class);
+    }
+
 }
