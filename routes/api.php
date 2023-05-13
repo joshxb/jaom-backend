@@ -3,9 +3,12 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\GroupChatController;
+use App\Http\Controllers\GroupUserController;
+use App\Http\Controllers\GroupMessageController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UpdateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,10 +51,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/group_chats', [GroupChatController::class, 'index']);
     Route::get('/group_chats/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
+    Route::get('/first-group-messages', [GroupChatController::class, 'getFirstGroupMessages']);
     Route::post('/group_chats', [GroupChatController::class, 'store']);
     Route::get('/group_chats/{groupChat}', [GroupChatController::class, 'show']);
     Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
     Route::delete('/group_chats/{groupChat}', [GroupChatController::class, 'destroy']);
+
+    Route::get('/group_users', [GroupUserController::class, 'index']);
+    Route::post('/group_users', [GroupUserController::class, 'store']);
+    Route::get('/group_users/{groupUser}', [GroupUserController::class, 'show']);
+    Route::put('/group_users/{groupUser}', [GroupUserController::class, 'update']);
+    Route::delete('/group_users/{groupUser}', [GroupUserController::class, 'destroy']);
+
+    Route::get('/group-chats/{groupId}/messages', [GroupMessageController::class, 'getGroupMessagesWithUsers']);
+    Route::get('/group_messages', [GroupMessageController::class, 'index']);
+    Route::get('/group_messages/{group_message}', [GroupMessageController::class, 'show']);
+    Route::post('/group_messages', [GroupMessageController::class, 'store']);
+    Route::put('/group_messages/{group_message}', [GroupMessageController::class, 'update']);
+    Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'destroy']);
+
+    Route::get('/updates/current_user', [UpdateController::class, 'index']);
+    Route::post('/updates/current_user', [UpdateController::class, 'store']);
+    Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
+    Route::put('/updates/{id}/current_user', [UpdateController::class, 'update']);
+    Route::delete('/updates/{id}/current_user', [UpdateController::class, 'destroy']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 

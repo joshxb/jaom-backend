@@ -2,65 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GroupUser;
 use App\Http\Controllers\Controller;
+use App\Models\GroupUser;
 use Illuminate\Http\Request;
 
 class GroupUserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Get all group users
     public function index()
     {
-        //
+        $groupUsers = GroupUser::all();
+
+        return response()->json([
+            'data' => $groupUsers,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Create a new group user
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'group_id' => 'required|integer',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'required|integer',
+        ]);
+
+        $userIds = $validatedData['user_ids'];
+
+        $groupUsers = [];
+        for ($i = 0; $i < count($userIds); $i++) {
+            $groupUser = GroupUser::create([
+                'group_id' => $validatedData["group_id"],
+                'user_id' => $userIds[$i],
+            ]);
+            $groupUsers[] = $groupUser;
+        }
+
+        return response()->json([
+            'message' => 'Group users created successfully.',
+            'data' => $groupUsers,
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Get a specific group user by ID
     public function show(GroupUser $groupUser)
     {
-        //
+        return response()->json([
+            'data' => $groupUser,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(GroupUser $groupUser)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    // Update a specific group user by ID
     public function update(Request $request, GroupUser $groupUser)
     {
-        //
-    }
+        $groupUser->update($request->all());
 
-    /**
-     * Remove the specified resource from storage.
-     */
+        return response()->json([
+            'message' => 'Group user updated successfully.',
+            'data' => $groupUser,
+        ]);
+    }
+    // Delete a specific group user by ID
     public function destroy(GroupUser $groupUser)
     {
-        //
+        $groupUser->delete();
+
+        return response()->json([
+            'message' => 'Group user deleted successfully.',
+        ]);
     }
 }

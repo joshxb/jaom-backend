@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\GroupMessage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\GroupUser;
-use App\Models\GroupMessage;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -15,13 +14,19 @@ class GroupChat extends Model
 
     protected $fillable = ['name', 'user_id'];
 
-    public function users()
+    public function user()
     {
-        return $this->belongsToMany(GroupUser::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function messages()
+    public function groupMessages()
     {
         return $this->hasMany(GroupMessage::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
+    }
+
 }

@@ -11,13 +11,19 @@ class GroupMessage extends Model
 {
     use HasFactory;
 
-    public function group()
+    public function groupChat()
     {
-        return $this->belongsTo(GroupMessage::class);
+        return $this->belongsTo(GroupChat::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    protected $fillable = [
+        'group_id',
+        'user_id',
+        'content'
+    ];
 }
