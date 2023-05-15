@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\GroupChat;
 use App\Models\GroupUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupUserController extends Controller
 {
@@ -44,11 +46,21 @@ class GroupUserController extends Controller
         ]);
     }
 
-    // Get a specific group user by ID
-    public function show(GroupUser $groupUser)
+// Get a specific group user by ID
+    public function show(Request $request)
     {
+        $groupChat = GroupChat::where("id", $request->group_id)->where("user_id", Auth::user()->id)->first();
+
+        if (!$groupChat) {
+            return response()->json([
+                'message' => 'You are not authorized to add people in this Group Chat.',
+            ]);
+        }
+
+        $user_data = GroupUser::where("group_id", $request->group_id)->with('user')->get();
+
         return response()->json([
-            'data' => $groupUser,
+            'data' => $user_data,
         ]);
     }
 

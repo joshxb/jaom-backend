@@ -19,10 +19,11 @@ class GroupChatController extends Controller
 
         $results = DB::select("
         SELECT DISTINCT c.name, c.id
-        FROM group_chats c
-        JOIN group_messages m ON m.group_id = c.id OR m.user_id = C.user_id
-        WHERE c.user_id = ?
-        OR (m.user_id = ? AND c.user_id != ?)
+FROM group_chats c
+LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+LEFT JOIN group_messages m ON m.group_id = c.id
+WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
+ORDER BY m.created_at DESC;
     ", [$user->id, $user->id, $user->id]);
 
         return response()->json([
@@ -68,40 +69,36 @@ class GroupChatController extends Controller
 
     public function store(Request $request)
     {
-        // {
-        //     "name": "J-Hope Group",
-        //     "user_ids" : [
-        //         1,14,139
-        //     ]
-        // }
         $user = Auth::user();
 
         $validatedData = $request->validate([
             'name' => 'required',
-            'user_ids' => '',
-            'user_ids.*' => '',
+            'user_ids' => 'array', // Ensure user_ids is an array
+            'user_ids.*' => 'exists:users,id', // Validate that each user_id exists in the users table
         ]);
+
+        $groupChat = GroupChat::where("user_id", $user->id)
+            ->where("name", $validatedData["name"])
+            ->first();
+
+        if (!$groupChat) {
+            $groupChat = GroupChat::create([
+                "name" => $validatedData["name"],
+                "user_id" => $user->id,
+            ]);
+        }
 
         $userIds = $validatedData['user_ids'];
 
-        $groupChat = GroupChat::create([
-            "name" => $validatedData["name"],
-            "user_id" => $user->id
-        ]);
-
-        $groupId = GroupChat::where("name", $validatedData["name"])
-            ->where("user_id", $user->id)
-            ->first()->id;
+        $groupId = $groupChat->id;
 
         $groupUsers = [];
-        if (count($userIds) > 0) {
-            for ($i = 0; $i < count($userIds); $i++) {
-                $groupUser = GroupUser::create([
-                    'group_id' => $groupId,
-                    'user_id' => $userIds[$i],
-                ]);
-                $groupUsers[] = $groupUser;
-            }
+        foreach ($userIds as $userId) {
+            $groupUser = GroupUser::create([
+                'group_id' => $groupId,
+                'user_id' => $userId,
+            ]);
+            $groupUsers[] = $groupUser;
         }
 
         return response()->json([
@@ -111,9 +108,12 @@ class GroupChatController extends Controller
         ]);
     }
 
-    public function show(GroupChat $groupChat)
+    public function show(Request $request)
     {
-        return response()->json($groupChat);
+        $result = GroupChat::where("id", $request->groupId)->first();
+        return response()->json([
+            "data" => $result,
+        ]);
     }
 
     public function update(Request $request, GroupChat $groupChat)
