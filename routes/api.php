@@ -38,6 +38,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('search-users', [UserController::class, 'searchUsers']);
      // api/search-users/group_id?search=xxxxx&&range=xxx
     Route::get('search-users/{group_id}', [UserController::class, 'searchUsersWithExceptCurrentGroup']);
+     // api/search-users/v2/group_id?search=xxxxx&&range=xxx
+     Route::get('search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
     //update user image
     Route::put('user/image/{id}', [ImageController::class, 'update']);
 
@@ -56,7 +58,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/group_chats', [GroupChatController::class, 'store']);
     Route::get('/group_chats/{groupId}', [GroupChatController::class, 'show']);
     Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
-    Route::delete('/group_chats/{groupChat}', [GroupChatController::class, 'destroy']);
+    Route::delete('/group_chats/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
+    Route::post('/group_chats/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
 
     Route::get('/group_users', [GroupUserController::class, 'index']);
     Route::post('/group_users', [GroupUserController::class, 'store']);

@@ -53,7 +53,7 @@ class GroupUserController extends Controller
 
         if (!$groupChat) {
             return response()->json([
-                'message' => 'You are not authorized to add people in this Group Chat.',
+                'message' => 'You are not authorized to modify people from this Group Chat.',
             ]);
         }
 

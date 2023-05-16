@@ -168,4 +168,37 @@ class UserController extends Controller
         ]);
     }
 
+    public function searchUsersWithCurrentGroup(Request $request)
+    {
+        $range = $request->input('range');
+        $search = $request->input('search');
+
+        $groupUsers = GroupUser::where("group_id", $request->group_id)->get();
+
+        $userIds = $groupUsers->pluck('user_id')->toArray();
+
+        $users = User::whereIn("id", $userIds)
+            ->where(DB::raw("concat(firstname, ' ', lastname)"), 'like', '%' . $search . '%');
+
+        $total_users = $users->count();
+
+        if (!empty($range)) {
+            if ($range == 1) {
+                $users->orderBy('id')->take(10);
+            } elseif ($range > 1) {
+                $start = ($range - 1) * 10;
+                $users->orderBy('id')->skip($start)->take(10);
+            }
+        }
+
+        $users = $users->get();
+        $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
+
+        return response()->json([
+            'data' => $users,
+            'max_range' => $max_range,
+            'groupUsers' => $groupUsers,
+        ]);
+    }
+
 }

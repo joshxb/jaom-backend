@@ -35,18 +35,27 @@ ORDER BY m.created_at DESC;
     {
         $user = Auth::user();
 
-        // Fetch the first GroupChat record associated with the current user
-        $groupChat = GroupChat::where('user_id', $user->id)->first();
+        $results = DB::select("
+        SELECT DISTINCT c.name, c.id
+FROM group_chats c
+LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+LEFT JOIN group_messages m ON m.group_id = c.id
+WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
+ORDER BY m.created_at DESC LIMIT 1;
+    ", [$user->id, $user->id, $user->id]);
 
-        // If no matching GroupChat record is found, return an error response
-        if (!$groupChat) {
-            return response()->json([
-                'error' => 'No GroupChat record found for the current user.',
-            ], 404);
+        $data = [];
+
+        if (!empty($results)) {
+            $data = [
+                'id' => $results[0]->id,
+                'name' => $results[0]->name,
+            ];
         }
 
+        $groupChat = GroupChat::where("id", $data["id"])->first();
         // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $groupMessages = GroupMessage::where('group_id', $groupChat->id)->get();
+        $groupMessages = GroupMessage::where('group_id', $data["id"])->get();
 
         // Loop through the GroupMessage records and include the associated User record for each message
         foreach ($groupMessages as $message) {
@@ -131,12 +140,48 @@ ORDER BY m.created_at DESC;
             'data' => $groupChat,
         ]);
     }
-    public function destroy(GroupChat $groupChat)
+
+    public function destroy($user_id, $group_id)
     {
+        $user = Auth::user();
+
+        if ($user_id != $user->id) {
+            return response()->json([
+                'message' => "You are not authorized to delete the GroupChat!",
+            ], 403); // Return a 403 Forbidden status code for unauthorized access.
+        }
+
+        $groupChat = GroupChat::find($group_id);
+
+        if (!$groupChat) {
+            return response()->json([
+                'message' => "Group chat not found!",
+            ], 404); // Return a 404 Not Found status code if the group chat doesn't exist.
+        }
+
         $groupChat->delete();
 
         return response()->json([
-            'message' => 'Group chat deleted successfully.',
+            'message' => 'Group chat deleted successfully!',
+        ]);
+    }
+
+    public function destroySelectedGroupUsers(Request $request)
+    {
+        $user = Auth::user();
+
+        $validatedData = $request->validate([
+            'user_ids' => 'required|array', // Ensure user_ids is an array and required
+        ]);
+
+        $userIds = $validatedData['user_ids'];
+
+        GroupUser::where('group_id', $request->group_id)
+            ->whereIn('user_id', $userIds)
+            ->delete();
+
+        return response()->json([
+            'message' => 'Group users deleted successfully.',
         ]);
     }
 
