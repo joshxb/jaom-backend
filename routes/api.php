@@ -2,15 +2,18 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\TodoController;
 use App\Http\Controllers\GroupChatController;
-use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\GroupMessageController;
+use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\UserImagesController;
 use App\Http\Controllers\MessageController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FeedbackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,24 +30,26 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::get('users', [UserController::class, 'index']);
+    Route::get('/users', [UserController::class, 'index']);
     // api/users/user-range?range=xxxxx
-    Route::get('users/user-range', [UserController::class, 'userRange']);
-    Route::post('users', [UserController::class, 'store']);
-    Route::get('users/{id}', [UserController::class, 'show']);
-    Route::put('users/{id}', [UserController::class, 'update']);
-    Route::delete('users/{id}', [UserController::class, 'destroy']);
+    Route::get('/users/user-range', [UserController::class, 'userRange']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
     // api/search-users?search=xxxxx&&range=xxx
-    Route::get('search-users', [UserController::class, 'searchUsers']);
-     // api/search-users/group_id?search=xxxxx&&range=xxx
-    Route::get('search-users/{group_id}', [UserController::class, 'searchUsersWithExceptCurrentGroup']);
-     // api/search-users/v2/group_id?search=xxxxx&&range=xxx
-     Route::get('search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
-    //update user image
-    Route::put('user/image/{id}', [ImageController::class, 'update']);
+    Route::get('/search-users', [UserController::class, 'searchUsers']);
+    // api/search-users/group_id?search=xxxxx&&range=xxx
+    Route::get('/search-users/{group_id}', [UserController::class, 'searchUsersWithExceptCurrentGroup']);
+    // api/search-users/v2/group_id?search=xxxxx&&range=xxx
+    Route::get('/search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
+
+    Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
+    Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
 
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
     Route::get('/conversations', [MessageController::class, 'conversations']);
+    Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
     Route::get('/conversations/{conversation}', [MessageController::class, 'messages']);
     Route::post('/conversations/{conversation}/message', [MessageController::class, 'send_messages']);
     Route::delete('/conversations/{conversation}/message/v1', [ConversationController::class, 'deleteConversation']);
@@ -55,6 +60,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/group_chats', [GroupChatController::class, 'index']);
     Route::get('/group_chats/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
     Route::get('/first-group-messages', [GroupChatController::class, 'getFirstGroupMessages']);
+    Route::get('/specific-group-messages/{group_id}', [GroupChatController::class, 'getSpecificGroupMessages']);
     Route::post('/group_chats', [GroupChatController::class, 'store']);
     Route::get('/group_chats/{groupId}', [GroupChatController::class, 'show']);
     Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
@@ -79,6 +85,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
     Route::put('/updates/{id}/current_user', [UpdateController::class, 'update']);
     Route::delete('/updates/{id}/current_user', [UpdateController::class, 'destroy']);
+
+    Route::get('/todos', [TodoController::class, 'index']);
+    Route::post('/todos', [TodoController::class, 'store']);
+    Route::get('/todos/{id}', [TodoController::class, 'show']);
+    Route::put('/todos/{id}', [TodoController::class, 'update']);
+    Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
+
+    Route::get('/feedbacks', [FeedbackController::class, 'index']);
+    Route::post('/feedbacks', [FeedbackController::class, 'store']);
+    Route::get('/feedbacks/{id}', [FeedbackController::class, 'show']);
+    Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
+    Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 

@@ -30,6 +30,25 @@ class MessageController extends Controller
         return $conversations;
     }
 
+    public function first_conversations()
+    {
+        $user = Auth::user();
+        $conversations = Conversation::where('user1_id', $user->id)
+            ->orWhere('user2_id', $user->id)
+            ->with(['messages' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            }])
+            ->orderByDesc(
+                Message::select('created_at')
+                    ->whereColumn('conversation_id', 'conversations.id')
+                    ->latest()
+                    ->limit(1)
+            )
+            ->first();
+
+        return $conversations;
+    }
+
     public function messages(Conversation $conversation)
     {
         return $conversation->messages()->with('sender')->get();

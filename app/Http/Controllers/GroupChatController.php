@@ -70,6 +70,45 @@ ORDER BY m.created_at DESC LIMIT 1;
         ]);
     }
 
+    public function getSpecificGroupMessages(Request $request)
+    {
+        $user = Auth::user();
+
+        $results = DB::select("
+        SELECT DISTINCT c.name, c.id
+FROM group_chats c
+LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+LEFT JOIN group_messages m ON m.group_id = c.id
+WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
+ORDER BY m.created_at DESC LIMIT 1;
+    ", [$user->id, $user->id, $user->id, $request->group_id]);
+
+        $data = [];
+
+        if (!empty($results)) {
+            $data = [
+                'id' => $results[0]->id,
+                'name' => $results[0]->name,
+            ];
+        }
+
+        $groupChat = GroupChat::where("id", $data["id"])->first();
+        // Fetch the corresponding GroupMessage records for the first GroupChat record
+        $groupMessages = GroupMessage::where('group_id', $data["id"])->get();
+
+        // Loop through the GroupMessage records and include the associated User record for each message
+        foreach ($groupMessages as $message) {
+            $message->user = User::find($message->user_id);
+        }
+
+        return response()->json([
+            'data' => [
+                'group_chat' => $groupChat,
+                'group_messages' => $groupMessages,
+            ],
+        ]);
+    }
+
     public function index()
     {
         $groupChats = GroupChat::all();
@@ -130,8 +169,6 @@ ORDER BY m.created_at DESC LIMIT 1;
         $validatedData = $request->validate([
             'name' => 'required',
         ]);
-
-        $validatedData['user_id'] = Auth::id(); // Set the user_id to the current user's ID
 
         $groupChat->update($validatedData);
 
