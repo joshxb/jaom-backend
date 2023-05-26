@@ -7,6 +7,7 @@ use App\Models\GroupUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -81,6 +82,13 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
+
+        // Check if the authenticated user is authorized to update the profile
+        if (Auth::user()->id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Perform the update
         $user->update($request->all());
         return response()->json(['data' => $user]);
     }
