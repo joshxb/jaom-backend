@@ -26,7 +26,10 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => bcrypt('joshua120629'),
             'status' => 'active',
+            'nickname' => $this->faker->userName,
             'image_blob' => null,
+            'age' => $this->faker->numberBetween(18, 60),
+            'location' => $this->faker->address(['country' => 'Philippines']),
             'remember_token' => Str::random(10),
         ];
     }

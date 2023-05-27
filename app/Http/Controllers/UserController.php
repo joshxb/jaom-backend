@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\GroupUser;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -88,9 +89,19 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Perform the update
-        $user->update($request->all());
-        return response()->json(['data' => $user]);
+        // Update the user data
+        $requestData = $request->all();
+
+        if (isset($requestData['password'])) {
+            $requestData['password'] = Hash::make($requestData['password']);
+        }
+
+        $user->update($requestData);
+
+        return response()->json([
+            'data' => $user,
+            'message' => 'Data updated successfully!',
+        ]);
     }
 
     /**
