@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\UserHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +98,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/feedbacks/{id}', [FeedbackController::class, 'show']);
     Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
+
+    Route::get('/history', [UserHistoryController::class, 'index']);
+    Route::post('/history', [UserHistoryController::class, 'store']);
+    Route::get('/history/{id}', [UserHistoryController::class, 'show']);
+    Route::delete('/history/{id}', [UserHistoryController::class, 'destroy']);
+    Route::delete('/history', [UserHistoryController::class, 'destroyAll']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
