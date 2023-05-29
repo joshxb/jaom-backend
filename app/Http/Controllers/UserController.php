@@ -63,6 +63,18 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
+
+
+        $userImage = User::find($user->id);
+        if ($userImage && $userImage->image_blob) {
+        //     $imageData = base64_decode($userImage->image_blob); // Convert base64-encoded string to binary data
+        //     $imageType = 'image/jpeg'; // Set the appropriate image MIME type
+
+        //     return response($imageData)
+        //         ->header('Content-Type', $imageType)
+        //         ->header('Content-Disposition', 'inline'); // Set the filename as needed
+        }
+
         return response()->json(['data' => $user]);
     }
 

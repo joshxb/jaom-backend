@@ -27,6 +27,11 @@ class MessageController extends Controller
             )
             ->get();
 
+        $conversations->each(function ($conversation) use ($user) {
+            $otherUserId = ($user->id === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
+            $conversation->other_user_id = $otherUserId;
+        });
+
         return $conversations;
     }
 

@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
 
     Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
+    Route::get('/other-user-image/{user_id}', [UserImagesController::class, 'getOtherUserImage']);
     Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
 
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
