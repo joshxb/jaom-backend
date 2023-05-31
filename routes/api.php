@@ -8,6 +8,7 @@ use App\Http\Controllers\GroupMessageController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\UserImagesController;
+use App\Http\Controllers\GroupChatImageController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\UserController;
@@ -45,9 +46,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // api/search-users/v2/group_id?search=xxxxx&&range=xxx
     Route::get('/search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
 
+    Route::get('/group-image/{id}', [GroupChatImageController::class, 'getGroupImage']);
     Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
     Route::get('/other-user-image/{user_id}', [UserImagesController::class, 'getOtherUserImage']);
     Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
+    Route::post('/group-image/update', [GroupChatImageController::class, 'updateGroupImage']);
 
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
     Route::get('/conversations', [MessageController::class, 'conversations']);

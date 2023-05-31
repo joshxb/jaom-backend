@@ -12,7 +12,7 @@ class GroupChat extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'user_id'];
+    protected $fillable = ['name', 'user_id', 'group_image'];
 
     public function user()
     {

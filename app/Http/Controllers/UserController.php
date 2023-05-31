@@ -64,15 +64,14 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-
         $userImage = User::find($user->id);
         if ($userImage && $userImage->image_blob) {
-        //     $imageData = base64_decode($userImage->image_blob); // Convert base64-encoded string to binary data
-        //     $imageType = 'image/jpeg'; // Set the appropriate image MIME type
+            //     $imageData = base64_decode($userImage->image_blob); // Convert base64-encoded string to binary data
+            //     $imageType = 'image/jpeg'; // Set the appropriate image MIME type
 
-        //     return response($imageData)
-        //         ->header('Content-Type', $imageType)
-        //         ->header('Content-Disposition', 'inline'); // Set the filename as needed
+            //     return response($imageData)
+            //         ->header('Content-Type', $imageType)
+            //         ->header('Content-Disposition', 'inline'); // Set the filename as needed
         }
 
         return response()->json(['data' => $user]);
@@ -142,6 +141,9 @@ class UserController extends Controller
             });
         }
 
+        // Add the 'where' condition for visibility
+        $users->where('visibility', 'visible');
+
         $total_users = $users->count();
         if (!empty($range)) {
             if ($range == 1) {
@@ -175,8 +177,10 @@ class UserController extends Controller
                 $query->where("id", "!=", $userId);
                 $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'like', '%' . $search . '%');
             }
-
         });
+
+        // Add the 'where' condition for visibility
+        $users->where('visibility', 'visible');
 
         $total_users = $users->count();
 
@@ -209,7 +213,8 @@ class UserController extends Controller
         $userIds = $groupUsers->pluck('user_id')->toArray();
 
         $users = User::whereIn("id", $userIds)
-            ->where(DB::raw("concat(firstname, ' ', lastname)"), 'like', '%' . $search . '%');
+            ->where(DB::raw("concat(firstname, ' ', lastname)"), 'like', '%' . $search . '%')
+            ->where('visibility', 'visible'); // Add the 'where' condition for visibility
 
         $total_users = $users->count();
 
