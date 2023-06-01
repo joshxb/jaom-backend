@@ -28,7 +28,7 @@ class UpdateController extends Controller
                 $query->where('user_id', '!=', $user->id)
                     ->where('permission', 'approved');
             })
-            ->orderByDesc('created_at') 
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($update) {
                 return [
@@ -72,7 +72,7 @@ class UpdateController extends Controller
         }
 
         if ($update->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Unauthorized access in this action.']);
         }
 
         return response()->json(['data' => $update]);
