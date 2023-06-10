@@ -2,20 +2,20 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConversationController;
-use App\Http\Controllers\TodoController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupChatController;
+use App\Http\Controllers\GroupChatImageController;
 use App\Http\Controllers\GroupMessageController;
 use App\Http\Controllers\GroupUserController;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\UserImagesController;
-use App\Http\Controllers\GroupChatImageController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserHistoryController;
+use App\Http\Controllers\UserImagesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\UserHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +96,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/todos/{id}', [TodoController::class, 'show']);
     Route::put('/todos/{id}', [TodoController::class, 'update']);
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
+    Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
 
     Route::get('/feedbacks', [FeedbackController::class, 'index']);
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
@@ -108,6 +109,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/history/{id}', [UserHistoryController::class, 'show']);
     Route::delete('/history/{id}', [UserHistoryController::class, 'destroy']);
     Route::delete('/history', [UserHistoryController::class, 'destroyAll']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/current', [NotificationController::class, 'currentIndex']);
+    Route::post('/notifications', [NotificationController::class, 'store']);
+    Route::get('/notifications/{id}', [NotificationController::class, 'show']);
+    Route::put('/notifications/{id}', [NotificationController::class, 'update']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+    Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 

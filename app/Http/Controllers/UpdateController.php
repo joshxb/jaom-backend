@@ -114,5 +114,4 @@ class UpdateController extends Controller
 
         return response()->json(['message' => 'Record deleted']);
     }
-
 }

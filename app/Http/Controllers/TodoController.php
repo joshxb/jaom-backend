@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Todo;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -13,8 +15,8 @@ class TodoController extends Controller
     {
         // Retrieve todos associated with the current user and order by order_created column in descending order
         $todos = Todo::where('user_id', auth()->user()->id)
-                     ->orderBy('created_at', 'DESC')
-                     ->get();
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
         return response()->json([
             'data' => [
@@ -22,7 +24,6 @@ class TodoController extends Controller
             ],
         ]);
     }
-
 
     public function store(Request $request)
     {
@@ -96,4 +97,95 @@ class TodoController extends Controller
             ],
         ]);
     }
+
+    public function checkDueDate()
+    {
+        $currentDate = date('Y-m-d'); // Get the current date
+
+        // Find todos where the due_date is equal to the current date
+        $todos = Todo::whereDate('due_date', $currentDate)->get();
+
+        if ($todos->isEmpty()) {
+            return response()->json([
+                'message' => 'No active todos found to send notifications for the current date.',
+            ]);
+        }
+
+        $result = [];
+
+        $todos->each(function ($todo) use (&$result) {
+            $notifications = Notification::where("user_id", $todo->user_id)->get();
+
+            if ($notifications->isEmpty()) {
+                return response()->json([
+                    'message' => 'No notifications yet!',
+                ]);
+            }
+
+            $notifications->each(function ($notification) use (&$result) {
+                $jsonString = $notification->notification_object;
+                $jsonString = str_replace("'", "\"", $jsonString);
+                $jsonString = str_replace("\\\"", "\"", $jsonString);
+
+                $data = json_decode($jsonString, true);
+
+                $todoId = $data['todo_id'];
+                $title = $data['title'];
+                $content = $data['content'];
+
+                if ($todoId !== null && !in_array($data, $result)) {
+                    $result[] = $data;
+                } elseif ($todoId === null) {
+                    return response()->json([
+                        'message' => 'Not a todo type notification.',
+                    ]);
+                }
+            });
+        });
+
+        $remainingTodos = $todos->reject(function ($todo) use ($result) {
+            return in_array($todo->id, array_column($result, 'todo_id'));
+        });
+
+        $remainingData = $remainingTodos->map(function ($todo) {
+            return [
+                'todo_id' => $todo->id,
+                'title' => $todo->title,
+                'content' => $todo->description,
+            ];
+        });
+
+        $newNotifications = $remainingTodos->map(function ($todo) {
+            $notificationData = [
+                'todo_id' => $todo->id,
+                'title' => $todo->title,
+                'content' => $todo->description,
+            ];
+
+            $notification = new Notification();
+            $notification->title = "hello world";
+            $notification->notification_object = json_encode([
+                'todo_id' => $todo->id,
+                'title' => 'we are on demand',
+                'content' => 'on feb we are going to create a db.',
+            ]);
+            $notification->user_id = $todo->user_id;
+            $notification->save();
+
+            return [
+                'title' => $notification->title,
+                'notification_object' => $notification->notification_object,
+                'user_id' => $notification->user_id,
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Notifications sent for in due-date todos with the current date.',
+            'data' => [
+                'inDueDateTodo' => $remainingData,
+                'newTodoNotifications' => $newNotifications,
+            ],
+        ]);
+    }
+
 }
