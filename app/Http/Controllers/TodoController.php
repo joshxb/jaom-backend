@@ -163,11 +163,11 @@ class TodoController extends Controller
             ];
 
             $notification = new Notification();
-            $notification->title = "hello world";
+            $notification->title = "Today marks the beginning of your todo task.";
             $notification->notification_object = json_encode([
                 'todo_id' => $todo->id,
-                'title' => 'we are on demand',
-                'content' => 'on feb we are going to create a db.',
+                'title' => $todo->title,
+                'content' => $todo->description,
             ]);
             $notification->user_id = $todo->user_id;
             $notification->save();
