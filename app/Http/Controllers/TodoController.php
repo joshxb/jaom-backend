@@ -106,9 +106,10 @@ class TodoController extends Controller
         $todos = Todo::whereDate('due_date', $currentDate)->get();
 
         if ($todos->isEmpty()) {
-            return response()->json([
-                'message' => 'No active todos found to send notifications for the current date.',
-            ]);
+            $result[] = [
+                'message' => 'No notifications yet!',
+            ];
+            return; // Skip to the next iteration
         }
 
         $result = [];
@@ -117,28 +118,28 @@ class TodoController extends Controller
             $notifications = Notification::where("user_id", $todo->user_id)->get();
 
             if ($notifications->isEmpty()) {
-                return response()->json([
+                $result[] = [
                     'message' => 'No notifications yet!',
-                ]);
+                ];
+                return; // Skip to the next iteration
             }
 
             $notifications->each(function ($notification) use (&$result) {
                 $jsonString = $notification->notification_object;
-                $jsonString = str_replace("'", "\"", $jsonString);
-                $jsonString = str_replace("\\\"", "\"", $jsonString);
 
-                $data = json_decode($jsonString, true);
+                $data = json_decode($jsonString, false);
 
-                $todoId = $data['todo_id'];
-                $title = $data['title'];
-                $content = $data['content'];
+                $todoId = $data->todo_id;
+                $title = $data->title;
+                $content = $data->content;
 
                 if ($todoId !== null && !in_array($data, $result)) {
                     $result[] = $data;
                 } elseif ($todoId === null) {
-                    return response()->json([
+                    $result[] = [
                         'message' => 'Not a todo type notification.',
-                    ]);
+                    ];
+                    return; // Skip to the next iteration
                 }
             });
         });

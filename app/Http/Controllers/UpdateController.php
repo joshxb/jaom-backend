@@ -36,6 +36,7 @@ class UpdateController extends Controller
                     'user_id' => $update->user_id,
                     'firstname' => $update->user->firstname,
                     'lastname' => $update->user->lastname,
+                    'nickname' => $update->user->nickname,
                     'subject' => $update->subject,
                     'content' => $update->content,
                     'permission' => $update->permission,

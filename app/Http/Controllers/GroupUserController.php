@@ -54,6 +54,7 @@ class GroupUserController extends Controller
         if (!$groupChat) {
             return response()->json([
                 'message' => 'You are not authorized to modify people from this Group Chat.',
+                'group_owner_id' => GroupChat::where("id", $request->group_id)->first()->user_id
             ]);
         }
 
@@ -61,6 +62,7 @@ class GroupUserController extends Controller
 
         return response()->json([
             'data' => $user_data,
+            'group_owner_id' => GroupChat::where("id", $request->group_id)->first()->user_id
         ]);
     }
 
