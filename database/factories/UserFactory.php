@@ -26,7 +26,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => bcrypt('joshua120629'),
             'status' => 'active',
-            'nickname' => $this->faker->userName,
+            'nickname' => $this->generateNickname(),
             'image_blob' => null,
             'age' => $this->faker->numberBetween(18, 60),
             'location' => $this->faker->address(['country' => 'Philippines']),
@@ -42,5 +42,14 @@ class UserFactory extends Factory
         return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    private function generateNickname(): string
+    {
+        $nickname = $this->faker->userName;
+        $separator = '~!@#$%^&*()-=_+[]{}|;:,.<>?';
+        $isTrue = $this->faker->boolean;
+
+        return $nickname . $separator . ($isTrue ? 'true' : 'false');
     }
 }
