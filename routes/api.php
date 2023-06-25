@@ -14,6 +14,7 @@ use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
+use App\Http\Controllers\FAQSController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +98,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/todos/{id}', [TodoController::class, 'update']);
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
     Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
+
+    Route::get('/faqs', [FAQSController::class, 'index']);
+    Route::post('/faqs', [FAQSController::class, 'store']);
+    Route::get('/faqs/{faq}', [FAQSController::class, 'show']);
+    Route::put('/faqs/{faq}', [FAQSController::class, 'update']);
+    Route::delete('/faqs/{faq}', [FAQSController::class, 'destroy']);
 
     Route::get('/feedbacks', [FeedbackController::class, 'index']);
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
