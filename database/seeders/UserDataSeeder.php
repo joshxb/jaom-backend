@@ -4,17 +4,16 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\FAQSDataSeeder;
-use Database\Seeders\UserDataSeeder;
+use App\Models\User;
 
-class FactoriesSeeder extends Seeder
+class UserDataSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $this->call(FAQSDataSeeder::class);
-        $this->call(UserDataSeeder::class);
+        User::factory()->firstUser()->count(1)->create();
+        User::factory()->count(500)->create();
     }
 }

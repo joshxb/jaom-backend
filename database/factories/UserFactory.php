@@ -6,9 +6,6 @@ use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
@@ -35,13 +32,28 @@ class UserFactory extends Factory
     }
 
     /**
+     * Define a custom state for the first user.
+     */
+    public function firstUser()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'firstname' => 'Joshua',
+                'lastname' => 'Algadipe',
+            ];
+        });
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'email_verified_at' => null,
+            ];
+        });
     }
 
     private function generateNickname(): string
