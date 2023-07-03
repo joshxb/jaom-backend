@@ -31,7 +31,7 @@ class User extends Authenticatable
         'nickname',
         'location',
         'age',
-        'visibility'
+        'visibility',
     ];
 
     /**
@@ -68,8 +68,8 @@ class User extends Authenticatable
     }
 
     public function updates()
-{
-    return $this->hasMany(Update::class);
-}
+    {
+        return $this->hasMany(Update::class);
+    }
 
 }

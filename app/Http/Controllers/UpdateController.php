@@ -11,9 +11,14 @@ use Illuminate\Support\Facades\Auth;
 class UpdateController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+
+        $per_page = $request->input('per_page', 10);
+
+        $page = $request->input('page');
+        $page = 10 * ($page - 1);
 
         $results = $user->updates()
             ->with('user')
@@ -29,6 +34,8 @@ class UpdateController extends Controller
                     ->where('permission', 'approved');
             })
             ->orderByDesc('created_at')
+            ->skip($page)
+            ->take($per_page)
             ->get()
             ->map(function ($update) {
                 return [
@@ -41,6 +48,7 @@ class UpdateController extends Controller
                     'content' => $update->content,
                     'permission' => $update->permission,
                     'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                    'max_page' => ceil(($update -> count()) / 10)
                 ];
             });
 

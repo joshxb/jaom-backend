@@ -76,6 +76,7 @@ class UserImagesController extends Controller
         ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
     }
 
+    //TODO add this feature if neccessary
     // public function deleteUserImage($user_id)
     // {
     //     $userImage = User::find($user_id);

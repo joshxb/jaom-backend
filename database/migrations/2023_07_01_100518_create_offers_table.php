@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('donates', function (Blueprint $table) {
+        Schema::create('offers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -19,9 +19,7 @@ return new class extends Migration
             $table->string('phone', 11);
             $table->string('email');
             $table->string('location');
-            $table->enum('payment_method', ['gcash', 'other'])->default('other');
-            $table->bigInteger('amount');
-            $table->longText('screenshot_img')->nullable();
+            $table->text('request');
             $table->timestamps();
         });
     }
@@ -31,7 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('donates');
+        Schema::dropIfExists('offers');
     }
 };
-
