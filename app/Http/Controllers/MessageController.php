@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
@@ -56,8 +57,23 @@ class MessageController extends Controller
 
     public function messages(Conversation $conversation)
     {
-        return $conversation->messages()->with('sender')->get();
+        $perPage = 10;
+        $totalMessages = $conversation->messages()->count();
+        $maxPage = ceil($totalMessages / $perPage);
+        $currentPage = request()->input('page') === '0' ? $maxPage : request()->input('page', $maxPage);
 
+        $messages = $conversation->messages()
+            ->with('sender')
+            ->forPage($currentPage, $perPage)
+            ->get();
+
+        return new LengthAwarePaginator(
+            $messages,
+            $totalMessages,
+            $perPage,
+            $currentPage,
+            ['path' => request()->url()]
+        );
     }
 
     public function send_messages(Request $request, Conversation $conversation)
