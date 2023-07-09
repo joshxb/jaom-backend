@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for users api**********************
     Route::get('/users', [UserController::class, 'index']);

@@ -13,28 +13,28 @@ use Illuminate\Support\Facades\Auth;
 class MessageController extends Controller
 {
     public function conversations()
-    {
-        $user = Auth::user();
-        $conversations = Conversation::where('user1_id', $user->id)
-            ->orWhere('user2_id', $user->id)
-            ->with(['messages' => function ($query) {
-                $query->orderBy('created_at', 'desc');
-            }])
-            ->orderByDesc(
-                Message::select('created_at')
-                    ->whereColumn('conversation_id', 'conversations.id')
-                    ->latest()
-                    ->limit(1)
-            )
-            ->get();
+{
+    $user = Auth::user();
+    $conversations = Conversation::where('user1_id', $user->id)
+        ->orWhere('user2_id', $user->id)
+        ->with(['messages' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }])
+        ->orderByDesc(
+            Message::select('created_at')
+                ->whereColumn('conversation_id', 'conversations.id')
+                ->latest()
+                ->limit(1)
+        )
+        ->paginate(10); // Pagination with 10 items per page
 
-        $conversations->each(function ($conversation) use ($user) {
-            $otherUserId = ($user->id === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
-            $conversation->other_user_id = $otherUserId;
-        });
+    $conversations->getCollection()->each(function ($conversation) use ($user) {
+        $otherUserId = ($user->id === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
+        $conversation->other_user_id = $otherUserId;
+    });
 
-        return $conversations;
-    }
+    return $conversations;
+}
 
     public function first_conversations()
     {
