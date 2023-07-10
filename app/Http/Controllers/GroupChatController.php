@@ -19,11 +19,11 @@ class GroupChatController extends Controller
 
         $results = DB::select("
         SELECT DISTINCT c.name, c.id
-FROM group_chats c
-LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-LEFT JOIN group_messages m ON m.group_id = c.id
-WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
-ORDER BY m.created_at DESC;
+        FROM group_chats c
+        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+        LEFT JOIN group_messages m ON m.group_id = c.id
+        WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
+        ORDER BY m.created_at DESC;
     ", [$user->id, $user->id, $user->id]);
 
         return response()->json([
@@ -31,17 +31,18 @@ ORDER BY m.created_at DESC;
         ]);
     }
 
-    public function getFirstGroupMessages()
+    public function getFirstGroupMessages(Request $request)
     {
         $user = Auth::user();
 
         $results = DB::select("
         SELECT DISTINCT c.name, c.id
-FROM group_chats c
-LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-LEFT JOIN group_messages m ON m.group_id = c.id
-WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
-ORDER BY m.created_at DESC LIMIT 1;
+        FROM group_chats c
+        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+        LEFT JOIN group_messages m ON m.group_id = c.id
+        WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
+        ORDER BY m.created_at DESC
+        LIMIT 1;
     ", [$user->id, $user->id, $user->id]);
 
         $data = [];
@@ -55,7 +56,15 @@ ORDER BY m.created_at DESC LIMIT 1;
 
         $groupChat = GroupChat::where("id", $data["id"])->first();
         // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $groupMessages = GroupMessage::where('group_id', $data["id"])->get();
+        $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
+        $perPage = 20;
+
+        $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
+
+        if ($page == 0 || !$page) {
+            $page = $groupMessages->lastPage();
+            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // Loop through the GroupMessage records and include the associated User record for each message
         foreach ($groupMessages as $message) {
@@ -76,11 +85,12 @@ ORDER BY m.created_at DESC LIMIT 1;
 
         $results = DB::select("
         SELECT DISTINCT c.name, c.id
-FROM group_chats c
-LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-LEFT JOIN group_messages m ON m.group_id = c.id
-WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-ORDER BY m.created_at DESC LIMIT 1;
+        FROM group_chats c
+        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+        LEFT JOIN group_messages m ON m.group_id = c.id
+        WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
+        ORDER BY m.created_at DESC
+        LIMIT 1;
     ", [$user->id, $user->id, $user->id, $request->group_id]);
 
         $data = [];
@@ -94,7 +104,15 @@ ORDER BY m.created_at DESC LIMIT 1;
 
         $groupChat = GroupChat::where("id", $data["id"])->first();
         // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $groupMessages = GroupMessage::where('group_id', $data["id"])->get();
+        $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
+        $perPage = 20;
+
+        $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
+
+        if ($page == 0 || !$page) {
+            $page = $groupMessages->lastPage();
+            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // Loop through the GroupMessage records and include the associated User record for each message
         foreach ($groupMessages as $message) {
