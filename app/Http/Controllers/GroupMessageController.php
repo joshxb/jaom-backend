@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\GroupMessage;
 use App\Models\GroupChat;
+use App\Models\GroupMessage;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class GroupMessageController extends Controller
 {
-    public function getGroupMessagesWithUsers($groupId)
+    public function getGroupMessagesWithUsers(Request $request, $groupId)
     {
         // Fetch the first GroupChat record associated with the current user
         $groupChat = GroupChat::where('id', $groupId)->first();
@@ -22,8 +22,15 @@ class GroupMessageController extends Controller
             ], 404);
         }
 
-        // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $groupMessages = GroupMessage::where('group_id', $groupId)->get();
+        $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
+        $perPage = 20;
+
+        $groupMessages = GroupMessage::where('group_id', $groupId)->paginate($perPage);
+
+        if ($page == 0 || !$page) {
+            $page = $groupMessages->lastPage();
+            $groupMessages = GroupMessage::where('group_id', $groupId)->paginate($perPage, ['*'], 'page', $page);
+        }
 
         // Loop through the GroupMessage records and include the associated User record for each message
         foreach ($groupMessages as $message) {
