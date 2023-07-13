@@ -93,7 +93,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::get('/group_messages/{group_message}', [GroupMessageController::class, 'show']);
     Route::post('/group_messages', [GroupMessageController::class, 'store']);
     Route::put('/group_messages/{group_message}', [GroupMessageController::class, 'update']);
-    Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'destroy']);
+    Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
 
       //******************for current user updates api**********************
     Route::get('/updates/current_user', [UpdateController::class, 'index']);

@@ -91,7 +91,27 @@ class GroupMessageController extends Controller
         $groupMessage->delete();
 
         return response()->json([
-            'message' => 'Group message deleted successfully.',
+            'message' => 'Group messages deleted successfully.',
+        ]);
+    }
+
+    public function deleteGroupMessages($groupId)
+    {
+        // Fetch the GroupChat record associated with the current user and the specified group ID
+        $groupChat = GroupChat::where('id', $groupId)->first();
+
+        // If no matching GroupChat record is found, return an error response
+        if (!$groupChat) {
+            return response()->json([
+                'error' => 'No GroupChat record found for the current user.',
+            ], 404);
+        }
+
+        // Delete all GroupMessage records associated with the group
+        GroupMessage::where('group_id', $groupId)->delete();
+
+        return response()->json([
+            'message' => 'All group messages have been deleted successfully.',
         ]);
     }
 
