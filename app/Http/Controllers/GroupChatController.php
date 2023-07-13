@@ -17,17 +17,38 @@ class GroupChatController extends Controller
     {
         $user = Auth::user();
 
-        $results = DB::select("
-        SELECT DISTINCT c.name, c.id
-        FROM group_chats c
-        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-        LEFT JOIN group_messages m ON m.group_id = c.id
-        WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
-        ORDER BY m.created_at DESC;
-    ", [$user->id, $user->id, $user->id]);
+        $perPage = 5;
+
+        $results = GroupChat::selectRaw('DISTINCT c.name, c.id')
+            ->from('group_chats as c')
+            ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
+            ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
+            ->where('c.user_id', $user->id)
+            ->orWhere(function ($query) use ($user) {
+                $query->where('u.user_id', $user->id)
+                    ->where('c.user_id', '!=', $user->id);
+            })
+            ->orderBy('m.created_at', 'DESC')
+            ->paginate($perPage);
+
+            $result2 = GroupChat::selectRaw('DISTINCT c.name, c.id')
+            ->from('group_chats as c')
+            ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
+            ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
+            ->where('c.user_id', $user->id)
+            ->orWhere(function ($query) use ($user) {
+                $query->where('u.user_id', $user->id)
+                    ->where('c.user_id', '!=', $user->id);
+            })
+            ->orderBy('m.created_at', 'DESC')->get();
 
         return response()->json([
-            'data' => $results,
+            'data' => $results->items(),
+            'meta' => [
+                'current_page' => $results->currentPage(),
+                'per_page' => $results->perPage(),
+                'last_page' => ceil($result2->count() / $perPage),
+            ],
         ]);
     }
 
