@@ -33,7 +33,7 @@ class UserHistoryController extends Controller
         $user = Auth::user();
 
         // If the user is authenticated, retrieve all user_history records belonging to the current user in descending order by 'created_at'
-        $userHistories = $user ? UserHistory::where('user_id', $user->id)->orderBy('created_at', 'desc')->get() : null;
+        $userHistories = $user ? UserHistory::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate(20) : null;
 
         if (!$userHistories) {
             return response()->json(['error' => 'User history not found.'], 404);
