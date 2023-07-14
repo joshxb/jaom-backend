@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('api/hello', function () {
+Route::get('ai/hello', function () {
     return view('welcome');
 });
 
