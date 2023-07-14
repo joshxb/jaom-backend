@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('ai/hello', function () {
+Route::get('jaom-server', function () {
     return view('welcome');
 });
 
