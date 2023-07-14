@@ -1,12 +1,12 @@
-  {
+{
     "version": 2,
-    "functions": {
-        "api/index.php": { "runtime": "vercel-php@0.5.2" }
-    },
-    "routes": [{
-        "src": "/(.*)",
-        "dest": "/public/index.php"
-    }],
+    "builds": [{ "src": "public/**/*", "use": "@vercel/static-build" }],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/public/index.php"
+        }
+    ],
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "false",
