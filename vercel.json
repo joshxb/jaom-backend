@@ -1,11 +1,7 @@
 {
     "version": 2,
     "builds": [
-      {
-        "src": "public/index.php",
-        "use": "@vercel/static-build",
-        "config": { "zeroConfig": true }
-      }
+      { "src": "package.json", "use": "@vercel/static-build" }
     ],
     "routes": [
       { "src": "/(.*)", "dest": "/public/index.php" }
