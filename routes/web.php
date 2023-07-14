@@ -36,9 +36,7 @@ Route::get('ai/hello', function () {
     return view('welcome');
 });
 
-Route::post('api-v1/login', [AuthController::class, 'login']);
-
-Route::prefix('api')->group(function () {
+Route::prefix('api-v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     // Add all your API routes here
