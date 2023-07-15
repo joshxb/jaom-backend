@@ -3,15 +3,10 @@
     "functions": {
         "api/index.php": { "runtime": "vercel-php@0.5.2" }
     },
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/"
-        },
-        {
-            "src": "/api/(.*)",
-            "dest": "/api/$1"
-        }
+    "routes": [{
+        "src": "/(.*)",
+        "dest": "/api/index.php"},
+        { "src": "/api/(.*)", "dest": "routes/api.php" }
     ],
     "env": {
         "APP_ENV": "production",
