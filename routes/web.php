@@ -36,6 +36,9 @@ Route::get('jaom-server', function () {
     return view('welcome');
 });
 
+// Include the API routes
+require __DIR__.'/api.php';
+
 Route::prefix('api-v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
