@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -27,13 +28,13 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    public function getToken(Request $request)
+    public function checkToken(Request $request)
     {
-        // Get the token from the request headers
-        $token = $request->header('Authorization');
+        // Check if the user is authenticated
+        if (Auth::check()) {
+            return response()->json(['valid' => true]);
+        }
 
-        return response()->json(['token' => $token]);
+        return response()->json(['message' => 'User not authenticated or token expired.'], 401);
     }
-
-    
 }

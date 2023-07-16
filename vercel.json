@@ -23,5 +23,9 @@
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie"
-    }
+    },
+    "crons": [{
+        "path": "/api/due_date/todos",
+        "schedule": "0 6,18 * * *"
+    }]
 }
