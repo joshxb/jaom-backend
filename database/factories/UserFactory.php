@@ -40,6 +40,8 @@ class UserFactory extends Factory
             return [
                 'firstname' => 'Joshua',
                 'lastname' => 'Algadipe',
+                'email' => 'joshua@gmail.com',
+                'phone' => '09319127640'
             ];
         });
     }

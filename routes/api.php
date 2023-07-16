@@ -108,7 +108,6 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::get('/todos/{id}', [TodoController::class, 'show']);
     Route::put('/todos/{id}', [TodoController::class, 'update']);
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
-    Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
 
       //******************for faqs api**********************
     Route::get('/faqs', [FAQSController::class, 'index']);
@@ -162,6 +161,9 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
 });
+
+//can update every minutes
+Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
