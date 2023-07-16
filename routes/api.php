@@ -158,14 +158,13 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/offer/{id}', [OfferController::class, 'destroy']);
     Route::delete('/offer', [OfferController::class, 'destroyAll']);
 
-    Route::get('/check/token', [AuthController::class, 'checkToken']);
-
     Route::post('/logout', [AuthController::class, 'logout']);
 
 });
 
 //can update every minutes
 Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
