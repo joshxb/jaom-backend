@@ -51,14 +51,14 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     // api/search-users/v2/group_id?search=xxxxx&&range=xxx
     Route::get('/search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
 
-      //******************for room api**********************
+    //******************for room api**********************
     Route::get('/group-image/{id}', [GroupChatImageController::class, 'getGroupImage']);
     Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
     Route::get('/other-user-image/{user_id}', [UserImagesController::class, 'getOtherUserImage']);
     Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
     Route::post('/group-image/update', [GroupChatImageController::class, 'updateGroupImage']);
 
-      //******************for conversations api**********************
+    //******************for conversations api**********************
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
     Route::get('/conversations', [MessageController::class, 'conversations']);
     Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
@@ -69,7 +69,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::get('/conversations/{conversation}/other-user-id', [ConversationController::class, 'getOtherUserId']);
     Route::get('/conversations/newest/id', [ConversationController::class, 'getFirstConversationId']);
 
-      //******************for groupchats api**********************
+    //******************for groupchats api**********************
     Route::get('/group_chats', [GroupChatController::class, 'index']);
     Route::get('/group_chats/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
     Route::get('/first-group-messages', [GroupChatController::class, 'getFirstGroupMessages']);
@@ -80,14 +80,14 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/group_chats/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
     Route::post('/group_chats/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
 
-      //******************for group-users api**********************
+    //******************for group-users api**********************
     Route::get('/group_users', [GroupUserController::class, 'index']);
     Route::post('/group_users', [GroupUserController::class, 'store']);
     Route::get('/group_users/{group_id}', [GroupUserController::class, 'show']);
     Route::put('/group_users/{groupUser}', [GroupUserController::class, 'update']);
     Route::delete('/group_users/{groupUser}', [GroupUserController::class, 'destroy']);
 
-      //******************for groupchats api**********************
+    //******************for groupchats api**********************
     Route::get('/group-chats/{groupId}/messages', [GroupMessageController::class, 'getGroupMessagesWithUsers']);
     Route::get('/group_messages', [GroupMessageController::class, 'index']);
     Route::get('/group_messages/{group_message}', [GroupMessageController::class, 'show']);
@@ -95,42 +95,42 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::put('/group_messages/{group_message}', [GroupMessageController::class, 'update']);
     Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
 
-      //******************for current user updates api**********************
+    //******************for current user updates api**********************
     Route::get('/updates/current_user', [UpdateController::class, 'index']);
     Route::post('/updates/current_user', [UpdateController::class, 'store']);
     Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
     Route::put('/updates/{id}/current_user', [UpdateController::class, 'update']);
     Route::delete('/updates/{id}/current_user', [UpdateController::class, 'destroy']);
 
-      //******************for todo-task api**********************
+    //******************for todo-task api**********************
     Route::get('/todos', [TodoController::class, 'index']);
     Route::post('/todos', [TodoController::class, 'store']);
     Route::get('/todos/{id}', [TodoController::class, 'show']);
     Route::put('/todos/{id}', [TodoController::class, 'update']);
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
 
-      //******************for faqs api**********************
+    //******************for faqs api**********************
     Route::get('/faqs', [FAQSController::class, 'index']);
     Route::post('/faqs', [FAQSController::class, 'store']);
     Route::get('/faqs/{faq}', [FAQSController::class, 'show']);
     Route::put('/faqs/{faq}', [FAQSController::class, 'update']);
     Route::delete('/faqs/{faq}', [FAQSController::class, 'destroy']);
 
-      //******************for feedbacks api**********************
+    //******************for feedbacks api**********************
     Route::get('/feedbacks', [FeedbackController::class, 'index']);
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
     Route::get('/feedbacks/{id}', [FeedbackController::class, 'show']);
     Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 
-      //******************for history api**********************
+    //******************for history api**********************
     Route::get('/history', [UserHistoryController::class, 'index']);
     Route::post('/history', [UserHistoryController::class, 'store']);
     Route::get('/history/{id}', [UserHistoryController::class, 'show']);
     Route::delete('/history/{id}', [UserHistoryController::class, 'destroy']);
     Route::delete('/history', [UserHistoryController::class, 'destroyAll']);
 
-      //******************for notifications api**********************
+    //******************for notifications api**********************
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/current', [NotificationController::class, 'currentIndex']);
     Route::post('/notifications', [NotificationController::class, 'store']);
@@ -139,7 +139,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
     Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
-      //******************for transactions api**********************
+    //******************for transactions api**********************
     //transactions/donate?per_page=2&page=1
     Route::get('/transactions/donate', [DonateTransactionsController::class, 'index']);
     Route::post('/transactions/donate', [DonateTransactionsController::class, 'store']);
@@ -158,12 +158,12 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/offer/{id}', [OfferController::class, 'destroy']);
     Route::delete('/offer', [OfferController::class, 'destroyAll']);
 
+    //can update every minutes
+    Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
 });
-
-//can update every minutes
-Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
