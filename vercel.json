@@ -26,6 +26,6 @@
     },
     "crons": [{
         "path": "/api/due_date/todos",
-        "schedule": "0 6,18 * * *"
+        "schedule": "0 7,19 * * *"
     }]
 }
