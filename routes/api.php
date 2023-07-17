@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/conversations/{conversation}/message/v2', [MessageController::class, 'clearMessages']);
     Route::get('/conversations/{conversation}/other-user-id', [ConversationController::class, 'getOtherUserId']);
     Route::get('/conversations/newest/id', [ConversationController::class, 'getFirstConversationId']);
+    Route::put('/active/left_convo', [ConversationController::class, 'updateActiveLeftConvo']);
 
     //******************for groupchats api**********************
     Route::get('/group_chats', [GroupChatController::class, 'index']);

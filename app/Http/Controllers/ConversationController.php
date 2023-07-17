@@ -82,4 +82,35 @@ class ConversationController extends Controller
         ], 201);
     }
 
+    public function updateActiveLeftConvo(Request $request)
+    {
+        $user = Auth::user();
+
+        $validatedData = $request->validate([
+            'messages_count' => 'required|integer',
+            'id' => 'required|integer',
+        ]);
+
+        $conversation = Conversation::where('id', $validatedData['id'])->where('user1_id', $user->id)->first();
+
+        if ($conversation) {
+            $conversation->update([
+                'user1_left_count' => $validatedData['messages_count'],
+            ]);
+
+            return response()->json(['message' => 'updated successfully']);
+        } else {
+            $conversation = Conversation::where('id', $validatedData['id'])->where('user2_id', $user->id)->first();
+
+            if ($conversation) {
+                $conversation->update([
+                    'user2_left_count' => $validatedData['messages_count'],
+                ]);
+
+                return response()->json(['message' => 'updated successfully']);
+            } else {
+                return response()->json(['error' => 'Conversation not found'], 404);
+            }
+        }
+    }
 }

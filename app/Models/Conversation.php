@@ -11,6 +11,11 @@ class Conversation extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user1_left_count',
+        'user2_left_count',
+    ];
+
     public function participants()
     {
         return $this->belongsToMany(User::class, 'conversation_user');
