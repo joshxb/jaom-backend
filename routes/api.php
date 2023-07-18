@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
     Route::delete('/group_chats/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
     Route::post('/group_chats/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
+    Route::put('/active/left_group_convo', [GroupChatController::class, 'updateActiveLeftGroupConvo']);
 
     //******************for group-users api**********************
     Route::get('/group_users', [GroupUserController::class, 'index']);

@@ -12,7 +12,7 @@ class GroupChat extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'user_id', 'group_image'];
+    protected $fillable = ['name', 'user_id', 'group_image', 'left_active_count'];
 
     public function user()
     {
@@ -28,5 +28,4 @@ class GroupChat extends Model
     {
         return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
     }
-
 }

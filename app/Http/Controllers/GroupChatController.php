@@ -19,7 +19,7 @@ class GroupChatController extends Controller
 
         $perPage = 5;
 
-        $results = GroupChat::selectRaw('DISTINCT c.name, c.id')
+        $results = GroupChat::selectRaw('DISTINCT c.name, c.user_id, c.id, c.left_active_count')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
@@ -31,7 +31,7 @@ class GroupChatController extends Controller
             ->orderBy('m.created_at', 'DESC')
             ->paginate($perPage);
 
-            $result2 = GroupChat::selectRaw('DISTINCT c.name, c.id')
+        $result2 = GroupChat::selectRaw('DISTINCT c.id')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
@@ -42,6 +42,13 @@ class GroupChatController extends Controller
             })
             ->orderBy('m.created_at', 'DESC')->get();
 
+        $results->each(function ($item) {
+            $item->total_messages = $this->getTotalMessages($item->id);
+            if ($item->user_id !== Auth::user()->id) {
+                $item->left_active_count = $this->getLeftActiveCount($item->id);
+            }
+        });
+
         return response()->json([
             'data' => $results->items(),
             'meta' => [
@@ -50,6 +57,18 @@ class GroupChatController extends Controller
                 'last_page' => ceil($result2->count() / $perPage),
             ],
         ]);
+    }
+
+    private function getTotalMessages($groupId)
+    {
+        return GroupMessage::where('group_id', $groupId)->count();
+    }
+
+    private function getLeftActiveCount($groupId)
+    {
+        return GroupUser::select('left_active_count')
+            ->where('group_id', $groupId)
+            ->first()->left_active_count;
     }
 
     public function getFirstGroupMessages(Request $request)
@@ -261,4 +280,35 @@ class GroupChatController extends Controller
         ]);
     }
 
+    public function updateActiveLeftGroupConvo(Request $request)
+    {
+        $user = Auth::user();
+
+        $validatedData = $request->validate([
+            'messages_count' => 'required|integer',
+            'id' => 'required|integer',
+        ]);
+
+        $groupChat = GroupChat::where('id', $validatedData['id'])->where('user_id', $user->id)->first();
+
+        if ($groupChat) {
+            $groupChat->update([
+                'left_active_count' => $validatedData['messages_count'],
+            ]);
+
+            return response()->json(['message' => 'updated successfully']);
+        } else {
+            $groupUser = GroupUser::where('group_id', $validatedData['id'])->where('user_id', $user->id)->first();
+
+            if ($groupUser) {
+                $groupUser->update([
+                    'left_active_count' => $validatedData['messages_count'],
+                ]);
+
+                return response()->json(['message' => 'updated successfully']);
+            } else {
+                return response()->json(['error' => 'Group Conversation not found'], 404);
+            }
+        }
+    }
 }
