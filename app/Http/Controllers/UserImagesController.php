@@ -75,17 +75,4 @@ class UserImagesController extends Controller
             'message' => 'Image updated successfully.',
         ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
     }
-
-    //TODO add this feature if neccessary
-    // public function deleteUserImage($user_id)
-    // {
-    //     $userImage = User::find($user_id);
-
-    //     if (!$userImage) {
-    //         return response()->json(['error' => 'Image not found.']);
-    //     }
-
-    //     $userImage->delete();
-    //     return response()->json(['success' => 'Image deleted successfully.']);
-    // }
 }

@@ -3,12 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DonateTransactions;
+use App\Models\Feedback;
+use App\Models\GroupChat;
+use App\Models\GroupMessage;
 use App\Models\GroupUser;
+use App\Models\Message;
+use App\Models\Notification;
+use App\Models\Offer;
+use App\Models\Todo;
+use App\Models\Update;
 use App\Models\User;
+use App\Models\UserHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use App\Models\Conversation;
 
 class UserController extends Controller
 {
@@ -50,7 +62,40 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = User::create($request->all());
+        $validatedData = $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'phone' => 'required|string|max:15|unique:users,phone',
+            'password' => 'required|string|min:5',
+            'type' => 'nullable|string',
+            'image' => 'nullable|string',
+            'nickname' => 'nullable|string|max:50',
+            'location' => 'required|string|max:255',
+            'age' => 'required|integer|min:0|max:150',
+            'visibility' => 'nullable|string',
+            'status' => 'nullable|string',
+        ]);
+
+        $validatedData['type'] = 'local';
+        $validatedData['visibility'] = 'visible';
+        $validatedData['status'] = 'active';
+
+        // Set default value for 'nickname' if not provided in the request
+        $validatedData['nickname'] = '~!@#$%^&*()-=_+[]{}|;:,.<>?false';
+
+        // Format the phone number to Philippine format
+        $formattedPhone = '0' . substr(preg_replace('/[^0-9]/', '', $validatedData['phone']), -10);
+        $validatedData['phone'] = $formattedPhone;
+
+        // Hash the password before storing it using bcrypt()
+        $hashedPassword = bcrypt($validatedData['password']);
+        $validatedData['password'] = $hashedPassword;
+
+        $validatedData['email_verified_at'] = null;
+
+        $user = User::create($validatedData);
+
         return response()->json(['data' => $user], 201);
     }
 
@@ -124,8 +169,31 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
+
+        if (Auth::user()->id !== $id) {
+            return response()->json(['message' => 'Unauthorized for deleting other account'], 401);
+        }
+        
+        Conversation::where('user1_id', $id)
+            ->orWhere('user2_id', $id)
+            ->delete();
+
+        DonateTransactions::where("user_id", $id)
+            ->delete();
+
+        Feedback::where("user_id", $id)->delete();
+        GroupChat::where("user_id", $id)->delete();
+        GroupMessage::where("user_id", $id)->delete();
+        GroupUser::where("user_id", $id)->delete();
+        Message::where("sender_id", $id)->delete();
+        Notification::where("user_id", $id)->delete();
+        Offer::where("user_id", $id)->delete();
+        Todo::where("user_id", $id)->delete();
+        Update::where("user_id", $id)->delete();
+        UserHistory::where("user_id", $id)->delete();
+
         $user->delete();
-        return response()->json(['message' => 'User deleted']);
+        return response()->json(['message' => 'User deleted successfully']);
     }
 
     public function searchUsers(Request $request)
