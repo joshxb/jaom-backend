@@ -20,6 +20,8 @@ use App\Http\Controllers\DonationImageController;
 use App\Http\Controllers\OfferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificationEmail;
 
 /*
 |--------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EmailVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,8 @@ Route::get('/', function () {
 Route::get('/email-verification', function () {
     return view('email_verification');
 });
+
+Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
 
 // Include the API routes
 require __DIR__.'/api.php';
