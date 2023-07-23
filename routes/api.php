@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     // api/users/user-range?range=xxxxx
     Route::get('/users/user-range', [UserController::class, 'userRange']);
+    //  api/users/?base=l or api/users/?base=d
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::put('/users/{id}', [UserController::class, 'update']);

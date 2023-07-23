@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationEmail;
@@ -9,17 +10,17 @@ use App\Mail\VerificationEmail;
 
 class EmailVerificationController extends Controller
 {
-    public function verifyEmail($email)
+    public function verifyEmail(Request $request)
     {
-        // Perform the email verification logic here.
-        // You can mark the email as verified in your database or perform any other actions required.
-
-        // For this example, we'll just send the verification email again as you did in the original code.
+        $name = $request->input('name');
+        $email = $request->input('email');
+        //values : local = l, deployment = d
+        $base = $request->input('base');
 
         $userData = [
-            'name' => 'Joshua Algadipe',
+            'name' =>  $name,
             'email' => $email,
-            // Add other user data here if needed
+            'base' => $base
         ];
 
         Mail::to($userData['email'])->send(new VerificationEmail($userData));
@@ -28,5 +29,23 @@ class EmailVerificationController extends Controller
         return response()->json([
             'success' => true
         ], 200);
+    }
+
+    public function verifyEmailSent($email, $base)
+    {
+        $local = env('F_LOCAL_BASE_URL');
+        $deploy = env('F_DEPLOYMENT_BASE_URL');
+
+        $url = ($base == "l") ? $local : (($base == "d") ? $deploy : $local);
+
+        $user = User::where('email', $email)->where('email_verified_at', null)->first();
+        if ($user) {
+            User::where('email', $email)->update([
+                "email_verified_at" => now()
+            ]);
+            return redirect($url."/email-verification-success");
+        } else {
+            return redirect($url."/email-verification-exist");
+        }
     }
 }

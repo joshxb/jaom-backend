@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Email Verification - JAO Ministry</title>
-    <link rel="icon" type="image/x-icon" href="https://github.com/joshxb/jaom-angular/blob/main/src/assets/favicon.png?raw=true">
+    <link rel="icon" type="image/x-icon"
+        href="https://github.com/joshxb/jaom-angular/blob/main/src/assets/favicon.png?raw=true">
     <style>
         /* Inline CSS Styles */
         .btn-hover-effect:hover {
@@ -48,7 +50,7 @@
             word-wrap: break-word;
             background-color: #fff;
             background-clip: border-box;
-            border: 1px solid rgba(0,0,0,.125);
+            border: 1px solid rgba(0, 0, 0, .125);
             border-radius: .25rem;
         }
 
@@ -60,7 +62,7 @@
             padding: .75rem 1.25rem;
             margin-bottom: 0;
             background-color: rgba(16, 136, 152, 0.866);
-            border-bottom: 1px solid rgba(0,0,0,.125);
+            border-bottom: 1px solid rgba(0, 0, 0, .125);
             color: white;
             text-align: center;
             font-size: 20px;
@@ -114,9 +116,9 @@
                     </div>
                     <div class="card-body">
                         <p>
-                            Hello <b>{{$user['name']}}<b>,
+                            Hello <b>{{ $user['name'] }}<b>,
                         </p>
-                        <p>
+                        <p style="text-indent: 25px">
                             Welcome to JAO Ministry! We are excited to have you as part of our online group ministry. To
                             create a safe and secure environment for all our members, we kindly request you to complete
                             your registration by verifying your email address. Verifying your email ensures that we can
@@ -126,9 +128,19 @@
                             Please take a moment to click the button below to verify your email address:
                         </p>
                         <p>
-                            <a style="cursor: pointer;color: #fff" href="youtube.com" class="btn btn-success btn-hover-effect">
-                                Verify Email Address
-                            </a>
+                            @if ($user['base'] == 'l')
+                                <a style="cursor: pointer;color: #fff"
+                                    href="{{ env('LOCAL_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{$user['base']}}"
+                                    class="btn btn-success btn-hover-effect">
+                                    Verify Email Address
+                                </a>
+                            @elseif ($user['base'] == 'd')
+                                <a style="cursor: pointer;color: #fff"
+                                    href="{{ env('DEPLOYMENT_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{$user['base']}}"
+                                    class="btn btn-success btn-hover-effect">
+                                    Verify Email Address
+                                </a>
+                            @endif
                         </p>
                         <p>
                             If you did not sign up for an account with JAO Ministry, you can safely ignore this email.
@@ -145,4 +157,5 @@
         </div>
     </div>
 </body>
+
 </html>

@@ -29,7 +29,7 @@ class VerificationEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Verification Email',
+            subject: 'Email Verification',
         );
     }
 
@@ -39,13 +39,8 @@ class VerificationEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: '',
+            view: 'email_verification',
         );
-    }
-
-    public function build()
-    {
-        return $this->view('email_verification');
     }
 
     /**

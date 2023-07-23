@@ -13,15 +13,9 @@ use App\Http\Controllers\EmailVerificationController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/email-verification', function () {
-    return view('email_verification');
-});
-
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
+
+Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
 
 // Include the API routes
 require __DIR__.'/api.php';

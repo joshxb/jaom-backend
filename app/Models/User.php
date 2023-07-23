@@ -33,6 +33,7 @@ class User extends Authenticatable
         'location',
         'age',
         'visibility',
+        'email_verified_at'
     ];
 
     /**

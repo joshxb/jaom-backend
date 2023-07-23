@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Conversation;
+use Illuminate\Support\Facades\Route;
 
 class UserController extends Controller
 {
@@ -94,14 +95,27 @@ class UserController extends Controller
 
         $validatedData['email_verified_at'] = null;
 
-        $user = User::create($validatedData);
+        $base = $request->input('base', "l");
+        $requestData = [
+            'email' => $validatedData['email'],
+            'name' => $validatedData['firstname'] . " " . $validatedData['lastname'],
+            'base' => $base
+        ];
 
-        return response()->json(['data' => $user], 201);
+        // Create a new instance of Request with the data
+        $request = Request::create('/verify_email/' . $validatedData['email'], 'POST', $requestData);
+
+        // Dispatch the new request to call the verifyEmail method with the user's email and name
+        $response = app()->handle($request);
+
+        if ($response->getStatusCode() === 200) {
+            $user = User::create($validatedData);
+            return response()->json(['data' => $user], 201);
+        } else {
+            return response()->json(['error' => 'Email verification failed'], 400);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $user = User::find($id);
@@ -173,7 +187,7 @@ class UserController extends Controller
         if (Auth::user()->id !== $id) {
             return response()->json(['message' => 'Unauthorized for deleting other account'], 401);
         }
-        
+
         Conversation::where('user1_id', $id)
             ->orWhere('user2_id', $id)
             ->delete();
