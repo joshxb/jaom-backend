@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OfferPrayerMail;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationController extends Controller
 {
@@ -86,7 +88,34 @@ class NotificationController extends Controller
                         'title' => $request->name,
                         'content' => $request->content,
                     ]);
+                } else if ($request->type == "successAddDonationNotification") {
+                    $notification->title = "Donation's Transaction Notification";
+                    $notification->notification_object = json_encode([
+                        'todo_id' => null,
+                        'title' => "Hello there, " . $request->name . ",",
+                        'content' => "We have successfully processed and recorded your donation's transaction to the ministry. Thank you so much for your generous support to
+                        our ministry and we appreciate this all a lot from you.",
+                    ]);
+                } else if ($request->type == "successAddOfferNotification") {
+                    $notification->title = "Prayer Offer Request Notification";
+                    $notification->notification_object = json_encode([
+                        'todo_id' => null,
+                        'title' => "Hi " . Auth::user()->firstname . " " .Auth::user()->lastname . ",",
+                        'content' => "Your prayer offer was now successfully sent to the ministry."
+                    ]);
+
+                    $userData = [
+                        'name' =>  (Auth::user()->firstname . " " .Auth::user()->lastname),
+                        'name2' => $request->name,
+                        'email' => $request->email,
+                        'phone' => $request->phone,
+                        'address' => $request->address,
+                        'offer' => $request->offer
+                    ];
+
+                    Mail::to($userData['email'])->send(new OfferPrayerMail($userData));
                 }
+
                 $notification->user_id = $user_id;
                 $notification->save();
 

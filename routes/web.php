@@ -13,6 +13,10 @@ use App\Http\Controllers\EmailVerificationController;
 |
 */
 
+Route::get('/prayer-offer-request', function() {
+    return view('prayer_offer');
+});
+
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
 
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
