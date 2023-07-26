@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\BibleGeneratorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,13 +14,15 @@ use App\Http\Controllers\EmailVerificationController;
 |
 */
 
-Route::get('/prayer-offer-request', function() {
-    return view('prayer_offer');
+//testing for blade template
+Route::get('/bible-offer', function() {
+    return view('bible_quote');
 });
 
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
 
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
 
+Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote']);
 // Include the API routes
 require __DIR__.'/api.php';

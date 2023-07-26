@@ -41,6 +41,8 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+$app->register(Djunehor\Logos\BibleServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ab1d5179dad14e21334f079c152c2c6",
+    "content-hash": "f84834ddac6b6bc0b82fb5ef8c99f827",
     "packages": [
         {
             "name": "brick/math",
@@ -135,6 +135,77 @@
                 "source": "https://github.com/dflydev/dflydev-dot-access-data/tree/v3.0.2"
             },
             "time": "2022-10-27T11:44:00+00:00"
+        },
+        {
+            "name": "djunehor/laravel-bible",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/djunehor/laravel-bible.git",
+                "reference": "c82b25ee506ed49ff8e549c3487a12aca869d7c2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/djunehor/laravel-bible/zipball/c82b25ee506ed49ff8e549c3487a12aca869d7c2",
+                "reference": "c82b25ee506ed49ff8e549c3487a12aca869d7c2",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0|>=7.2"
+            },
+            "require-dev": {
+                "illuminate/contracts": "^5.8.15|^6.0",
+                "illuminate/database": "^5.8.15|^6.0",
+                "illuminate/filesystem": "^5.8.15|^6.0",
+                "illuminate/support": "^5.8.15|^6.0",
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "3.8.*|4.*",
+                "phpunit/phpunit": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Djunehor\\Logos\\BibleServiceProvider"
+                    ],
+                    "aliases": {
+                        "Grammar": "Djunehor\\Logos\\Facades\\BibleFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Helpers/helpers.php"
+                ],
+                "psr-4": {
+                    "Djunehor\\Logos\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Zacchaeus Bolaji",
+                    "email": "djunehor@gmail.com"
+                }
+            ],
+            "description": "Laravel package to fetch from the Holy Bible",
+            "keywords": [
+                "bible",
+                "djunehor",
+                "king james version",
+                "kjv",
+                "laravel",
+                "laravel-package",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/djunehor/laravel-bible/issues",
+                "source": "https://github.com/djunehor/laravel-bible/tree/1.0.2"
+            },
+            "time": "2020-09-11T05:09:28+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -1883,16 +1954,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.66.0",
+            "version": "2.68.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "496712849902241f04902033b0441b269effe001"
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/496712849902241f04902033b0441b269effe001",
-                "reference": "496712849902241f04902033b0441b269effe001",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/4f991ed2a403c85efbc4f23eb4030063fdbe01da",
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da",
                 "shasum": ""
             },
             "require": {
@@ -1981,7 +2052,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-29T18:53:47+00:00"
+            "time": "2023-06-20T18:29:04+00:00"
         },
         {
             "name": "nette/schema",
