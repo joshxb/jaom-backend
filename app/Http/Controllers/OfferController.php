@@ -110,7 +110,7 @@ class OfferController extends Controller
 
             $offer->each->delete();
 
-            return response()->json(['message' => "All Offers deleted successfully"]);
+            return response()->json(['message' => "All Offers cleared successfully"]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Offers not found'], 404);
         } catch (\Exception $e) {

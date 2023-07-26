@@ -3,9 +3,11 @@
     "functions": {
         "api/index.php": { "runtime": "vercel-php@0.6.0" }
     },
-    "routes": [{
-        "src": "/(.*)",
-        "dest": "/api/index.php"},
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        },
         { "src": "/api/(.*)", "dest": "routes/api.php" }
     ],
     "env": {
@@ -24,8 +26,14 @@
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie"
     },
-    "crons": [{
-        "path": "/api/due_date/todos",
-        "schedule": "0 7 * * *"
-    }]
+    "crons": [
+        {
+            "path": "/api/due_date/todos",
+            "schedule": "0 7 * * *"
+        },
+        {
+            "path": "/users/check/email_verified_at",
+            "schedule": "0 7 * * *"
+        }
+    ]
 }

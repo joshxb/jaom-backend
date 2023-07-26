@@ -105,8 +105,8 @@ class NotificationController extends Controller
                     ]);
 
                     $userData = [
-                        'name' =>  (Auth::user()->firstname . " " .Auth::user()->lastname),
-                        'name2' => $request->name,
+                        'name' =>  ucwords(Auth::user()->firstname . " " .Auth::user()->lastname),
+                        'name2' => ucwords($request->name),
                         'email' => $request->email,
                         'phone' => $request->phone,
                         'address' => $request->address,

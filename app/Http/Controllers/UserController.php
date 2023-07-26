@@ -78,6 +78,8 @@ class UserController extends Controller
             'status' => 'nullable|string',
         ]);
 
+        $validatedData['firstname'] = ucwords($validatedData['firstname']);
+        $validatedData['lastname'] = ucwords($validatedData['lastname']);
         $validatedData['type'] = 'local';
         $validatedData['visibility'] = 'visible';
         $validatedData['status'] = 'active';
@@ -98,7 +100,7 @@ class UserController extends Controller
         $base = $request->input('base', "l");
         $requestData = [
             'email' => $validatedData['email'],
-            'name' => $validatedData['firstname'] . " " . $validatedData['lastname'],
+            'name' => ucwords($validatedData['firstname'] . " " . $validatedData['lastname']),
             'base' => $base
         ];
 
@@ -319,4 +321,17 @@ class UserController extends Controller
         ]);
     }
 
+    public function removeNotVerifiedEmail()
+    {
+        $usersNotVerified = User::whereNull("email_verified_at")->get();
+
+        if ($usersNotVerified->isEmpty()) {
+            return "No users found with unverified email addresses.";
+        }
+
+        foreach ($usersNotVerified as $user) {
+            $user->delete();
+        }
+        return count($usersNotVerified) . " user(s) with unverified email addresses have been removed.";
+    }
 }

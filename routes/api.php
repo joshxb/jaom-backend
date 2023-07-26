@@ -165,6 +165,8 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //can update every minutes
     Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
+    //clear unverified email addresses
+    Route::get('/users/check/email_verified_at', [UserController::class, 'removeNotVerifiedEmail']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
