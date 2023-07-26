@@ -46,6 +46,30 @@ class UserFactory extends Factory
         });
     }
 
+    public function secondUser()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'firstname' => 'Anapi',
+                'lastname' => 'Vallega',
+                'email' => 'anapi@gmail.com',
+                'phone' => '09234567895'
+            ];
+        });
+    }
+
+    public function thirdUser()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'firstname' => 'Ethyl',
+                'lastname' => 'Sothero',
+                'email' => 'ethyl@gmail.com',
+                'phone' => '09678567835'
+            ];
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
