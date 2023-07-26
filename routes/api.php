@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\DonateTransactionsController;
+use App\Http\Controllers\DonationImageController;
+use App\Http\Controllers\FAQSController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupChatController;
 use App\Http\Controllers\GroupChatImageController;
@@ -9,19 +12,14 @@ use App\Http\Controllers\GroupMessageController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
-use App\Http\Controllers\FAQSController;
-use App\Http\Controllers\DonateTransactionsController;
-use App\Http\Controllers\DonationImageController;
-use App\Http\Controllers\OfferController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\VerificationEmail;
 
 /*
 |--------------------------------------------------------------------------
@@ -163,14 +161,13 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/offer/{id}', [OfferController::class, 'destroy']);
     Route::delete('/offer', [OfferController::class, 'destroyAll']);
 
-    //can update every minutes
-    Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
-    //clear unverified email addresses
-    Route::get('/users/check/email_verified_at', [UserController::class, 'removeNotVerifiedEmail']);
-
     Route::post('/logout', [AuthController::class, 'logout']);
-
 });
+
+//can update every minutes
+Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
+//clear unverified email addresses
+Route::get('/users/check/email_verified_at', [UserController::class, 'removeNotVerifiedEmail']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

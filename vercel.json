@@ -29,11 +29,15 @@
     "crons": [
         {
             "path": "/api/due_date/todos",
-            "schedule": "0 7 * * *"
+            "schedule": "0 8 * * *"
         },
         {
-            "path": "/users/check/email_verified_at",
+            "path": "/api/users/check/email_verified_at",
             "schedule": "0 8 * * *"
+        },
+        {
+            "path": "/generate-bible-quote",
+            "schedule": "0 7 * * *"
         }
     ]
 }
