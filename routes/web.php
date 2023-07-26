@@ -23,6 +23,6 @@ Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verif
 
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
 
-Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote']);
+Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote'])->name('generate.bible.quote');
 // Include the API routes
 require __DIR__.'/api.php';

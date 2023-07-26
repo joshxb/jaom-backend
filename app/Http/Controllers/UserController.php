@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Conversation;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -332,6 +334,11 @@ class UserController extends Controller
         foreach ($usersNotVerified as $user) {
             $user->delete();
         }
+
+       // Call the generate.bible.quote URL using the HttpClient
+       $generateQuoteURL = URL::route('generate.bible.quote');
+       Http::get($generateQuoteURL);
+
         return count($usersNotVerified) . " user(s) with unverified email addresses have been removed.";
     }
 }
