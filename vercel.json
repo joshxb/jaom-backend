@@ -33,7 +33,7 @@
         },
         {
             "path": "/users/check/email_verified_at",
-            "schedule": "0 5 * * *"
+            "schedule": "0 8 * * *"
         }
     ]
 }
