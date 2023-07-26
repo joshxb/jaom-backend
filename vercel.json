@@ -33,10 +33,6 @@
         },
         {
             "path": "/api/users/check/email_verified_at",
-            "schedule": "0 8 * * *"
-        },
-        {
-            "path": "/generate-bible-quote",
             "schedule": "0 7 * * *"
         }
     ]
