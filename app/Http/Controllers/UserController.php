@@ -24,6 +24,8 @@ use App\Models\Conversation;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BibleGeneratorController;
 
 class UserController extends Controller
 {
@@ -325,9 +327,12 @@ class UserController extends Controller
 
     public function removeNotVerifiedEmail()
     {
+        $bibleGeneratorController = App::make(BibleGeneratorController::class);
+
         $usersNotVerified = User::whereNull("email_verified_at")->get();
 
         if ($usersNotVerified->isEmpty()) {
+            $bibleGeneratorController->generateBibleQuote();
             return "No users found with unverified email addresses.";
         }
 
@@ -335,10 +340,8 @@ class UserController extends Controller
             $user->delete();
         }
 
-       // Call the generate.bible.quote URL using the HttpClient
-       $generateQuoteURL = URL::route('generate.bible.quote');
-       Http::get($generateQuoteURL);
-
+        $bibleGeneratorController->generateBibleQuote();
+        
         return count($usersNotVerified) . " user(s) with unverified email addresses have been removed.";
     }
 }
