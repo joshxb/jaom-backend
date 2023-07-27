@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,34 +13,25 @@ class AuthController extends Controller
     {
         $credentials = $request->only(['email', 'phone', 'password']);
 
-        // Check if the 'phone' key exists in the request
-        if ($request->has('phone')) {
-            $credentials = $request->only(['email', 'phone', 'password']);
-        } else {
-            $credentials = $request->only(['email', 'password']);
-        }
-
-        // Add an additional check to allow login only if 'email_verified_at' is not null
-        $user = \App\Models\User::whereNotNull('email_verified_at')
-            ->where(function ($query) use ($credentials) {
-                if (isset($credentials['email'])) {
-                    $query->where('email', $credentials['email']);
-                }
-                if (isset($credentials['phone'])) {
-                    $query->orWhere('phone', $credentials['phone']);
-                }
-            })
-            ->first();
+        $user = User::where('email', $credentials['email'])->first();
 
         if ($user) {
-            if (Auth::attempt($credentials)) {
-                $token = $user->createToken('api-token', ['expires_at' => now()->addDay()])->plainTextToken;
-                return response()->json(['message' => 'Successfully login', 'token' => $token]);
+            $user = User::where('email', $credentials['email'])
+                ->whereNotNull('email_verified_at')
+                ->first();
+
+            if ($user) {
+                if (Auth::attempt($credentials)) {
+                    $token = Auth::user()->createToken('api-token', ['expires_at' => now()->addDay()->toDateTimeString()])->plainTextToken;
+                    return response()->json(['message' => 'Successfully login', 'token' => $token]);
+                } else {
+                    return response()->json(['message' => 'Incorrect credentials'], 401);
+                }
             } else {
-                return response()->json(['message' => 'Incorrect credentials'], 401);
+                return response()->json(['message' => 'Email is not verified, please check your email for verification.'], 401);
             }
         } else {
-            return response()->json(['message' => 'Email is not verified, please check your email for verification.'], 401);
+            return response()->json(['message' => 'Incorrect credentials'], 401);
         }
     }
 
@@ -57,6 +49,5 @@ class AuthController extends Controller
 
         return response()->json(['token' => $token]);
     }
-
 
 }
