@@ -40,8 +40,10 @@ class UserFactory extends Factory
             return [
                 'firstname' => 'Joshua',
                 'lastname' => 'Algadipe',
-                'email' => 'joshua@gmail.com',
-                'phone' => '09319127640'
+                'email' => 'joshua.algadipe@student.passerellesnumeriques.org',
+                'phone' => '09319127640',
+                'location' => "Cabulihan, Vallehermoso, Negros Oriental",
+                'age' => 21
             ];
         });
     }
