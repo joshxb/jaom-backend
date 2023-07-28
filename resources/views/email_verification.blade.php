@@ -116,8 +116,13 @@
                     </div>
                     <div class="card-body">
                         <p>
-                            Hello <b>{{ $user['name'] }}<b>,
+                            @isset($user['name'])
+                                Hello <b>{{ $user['name'] }}</b>,
+                            @else
+                                Hello,
+                            @endisset
                         </p>
+
                         <p style="text-indent: 25px">
                             Welcome to JAO Ministry! We are excited to have you as part of our online group ministry. To
                             create a safe and secure environment for all our members, we kindly request you to complete
@@ -130,13 +135,13 @@
                         <p>
                             @if ($user['base'] == 'l')
                                 <a style="cursor: pointer;color: #fff"
-                                    href="{{ env('LOCAL_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{$user['base']}}"
+                                    href="{{ env('LOCAL_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}"
                                     class="btn btn-success btn-hover-effect">
                                     Verify Email Address
                                 </a>
                             @elseif ($user['base'] == 'd')
                                 <a style="cursor: pointer;color: #fff"
-                                    href="{{ env('DEPLOYMENT_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{$user['base']}}"
+                                    href="{{ env('DEPLOYMENT_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}"
                                     class="btn btn-success btn-hover-effect">
                                     Verify Email Address
                                 </a>

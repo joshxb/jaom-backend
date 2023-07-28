@@ -153,27 +153,56 @@
                 <div class="card mt-5">
                     <div class="card-body">
                         <div class="greeting">
-                            Hello <b>{{ $user['name'] }}<b>,
+                            <p>
+                                @isset($user['name'])
+                                    Hello <b>{{ $user['name'] }}</b>,
+                                @else
+                                    Hello,
+                                @endisset
+                            </p>
+
                         </div>
                         <div class="offer-details">
                             <div class="offer-detail-item">Your prayer offer was now successfully sent to the ministry
                                 and the details are shown below:</div>
                             <div class="offer-detail-item">
-                                <span>Name:</span> {{ $user['name2'] }}
+                                <span>Name:</span>
+                                @isset($user['name2'])
+                                    {{ $user['name2'] }}
+                                @endisset
+
                             </div>
                             <div class="offer-detail-item">
-                                <span>Email:</span> {{ $user['email'] }}
+                                <span>Email:</span>
+                                @if (isset($user['email']))
+                                    {{ $user['email'] }}
+                                @else
+                                    Email not provided
+                                @endif
+
                             </div>
                             <div class="offer-detail-item">
-                                <span>Phone:</span> {{ $user['phone'] }}
+                                <span>Phone:</span>
+                                @isset($user['phone'])
+                                    {{ $user['phone'] }}
+                                @endisset
+
                             </div>
                             <div class="offer-detail-item">
-                                <span>Address:</span> {{ $user['address'] }}
+                                <span>Address:</span>
+                                @isset($user['address'])
+                                    {{ $user['address'] }}
+                                @endisset
+
                             </div>
                         </div>
                         <div class="prayer-offer">
                             <div class="prayer-offer-text">
-                                <b>Prayer Offer:</b> {{ $user['offer'] }}
+                                <b>Prayer Offer:</b>
+                                @isset($user['offer'])
+                                    {{ $user['offer'] }}
+                                @endisset
+
                             </div>
                         </div>
                         <div class="appreciation-message">

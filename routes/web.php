@@ -15,8 +15,8 @@ use App\Http\Controllers\BibleGeneratorController;
 */
 
 //testing for blade template
-Route::get('/bible-offer', function() {
-    return view('bible_quote');
+Route::get('/send-donation', function() {
+    return view('send_donation');
 });
 
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');

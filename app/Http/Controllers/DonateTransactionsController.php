@@ -8,13 +8,15 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendDonationMail;
 
 class DonateTransactionsController extends Controller
 {
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 20); // Change 'page' to 'per_page'
-        $donate = DonateTransactions::paginate($perPage);
+        $donate = DonateTransactions::orderByDesc('id')->paginate($perPage);
 
         return response()->json($donate);
     }
@@ -63,6 +65,18 @@ class DonateTransactionsController extends Controller
             "amount" => $request->amount,
             "screenshot_img" => $ss,
         ]);
+
+        $userData = [
+            "fullname" => $request->fullname,
+            "phone" => $request->phone,
+            "email" => $request->email,
+            "location" => $request->location,
+            "payment_method" => $request->payment_method,
+            "amount" => $request->amount,
+            "screenshot_img" => $ss,
+        ];
+
+        Mail::to($request->email)->send(new SendDonationMail($userData));
 
         return response()->json([
             'success' => true,

@@ -146,6 +146,7 @@
             text-align: center;
             color: #666;
         }
+
         .image-container img {
             margin: 10px;
             width: 30%;
@@ -209,19 +210,37 @@
                 <div class="card mt-5">
                     <div class="card-body">
                         <div class="greeting">
-                            Greetings, today is {{ $user['day'] }}! We are sharing an enlightening quote to all of us. Have a great day! 😊
-                            {{-- Greetings, We are sharing an enlightening quote to all of us. Have a great day! 😊 --}}
+                            Greetings,
+                            @if (isset($user['day']))
+                                today is {{ $user['day'] }}! We are sharing an enlightening quote to all of us.
+                            @else
+                                We are sharing an enlightening quote to all of us.
+                            @endif
+                            Have a great day! 😊
+
                         </div>
                         <br>
                         <div class="prayer-offer">
                             <div class="prayer-offer-text">
-                                <b>{{ $user['verse'] }}</b>
-                                {{-- <b>Verse 1</b> --}}
+                                <b>
+                                    @isset($user['verse'])
+                                        {{ $user['verse'] }}
+                                    @else
+                                        Verse 1
+                                    @endisset
+                                </b>
+
                             </div>
                         </div>
                         <div class="appreciation-message">
-                            <p>"{{ $user['quote'] }}"</p>
-                            {{-- <p>"Hello world"</p> --}}
+                            <p>
+                                @isset($user['quote'])
+                                    "{{ $user['quote'] }}"
+                                @else
+                                    "Hello world"
+                                @endisset
+                            </p>
+
                         </div>
                         <div class="image-container" style="text-align: center">
                             <img src="https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true"
