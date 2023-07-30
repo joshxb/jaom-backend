@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageEvent;
 use App\Http\Controllers\Controller;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class GroupMessageController extends Controller
 {
@@ -55,7 +57,7 @@ class GroupMessageController extends Controller
         ]);
     }
 
-// Get a specific group message by ID
+    // Get a specific group message by ID
     public function show(GroupMessage $groupMessage)
     {
         return response()->json([
@@ -63,10 +65,17 @@ class GroupMessageController extends Controller
         ]);
     }
 
-// Create a new group message
+    // Create a new group message
     public function store(Request $request)
     {
         $groupMessage = GroupMessage::create($request->all());
+
+        $user = auth()->user();
+
+        // Check for internet connectivity before firing the event
+        if ($this->isConnectedToInternet()) {
+            event(new MessageEvent(null, $request->content, $user->id, $request->group_id, $request->fullname));
+        }
 
         return response()->json([
             'message' => 'Group message created successfully.',
@@ -74,7 +83,15 @@ class GroupMessageController extends Controller
         ]);
     }
 
-// Update a specific group message by ID
+    private function isConnectedToInternet()
+    {
+        $url = 'https://www.google.com'; // or any other reliable website
+        $headers = @get_headers($url);
+
+        return $headers && strpos($headers[0], '200 OK') !== false;
+    }
+
+    // Update a specific group message by ID
     public function update(Request $request, GroupMessage $groupMessage)
     {
         $groupMessage->update($request->all());
@@ -85,7 +102,7 @@ class GroupMessageController extends Controller
         ]);
     }
 
-// Delete a specific group message by ID
+    // Delete a specific group message by ID
     public function destroy(GroupMessage $groupMessage)
     {
         $groupMessage->delete();

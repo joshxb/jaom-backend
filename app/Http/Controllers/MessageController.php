@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -100,7 +101,19 @@ class MessageController extends Controller
         $message->sender_id = Auth::user()->id;
         $message->save();
 
+        // Check for internet connectivity before firing the event
+        if ($this->isConnectedToInternet()) {
+            event(new MessageEvent($conversation->id, $validatedData['body'],  $request->other_user_id, null, null));
+        }
         return response()->json(['message' => 'Message created successfully'], 201);
+    }
+
+    private function isConnectedToInternet()
+    {
+        $url = 'https://www.google.com'; // or any other reliable website
+        $headers = @get_headers($url);
+
+        return $headers && strpos($headers[0], '200 OK') !== false;
     }
 
     public function clearMessages(Request $request, Conversation $conversation)
