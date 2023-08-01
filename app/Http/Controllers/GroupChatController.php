@@ -16,7 +16,7 @@ class GroupChatController extends Controller
     public function indexWithCurrentUser()
     {
         $user = Auth::user();
-        $perPage = 5;
+        $perPage = 10;
 
         // Subquery to get the latest message IDs for each group
         $latestMessageIds = DB::table('group_messages')

@@ -13,8 +13,9 @@ class OfferController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $perPage = $request->input('per_page', 20); // Change 'page' to 'per_page'
-        $offer = Offer::paginate($perPage);
+        $offer = Offer::where('user_id', $user->id)->paginate($perPage);
 
         return response()->json($offer);
     }
