@@ -161,6 +161,8 @@ class GroupChatController extends Controller
             ];
         }
 
+        $groupChat = null;
+
         if (isset($data["id"])) {
             $groupChat = GroupChat::where("id", $data["id"])->first();
         }
