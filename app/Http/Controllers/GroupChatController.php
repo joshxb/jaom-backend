@@ -28,7 +28,7 @@ class GroupChatController extends Controller
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
-            ->orderBy('m.created_at', 'DESC')
+            ->orderBy('m.id', 'DESC')
             ->paginate($perPage);
 
         $result2 = GroupChat::selectRaw('DISTINCT c.id')
@@ -40,7 +40,7 @@ class GroupChatController extends Controller
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
-            ->orderBy('m.created_at', 'DESC')->get();
+            ->orderBy('m.id', 'DESC')->get();
 
         $results->each(function ($item) {
             $item->total_messages = $this->getTotalMessages($item->id);
@@ -81,7 +81,7 @@ class GroupChatController extends Controller
         LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
         LEFT JOIN group_messages m ON m.group_id = c.id
         WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
-        ORDER BY m.created_at DESC
+        ORDER BY m.id DESC
         LIMIT 1;
     ", [$user->id, $user->id, $user->id]);
 
@@ -119,7 +119,7 @@ class GroupChatController extends Controller
                 $message->user = User::find($message->user_id);
             }
         }
-        
+
         return response()->json([
             'data' => [
                 'group_chat' => $groupChat,
@@ -138,7 +138,7 @@ class GroupChatController extends Controller
         LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
         LEFT JOIN group_messages m ON m.group_id = c.id
         WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-        ORDER BY m.created_at DESC
+        ORDER BY m.id DESC
         LIMIT 1;
     ", [$user->id, $user->id, $user->id, $request->group_id]);
 
@@ -151,21 +151,29 @@ class GroupChatController extends Controller
             ];
         }
 
-        $groupChat = GroupChat::where("id", $data["id"])->first();
+        if (isset($data["id"])) {
+            $groupChat = GroupChat::where("id", $data["id"])->first();
+        }
         // Fetch the corresponding GroupMessage records for the first GroupChat record
         $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
         $perPage = 20;
 
-        $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
-
+        $groupMessages = null;
+        if (isset($data["id"])) {
+            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
+        }
         if ($page == 0 || !$page) {
-            $page = $groupMessages->lastPage();
-            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+            if (isset($data["id"])) {
+                $page = $groupMessages->lastPage();
+                $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+            }
         }
 
-        // Loop through the GroupMessage records and include the associated User record for each message
-        foreach ($groupMessages as $message) {
-            $message->user = User::find($message->user_id);
+        if (isset($data["id"])) {
+            // Loop through the GroupMessage records and include the associated User record for each message
+            foreach ($groupMessages as $message) {
+                $message->user = User::find($message->user_id);
+            }
         }
 
         return response()->json([
