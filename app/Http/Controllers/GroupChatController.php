@@ -19,7 +19,7 @@ class GroupChatController extends Controller
 
         $perPage = 5;
 
-        $results = GroupChat::selectRaw('DISTINCT c.name, c.user_id, c.id, c.left_active_count')
+        $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
@@ -28,10 +28,11 @@ class GroupChatController extends Controller
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
+            ->groupBy('c.name', 'c.user_id', 'c.id', 'c.left_active_count')
             ->orderBy('m.id', 'DESC')
             ->paginate($perPage);
 
-        $result2 = GroupChat::selectRaw('DISTINCT c.id')
+        $result2 = GroupChat::selectRaw('c.id')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
@@ -40,6 +41,7 @@ class GroupChatController extends Controller
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
+            ->groupBy('c.id')
             ->orderBy('m.id', 'DESC')->get();
 
         $results->each(function ($item) {
@@ -76,7 +78,7 @@ class GroupChatController extends Controller
         $user = Auth::user();
 
         $results = DB::select("
-        SELECT DISTINCT c.name, c.id
+        SELECT c.name, c.id
         FROM group_chats c
         LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
         LEFT JOIN group_messages m ON m.group_id = c.id
@@ -107,19 +109,18 @@ class GroupChatController extends Controller
             $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
         }
         if ($page == 0 || !$page) {
-            if (isset($data["id"]) && $groupMessages != null) {
+            if (isset($data["id"])) {
                 $page = $groupMessages->lastPage();
                 $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
             }
         }
 
-        if (isset($data["id"]) && $groupMessages != null) {
+        if (isset($data["id"])) {
             // Loop through the GroupMessage records and include the associated User record for each message
             foreach ($groupMessages as $message) {
                 $message->user = User::find($message->user_id);
             }
         }
-
         return response()->json([
             'data' => [
                 'group_chat' => $groupChat,
@@ -133,12 +134,13 @@ class GroupChatController extends Controller
         $user = Auth::user();
 
         $results = DB::select("
-        SELECT DISTINCT c.name, c.id
+        SELECT c.name, c.id
         FROM group_chats c
         LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
         LEFT JOIN group_messages m ON m.group_id = c.id
         WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-        ORDER BY m.id DESC
+        GROUP BY c.name, c.id
+        ORDER BY m.created_at DESC
         LIMIT 1;
     ", [$user->id, $user->id, $user->id, $request->group_id]);
 
@@ -162,6 +164,7 @@ class GroupChatController extends Controller
         if (isset($data["id"])) {
             $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
         }
+
         if ($page == 0 || !$page) {
             if (isset($data["id"])) {
                 $page = $groupMessages->lastPage();
