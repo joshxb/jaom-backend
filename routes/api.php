@@ -11,6 +11,7 @@ use App\Http\Controllers\GroupChatImageController;
 use App\Http\Controllers\GroupMessageController;
 use App\Http\Controllers\GroupUserController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\TodoController;
@@ -169,6 +170,8 @@ Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
 //clear unverified email addresses
 Route::get('/users/check/email_verified_at', [UserController::class, 'removeNotVerifiedEmail']);
 
+//add migrations to database
+Route::post('/migrate', [MigrationController::class, 'migrate']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
