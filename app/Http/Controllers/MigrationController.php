@@ -18,7 +18,9 @@ class MigrationController extends Controller
 
         // Check if the key matches the authorized key
         if ($key === $pass) {
-            Artisan::call('migrate');
+            Artisan::call('migrate', [
+                '--force' => true
+             ]);
             return response()->json(['message' => 'Migration completed successfully']);
         } else {
             return response()->json(['message' => 'Unauthorized.'], 401);
