@@ -16,33 +16,42 @@ class GroupChatController extends Controller
     public function indexWithCurrentUser()
     {
         $user = Auth::user();
-
         $perPage = 5;
+
+        // Subquery to get the latest message IDs for each group
+        $latestMessageIds = DB::table('group_messages')
+            ->select('group_id', DB::raw('MAX(id) as latest_message_id'))
+            ->groupBy('group_id');
 
         $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
-            ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
+            ->leftJoinSub($latestMessageIds, 'm', function ($join) {
+                $join->on('c.id', '=', 'm.group_id');
+            })
             ->where('c.user_id', $user->id)
             ->orWhere(function ($query) use ($user) {
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
             ->groupBy('c.name', 'c.user_id', 'c.id', 'c.left_active_count')
-            ->orderBy('m.id', 'DESC')
+            ->orderByDesc('m.latest_message_id') // Use the alias from the subquery
             ->paginate($perPage);
 
         $result2 = GroupChat::selectRaw('c.id')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
-            ->leftJoin('group_messages as m', 'm.group_id', '=', 'c.id')
+            ->leftJoinSub($latestMessageIds, 'm', function ($join) {
+                $join->on('c.id', '=', 'm.group_id');
+            })
             ->where('c.user_id', $user->id)
             ->orWhere(function ($query) use ($user) {
                 $query->where('u.user_id', $user->id)
                     ->where('c.user_id', '!=', $user->id);
             })
             ->groupBy('c.id')
-            ->orderBy('m.id', 'DESC')->get();
+            ->orderByDesc('m.latest_message_id') // Use the alias from the subquery
+            ->get();
 
         $results->each(function ($item) {
             $item->total_messages = $this->getTotalMessages($item->id);
@@ -60,7 +69,6 @@ class GroupChatController extends Controller
             ],
         ]);
     }
-
     private function getTotalMessages($groupId)
     {
         return GroupMessage::where('group_id', $groupId)->count();
