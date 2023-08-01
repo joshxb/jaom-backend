@@ -23,7 +23,7 @@ class UserImagesController extends Controller
                 ->header('Content-Disposition', 'inline'); // Set the filename as needed
         }
 
-        return response()->json(['message' => 'Image not found.'], 404);
+        return response()->json(['message' => 'Image not found.']);
     }
 
     public function getOtherUserImage($id)

@@ -94,23 +94,32 @@ class GroupChatController extends Controller
             ];
         }
 
-        $groupChat = GroupChat::where("id", $data["id"])->first();
+        $groupChat = null;
+        if (isset($data["id"])) {
+            $groupChat = GroupChat::where("id", $data["id"])->first();
+        }
         // Fetch the corresponding GroupMessage records for the first GroupChat record
         $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
         $perPage = 20;
 
-        $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
-
+        $groupMessages = null;
+        if (isset($data["id"])) {
+            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
+        }
         if ($page == 0 || !$page) {
-            $page = $groupMessages->lastPage();
-            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+            if (isset($data["id"]) && $groupMessages != null) {
+                $page = $groupMessages->lastPage();
+                $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
+            }
         }
 
-        // Loop through the GroupMessage records and include the associated User record for each message
-        foreach ($groupMessages as $message) {
-            $message->user = User::find($message->user_id);
+        if (isset($data["id"]) && $groupMessages != null) {
+            // Loop through the GroupMessage records and include the associated User record for each message
+            foreach ($groupMessages as $message) {
+                $message->user = User::find($message->user_id);
+            }
         }
-
+        
         return response()->json([
             'data' => [
                 'group_chat' => $groupChat,
@@ -179,7 +188,8 @@ class GroupChatController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required',
-            'user_ids' => 'array', // Ensure user_ids is an array
+            'user_ids' => 'array',
+            // Ensure user_ids is an array
             'user_ids.*' => 'exists:users,id', // Validate that each user_id exists in the users table
         ]);
 
