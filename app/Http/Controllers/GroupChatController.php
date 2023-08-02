@@ -277,12 +277,25 @@ class GroupChatController extends Controller
             ], 403); // Return a 403 Forbidden status code for unauthorized access.
         }
 
+
+
         $groupChat = GroupChat::find($group_id);
 
         if (!$groupChat) {
             return response()->json([
                 'message' => "Group chat not found!",
             ], 404); // Return a 404 Not Found status code if the group chat doesn't exist.
+        }
+
+        $groupUser = GroupUser::where("group_id", $group_id);
+        $groupMessage = GroupMessage::where("group_id", $group_id);
+
+        if ($groupUser) {
+            $groupUser->delete();
+        }
+        
+        if ($groupMessage) {
+            $groupMessage->delete();
         }
 
         $groupChat->delete();
