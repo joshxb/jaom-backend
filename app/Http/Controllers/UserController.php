@@ -76,8 +76,8 @@ class UserController extends Controller
             'type' => 'nullable|string',
             'image' => 'nullable|string',
             'nickname' => 'nullable|string|max:50',
-            'location' => 'required|string|max:255',
-            'age' => 'required|integer|min:0|max:150',
+            'location' => 'nullable|string|max:255',
+            'age' => 'nullable|integer|min:0|max:150',
             'visibility' => 'nullable|string',
             'status' => 'nullable|string',
         ]);
@@ -341,7 +341,7 @@ class UserController extends Controller
         }
 
         $bibleGeneratorController->generateBibleQuote();
-        
+
         return count($usersNotVerified) . " user(s) with unverified email addresses have been removed.";
     }
 }

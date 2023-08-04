@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,12 +14,25 @@ class AuthController extends Controller
     {
         $credentials = $request->only(['email', 'phone', 'password']);
 
-        $user = User::where('email', $credentials['email'])->first();
+        $user = null;
+
+        if (isset($credentials['email'])) {
+            $user = User::where('email', $credentials['email'])->first();
+        }else if (isset($credentials['phone'])) {
+            $user = User::where('phone', $credentials['phone'])->first();
+        }
 
         if ($user) {
-            $user = User::where('email', $credentials['email'])
-                ->whereNotNull('email_verified_at')
-                ->first();
+            $user = null;
+            if (isset($credentials['email'])) {
+                $user = User::where('email', $credentials['email'])
+                    ->whereNotNull('email_verified_at')
+                    ->first();
+            }else if (isset($credentials['phone'])) {
+                $user = User::where('phone', $credentials['phone'])
+                    ->whereNotNull('email_verified_at')
+                    ->first();
+            }
 
             if ($user) {
                 if (Auth::attempt($credentials)) {
