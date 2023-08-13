@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         if (isset($credentials['email'])) {
             $user = User::where('email', $credentials['email'])->first();
-        }else if (isset($credentials['phone'])) {
+        } else if (isset($credentials['phone'])) {
             $user = User::where('phone', $credentials['phone'])->first();
         }
 
@@ -28,7 +28,7 @@ class AuthController extends Controller
                 $user = User::where('email', $credentials['email'])
                     ->whereNotNull('email_verified_at')
                     ->first();
-            }else if (isset($credentials['phone'])) {
+            } else if (isset($credentials['phone'])) {
                 $user = User::where('phone', $credentials['phone'])
                     ->whereNotNull('email_verified_at')
                     ->first();
@@ -36,7 +36,14 @@ class AuthController extends Controller
 
             if ($user) {
                 if (Auth::attempt($credentials)) {
-                    $token = Auth::user()->createToken('api-token', ['expires_at' => now()->addDay()->toDateTimeString()])->plainTextToken;
+                    $user = Auth::user();
+
+                    if ($user->status !== 'active') {
+                        $user->status = 'active';
+                        $user->save();
+                    }
+
+                    $token = $user->createToken('api-token', ['expires_at' => now()->addDay()->toDateTimeString()])->plainTextToken;
                     return response()->json(['message' => 'Successfully login', 'token' => $token]);
                 } else {
                     return response()->json(['message' => 'Incorrect credentials'], 401);
@@ -51,7 +58,14 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $user = $request->user();
+
+        if ($user->status !== 'inactive') {
+            $user->status = 'inactive';
+            $user->save();
+        }
+
+        $user->tokens()->delete();
 
         return response()->json(['message' => 'Successfully logged out']);
     }

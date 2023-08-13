@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 class GroupChatController extends Controller
 {
+    public function groupChatCounts() {
+        $groupChatCount = GroupChat::count();
+        return response()->json(['room_count' => $groupChatCount]);
+    }
+
     public function indexWithCurrentUser()
     {
         $user = Auth::user();
@@ -293,7 +298,7 @@ class GroupChatController extends Controller
         if ($groupUser) {
             $groupUser->delete();
         }
-        
+
         if ($groupMessage) {
             $groupMessage->delete();
         }

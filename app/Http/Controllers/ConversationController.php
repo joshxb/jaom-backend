@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ConversationController extends Controller
 {
+    public function conversationCounts()
+    {
+        $conversationCount = Conversation::count();
+        return response()->json(['chat_count' => $conversationCount]);
+    }
+
     public function add_conversation(Request $request)
     {
         $user1_id = $request->user1_id;

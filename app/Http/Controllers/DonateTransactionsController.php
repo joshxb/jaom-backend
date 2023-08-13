@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendDonationMail;
 
@@ -15,10 +16,54 @@ class DonateTransactionsController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 20); // Change 'page' to 'per_page'
-        $donate = DonateTransactions::orderByDesc('id')->paginate($perPage);
+        $perPage = $request->input('per_page', 20);
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-        return response()->json($donate);
+        $query = DonateTransactions::orderByDesc('created_at');
+
+        if ($month && $year) {
+            $query->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month);
+        }
+
+        $donate = $query->paginate($perPage);
+
+        // Calculate total amount
+        $totalAmount = intval(DonateTransactions::sum('amount'));
+
+        // Calculate total amount for the specific month and year
+        $totalAmountPerMonthAndYear = intval($query->sum('amount'));
+
+        // Count total users
+        $totalUsers = DonateTransactions::count();
+
+
+        $results = DB::table('donate_transactions')
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(amount) as amount'))
+            ->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get();
+
+        $transactions = [];
+        foreach ($results as $result) {
+            $transactions[] = [
+                'date' => $result->date,
+                'amount' => $result->amount,
+            ];
+        }
+
+        // Create a response array with the data
+        $responseData = [
+            'data' => $donate->items(),
+            'total_amount' => $totalAmount,
+            'total_amount_per_month_and_year' => $totalAmountPerMonthAndYear,
+            'total_user_donations' => $totalUsers,
+            'current_page' => $donate->currentPage(),
+            'last_page' => $donate->lastPage(),
+            'transactions' => $transactions
+        ];
+
+        return response()->json($responseData);
     }
 
     public function show($id)

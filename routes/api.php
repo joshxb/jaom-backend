@@ -41,6 +41,8 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for users api**********************
     Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/count', [UserController::class, 'userCounts']);
+    Route::get('/users/status', [UserController::class, 'countUsersByStatus']);
     // api/users/user-range?range=xxxxx
     Route::get('/users/user-range', [UserController::class, 'userRange']);
     Route::get('/users/{id}', [UserController::class, 'show']);
@@ -62,6 +64,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for conversations api**********************
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
+    Route::get('/conversations/count', [ConversationController::class, 'conversationCounts']);
     Route::get('/conversations', [MessageController::class, 'conversations']);
     Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
     Route::get('/conversations/{conversation}', [MessageController::class, 'messages']);
@@ -74,6 +77,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for groupchats api**********************
     Route::get('/group_chats', [GroupChatController::class, 'index']);
+    Route::get('/group_chats/count', [GroupChatController::class, 'groupChatCounts']);
     Route::get('/group_chats/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
     Route::get('/first-group-messages', [GroupChatController::class, 'getFirstGroupMessages']);
     Route::get('/specific-group-messages/{group_id}', [GroupChatController::class, 'getSpecificGroupMessages']);
@@ -100,6 +104,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
 
     //******************for current user updates api**********************
+    Route::get('/updates/count', [UpdateController::class, 'updatesCounts']);
     Route::get('/updates/current_user', [UpdateController::class, 'index']);
     Route::post('/updates/current_user', [UpdateController::class, 'store']);
     Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
@@ -144,7 +149,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
     //******************for transactions api**********************
-    //transactions/donate?per_page=2&page=1
+    //transactions/donate?per_page=2&page=1&month=august&year=2023
     Route::get('/transactions/donate', [DonateTransactionsController::class, 'index']);
     Route::post('/transactions/donate', [DonateTransactionsController::class, 'store']);
     Route::get('/transactions/donate/{id}', [DonateTransactionsController::class, 'show']);

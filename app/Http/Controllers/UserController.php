@@ -37,6 +37,22 @@ class UserController extends Controller
         $users = User::all();
         return response()->json(['data' => $users]);
     }
+    public function userCounts()
+    {
+        $userCount = User::count();
+        return response()->json(['user_count' => $userCount]);
+    }
+
+    public function countUsersByStatus()
+    {
+        $activeUserCount = User::where('status', 'active')->count();
+        $inactiveUserCount = User::where('status', 'inactive')->count();
+
+        return response()->json([
+            'active_user_count' => $activeUserCount,
+            'inactive_user_count' => $inactiveUserCount
+        ]);
+    }
 
     public function userRange(Request $request)
     {

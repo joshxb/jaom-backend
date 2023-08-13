@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Auth;
 class UpdateController extends Controller
 {
 
+    public function updatesCounts()
+    {
+        $updateCount = Update::count();
+        return response()->json(['update_count' => $updateCount]);
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -48,7 +54,7 @@ class UpdateController extends Controller
                     'content' => $update->content,
                     'permission' => $update->permission,
                     'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
-                    'max_page' => ceil(($update -> count()) / 10)
+                    'max_page' => ceil(($update->count()) / 10)
                 ];
             });
 
