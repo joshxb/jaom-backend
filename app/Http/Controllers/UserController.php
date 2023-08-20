@@ -32,11 +32,14 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        $users = User::all();
-        return response()->json(['data' => $users]);
+        $pagination = 10;
+        $users = User::paginate($pagination);
+        return response()->json([$users]);
     }
+
     public function userCounts()
     {
         $userCount = User::count();
@@ -176,8 +179,11 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
+        if ($request->input('role') == 'admin') {
+            //allow admin to configure update
+        }
         // Check if the authenticated user is authorized to update the profile
-        if (Auth::user()->id !== $user->id) {
+        else if (Auth::user()->id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -199,14 +205,16 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $user = User::find($id);
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        if (Auth::user()->id !== $id) {
+        if ($request->input('role') && $request->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to remove a user."], 401);
+        } else if ($request->input('role') == '' && Auth::user()->id !== $id) {
             return response()->json(['message' => 'Unauthorized for deleting other account'], 401);
         }
 

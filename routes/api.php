@@ -60,6 +60,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
     Route::get('/other-user-image/{user_id}', [UserImagesController::class, 'getOtherUserImage']);
     Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
+    Route::post('/user-image/{id}/update', [UserImagesController::class, 'updateOtherImage']);
     Route::post('/group-image/update', [GroupChatImageController::class, 'updateGroupImage']);
 
     //******************for conversations api**********************

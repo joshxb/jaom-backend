@@ -75,4 +75,37 @@ class UserImagesController extends Controller
             'message' => 'Image updated successfully.',
         ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
     }
+
+    public function updateOtherImage(Request $request, $id)
+    {
+
+        $otherId = $id;
+
+        if ($request->input("role") != 'admin') {
+            return response()->json(['message' => 'Permission not allowed to configure image update.']);
+        }
+
+        // Validate the uploaded file
+        $request->validate([
+            'image' => 'required|image|max:50000', // Assuming maximum 50MB file size limit
+        ]);
+
+        // Retrieve the uploaded file
+        $image = $request->file('image');
+
+        // Read the contents of the file and convert it to a blob
+        $imageBlob = file_get_contents($image->getPathname());
+        $imageBlob = base64_encode($imageBlob);
+
+        // Create a new image record in the database
+        $userImage = User::find($otherId);
+        $userImage->image_blob = $imageBlob;
+        $userImage->save();
+
+        // Redirect or perform additional actions as needed
+        return response()->json([
+            'success' => true,
+            'message' => 'Image updated successfully.',
+        ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
+    }
 }
