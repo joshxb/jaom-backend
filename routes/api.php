@@ -66,12 +66,14 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     //******************for conversations api**********************
     Route::post('/conversations', [ConversationController::class, 'add_conversation']);
     Route::get('/conversations/count', [ConversationController::class, 'conversationCounts']);
+    Route::get('/conversations/all', [MessageController::class, 'all_conversations']);
     Route::get('/conversations', [MessageController::class, 'conversations']);
     Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
     Route::get('/conversations/{conversation}', [MessageController::class, 'messages']);
     Route::post('/conversations/{conversation}/message', [MessageController::class, 'send_messages']);
     Route::delete('/conversations/{conversation}/message/v1', [ConversationController::class, 'deleteConversation']);
     Route::delete('/conversations/{conversation}/message/v2', [MessageController::class, 'clearMessages']);
+    Route::delete('/messages/{id}', [MessageController::class, 'deleteSpecificMessage']);
     Route::get('/conversations/{conversation}/other-user-id', [ConversationController::class, 'getOtherUserId']);
     Route::get('/conversations/newest/id', [ConversationController::class, 'getFirstConversationId']);
     Route::put('/active/left_convo', [ConversationController::class, 'updateActiveLeftConvo']);

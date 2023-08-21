@@ -13,6 +13,59 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
+    public function all_conversations(Request $request)
+    {
+        if ($request->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to access the data."], 404);
+        }
+
+        $conversations = Conversation::with([
+            'messages' => function ($query) {
+                $query->select('id', 'conversation_id', 'sender_id', 'body', 'created_at')
+                    ->orderBy('created_at', 'asc'); // You can use 'asc' or 'desc' based on your preference
+            }
+        ])
+            ->get();
+
+        $allMessages = [];
+
+        foreach ($conversations as $conversation) {
+            foreach ($conversation->messages as $message) {
+                $senderId = $message->sender_id;
+                $receiverId = ($senderId === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
+
+                $formattedMessage = [
+                    'id' => $message->id,
+                    'sender_id' => $senderId,
+                    'receiver_id' => $receiverId,
+                    'body' => $message->body,
+                    'date' => $message->created_at->format('F j, Y'),
+                    'time' => $message->created_at->format('g:i A'),
+                ];
+
+                $allMessages[] = $formattedMessage;
+            }
+        }
+
+        $totalMessages = count($allMessages);
+
+        $perPage = $request->input('per_page', 10); // You can change the default per_page value
+
+        $currentPage = $request->input('page', 1);
+        $lastPage = ceil($totalMessages / $perPage);
+
+        $messagesOnCurrentPage = array_slice($allMessages, ($currentPage - 1) * $perPage, $perPage);
+
+        return [
+            'current_page' => $currentPage,
+            'messages' => $messagesOnCurrentPage,
+            'last_page' => $lastPage,
+            'total' => $totalMessages,
+            'per_page' => $perPage,
+            // Add other pagination information here
+        ];
+    }
+
     public function conversations()
     {
         $user = Auth::user();
@@ -103,7 +156,7 @@ class MessageController extends Controller
 
         // Check for internet connectivity before firing the event
         if ($this->isConnectedToInternet()) {
-            event(new MessageEvent($conversation->id, $validatedData['body'],  $request->other_user_id, null, null));
+            event(new MessageEvent($conversation->id, $validatedData['body'], $request->other_user_id, null, null));
         }
         return response()->json(['message' => 'Message created successfully'], 201);
     }
@@ -125,4 +178,16 @@ class MessageController extends Controller
         ], 201);
     }
 
+    public function deleteSpecificMessage(Request $request, $id)
+    {
+        if ($request->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to remove the data."], 404);
+        }
+
+        Message::where('id', $id)->delete();
+
+        return response()->json([
+            'message' => 'Message removed successfully',
+        ], 201);
+    }
 }
