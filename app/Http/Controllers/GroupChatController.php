@@ -204,7 +204,7 @@ class GroupChatController extends Controller
 
     public function index()
     {
-        $groupChats = GroupChat::all();
+        $groupChats = GroupChat::with("user")->paginate(10);
         return response()->json($groupChats);
     }
 
@@ -282,7 +282,39 @@ class GroupChatController extends Controller
             ], 403); // Return a 403 Forbidden status code for unauthorized access.
         }
 
+        $groupChat = GroupChat::find($group_id);
 
+        if (!$groupChat) {
+            return response()->json([
+                'message' => "Group chat not found!",
+            ], 404); // Return a 404 Not Found status code if the group chat doesn't exist.
+        }
+
+        $groupUser = GroupUser::where("group_id", $group_id);
+        $groupMessage = GroupMessage::where("group_id", $group_id);
+
+        if ($groupUser) {
+            $groupUser->delete();
+        }
+
+        if ($groupMessage) {
+            $groupMessage->delete();
+        }
+
+        $groupChat->delete();
+
+        return response()->json([
+            'message' => 'Group chat deleted successfully!',
+        ]);
+    }
+
+    public function destroyV2($group_id)
+    {
+        $user = Auth::user();
+
+        if (request()->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to remove the room."], 404);
+        }
 
         $groupChat = GroupChat::find($group_id);
 

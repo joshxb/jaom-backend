@@ -50,10 +50,35 @@ class GroupMessageController extends Controller
     // Get all group messages
     public function index()
     {
-        $groupMessages = GroupMessage::all();
+        $groupMessages = GroupMessage::with(['groupChat.groupUsers', 'user'])
+            ->paginate(10, ['id', 'group_id', 'user_id', 'content', 'created_at']);
+
+        $formattedMessages = $groupMessages->map(function ($message) {
+            return [
+                'id' => $message->id,
+                'group_id' => $message->group_id,
+                'user_id' => $message->user_id,
+                'sender_name' => $message->user->firstname . ' ' . $message->user->lastname,
+                'group_name' => $message->groupChat->name,
+                'created_at' => $message->created_at
+            ];
+        });
 
         return response()->json([
-            'data' => $groupMessages,
+            'data' => [
+                'current_page' => $groupMessages->currentPage(),
+                'data' => $formattedMessages,
+                'first_page_url' => $groupMessages->url(1),
+                'from' => $groupMessages->firstItem(),
+                'last_page' => $groupMessages->lastPage(),
+                'last_page_url' => $groupMessages->url($groupMessages->lastPage()),
+                'next_page_url' => $groupMessages->nextPageUrl(),
+                'path' => $groupMessages->path(),
+                'per_page' => $groupMessages->perPage(),
+                'prev_page_url' => $groupMessages->previousPageUrl(),
+                'to' => $groupMessages->lastItem(),
+                'total' => $groupMessages->total(),
+            ],
         ]);
     }
 
@@ -103,9 +128,14 @@ class GroupMessageController extends Controller
     }
 
     // Delete a specific group message by ID
-    public function destroy(GroupMessage $groupMessage)
+    public function destroy(Request $request, $id)
     {
-        $groupMessage->delete();
+
+        if ($request->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to remove the data."], 404);
+        }
+
+        GroupMessage::findOrFail($id)->delete();
 
         return response()->json([
             'message' => 'Group messages deleted successfully.',

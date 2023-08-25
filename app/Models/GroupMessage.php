@@ -13,7 +13,7 @@ class GroupMessage extends Model
 
     public function groupChat()
     {
-        return $this->belongsTo(GroupChat::class);
+        return $this->belongsTo(GroupChat::class, 'group_id', 'id');
     }
 
     public function user()

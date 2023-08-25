@@ -87,6 +87,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::post('/group_chats', [GroupChatController::class, 'store']);
     Route::get('/group_chats/{groupId}', [GroupChatController::class, 'show']);
     Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
+    Route::delete('/group_chats/{groupId}', [GroupChatController::class, 'destroyV2']);
     Route::delete('/group_chats/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
     Route::post('/group_chats/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
     Route::put('/active/left_group_convo', [GroupChatController::class, 'updateActiveLeftGroupConvo']);
@@ -105,6 +106,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::post('/group_messages', [GroupMessageController::class, 'store']);
     Route::put('/group_messages/{group_message}', [GroupMessageController::class, 'update']);
     Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
+    Route::delete('/group_messages/v2/{id}', [GroupMessageController::class, 'destroy']);
 
     //******************for current user updates api**********************
     Route::get('/updates/count', [UpdateController::class, 'updatesCounts']);
