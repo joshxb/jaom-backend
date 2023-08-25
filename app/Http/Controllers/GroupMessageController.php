@@ -54,14 +54,27 @@ class GroupMessageController extends Controller
             ->paginate(10, ['id', 'group_id', 'user_id', 'content', 'created_at']);
 
         $formattedMessages = $groupMessages->map(function ($message) {
-            return [
-                'id' => $message->id,
-                'group_id' => $message->group_id,
-                'user_id' => $message->user_id,
-                'sender_name' => $message->user->firstname . ' ' . $message->user->lastname,
-                'group_name' => $message->groupChat->name,
-                'created_at' => $message->created_at
-            ];
+            // Check if the user relation is loaded and not null before accessing properties
+            if ($message->user) {
+                return [
+                    'id' => $message->id,
+                    'group_id' => $message->group_id,
+                    'user_id' => $message->user_id,
+                    'sender_name' => $message->user->firstname . ' ' . $message->user->lastname,
+                    'group_name' => $message->groupChat->name,
+                    'created_at' => $message->created_at
+                ];
+            } else {
+                // Handle the case where the user relation is null (optional)
+                return [
+                    'id' => $message->id,
+                    'group_id' => $message->group_id,
+                    'user_id' => $message->user_id,
+                    'sender_name' => 'Unknown User',
+                    'group_name' => $message->groupChat->name,
+                    'created_at' => $message->created_at
+                ];
+            }
         });
 
         return response()->json([
@@ -81,6 +94,7 @@ class GroupMessageController extends Controller
             ],
         ]);
     }
+
 
     // Get a specific group message by ID
     public function show(GroupMessage $groupMessage)
