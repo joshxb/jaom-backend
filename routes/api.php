@@ -110,10 +110,12 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for current user updates api**********************
     Route::get('/updates/count', [UpdateController::class, 'updatesCounts']);
+    Route::get('/updates', [UpdateController::class, 'allUpdates']);
     Route::get('/updates/current_user', [UpdateController::class, 'index']);
     Route::post('/updates/current_user', [UpdateController::class, 'store']);
     Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
     Route::put('/updates/{id}/current_user', [UpdateController::class, 'update']);
+    Route::put('/updates/{id}/permission', [UpdateController::class, 'updatePermission']);
     Route::delete('/updates/{id}/current_user', [UpdateController::class, 'destroy']);
 
     //******************for todo-task api**********************

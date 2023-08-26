@@ -312,7 +312,7 @@ class GroupChatController extends Controller
     {
         $user = Auth::user();
 
-        if (request()->input('role') != 'admin') {
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to remove the room."], 404);
         }
 

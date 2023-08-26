@@ -17,6 +17,19 @@ class UpdateController extends Controller
         return response()->json(['update_count' => $updateCount]);
     }
 
+    public function allUpdates()
+    {
+        $user = Auth::user();
+
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to get the data."], 404);
+        }
+
+        $updates = Update::paginate(10);
+
+        return response()->json([$updates]);
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -114,6 +127,28 @@ class UpdateController extends Controller
         return response()->json(['data' => $update]);
     }
 
+    public function updatePermission($id)
+    {
+        $user = Auth::user();
+
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to remove the room."], 404);
+        }
+
+        $update = Update::find($id);
+        if (!$update) {
+            return response()->json(['message' => 'Update not found'], 404);
+        }
+
+        $update->permission = request()->permission;
+        $update->save();
+
+        return response()->json([
+            'data' => $update,
+            'message' => "Permission updated successfully!"
+    ]);
+    }
+
     public function destroy($id)
     {
         $user = Auth::user();
@@ -121,12 +156,14 @@ class UpdateController extends Controller
         if (!$update) {
             return response()->json(['message' => 'Update not found'], 404);
         }
-        if ($update->user_id !== $user->id) {
+
+        if ($user->type == 'admin' && request()->has('role') && request()->input('role') == 'admin') {
+        } else if ($update->user_id !== $user->id) {
             return response()->json(['message' => "You are not authorize to delete this updates"], 403);
         }
 
         $update->delete();
 
-        return response()->json(['message' => 'Record deleted']);
+        return response()->json(['message' => 'Update(s) successfully deleted']);
     }
 }

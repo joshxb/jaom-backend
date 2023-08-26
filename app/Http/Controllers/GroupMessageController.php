@@ -144,8 +144,8 @@ class GroupMessageController extends Controller
     // Delete a specific group message by ID
     public function destroy(Request $request, $id)
     {
-
-        if ($request->input('role') != 'admin') {
+        $user = Auth::user();
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to remove the data."], 404);
         }
 

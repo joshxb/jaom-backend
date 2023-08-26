@@ -179,7 +179,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        if ($request->input('role') == 'admin') {
+        if (Auth::user()->type == 'admin' && request()->has('role') && request()->input('role') == 'admin') {
             //allow admin to configure update
         }
         // Check if the authenticated user is authorized to update the profile

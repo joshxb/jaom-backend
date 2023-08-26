@@ -15,7 +15,8 @@ class MessageController extends Controller
 {
     public function all_conversations(Request $request)
     {
-        if ($request->input('role') != 'admin') {
+        $user = Auth::user();
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to access the data."], 404);
         }
 
@@ -180,7 +181,8 @@ class MessageController extends Controller
 
     public function deleteSpecificMessage(Request $request, $id)
     {
-        if ($request->input('role') != 'admin') {
+        $user = Auth::user();
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to remove the data."], 404);
         }
 

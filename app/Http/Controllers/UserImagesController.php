@@ -78,10 +78,11 @@ class UserImagesController extends Controller
 
     public function updateOtherImage(Request $request, $id)
     {
+        $user = Auth::user();
 
         $otherId = $id;
 
-        if ($request->input("role") != 'admin') {
+        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => 'Permission not allowed to configure image update.']);
         }
 
