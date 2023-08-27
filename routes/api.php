@@ -120,6 +120,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for todo-task api**********************
     Route::get('/todos', [TodoController::class, 'index']);
+    Route::get('/v2/todos', [TodoController::class, 'allTodos']);
     Route::post('/todos', [TodoController::class, 'store']);
     Route::get('/todos/{id}', [TodoController::class, 'show']);
     Route::put('/todos/{id}', [TodoController::class, 'update']);

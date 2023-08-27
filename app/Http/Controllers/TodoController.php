@@ -7,9 +7,25 @@ use App\Models\Notification;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
 {
+
+    public function allTodos()
+    {
+        $user = Auth::user();
+
+        if ($user->type == 'admin' && request()->has('role') && request()->input('role') == 'admin') {
+            $todos = Todo::orderBy('created_at', 'DESC')->paginate(10);
+
+            return response()->json([
+                $todos,
+            ]);
+        } else {
+            return response()->json(['message' => "You are not authorized to access this data"], 403);
+        }
+    }
 
     public function index()
     {
@@ -87,15 +103,21 @@ class TodoController extends Controller
 
     public function destroy($id)
     {
-        // Find a todo by its ID and delete it
-        $todo = Todo::findOrFail($id);
-        $todo->delete();
+        $user = Auth::user();
 
-        return response()->json([
-            'data' => [
-                'message' => "Todo deleted successfully!",
-            ],
-        ]);
+        $todo = Todo::findOrFail($id);
+
+        if ($user->id == $todo->user_id || ($user->type == 'admin' && request()->has('role') && request()->input('role') == 'admin')) {
+            $todo->delete();
+
+            return response()->json([
+                'data' => [
+                    'message' => "Todo deleted successfully!",
+                ],
+            ]);
+        } else {
+            return response()->json(['message' => "You are not authorized to delete this todo."], 403);
+        }
     }
 
     public function checkDueDate()
