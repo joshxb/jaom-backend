@@ -60,9 +60,9 @@ class UpdateController extends Controller
                 return [
                     'id' => $update->id,
                     'user_id' => $update->user_id,
-                    'firstname' => $update->user->firstname,
-                    'lastname' => $update->user->lastname,
-                    'nickname' => $update->user->nickname,
+                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                    'lastname' => $update->user->lastname ?  $update->user->lastname : null,
+                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
                     'subject' => $update->subject,
                     'content' => $update->content,
                     'permission' => $update->permission,
