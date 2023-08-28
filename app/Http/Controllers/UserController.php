@@ -194,6 +194,8 @@ class UserController extends Controller
             $requestData['password'] = Hash::make($requestData['password']);
         }
 
+        $requestData['updated_at'] = now();
+
         $user->update($requestData);
 
         return response()->json([
