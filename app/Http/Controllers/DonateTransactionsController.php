@@ -14,6 +14,16 @@ use App\Mail\SendDonationMail;
 
 class DonateTransactionsController extends Controller
 {
+    public function getAllIndex()
+    {
+        if (request()->input('role') != 'admin') {
+            return response()->json(['message' => "You don't have permission to get a user."], 401);
+        }
+
+        $donateTransactions = DonateTransactions::orderByDesc('created_at')->paginate(10);
+        return response()->json($donateTransactions);
+    }
+
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 20);
@@ -151,13 +161,18 @@ class DonateTransactionsController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
+        $isAdmin = request()->input('role') == 'admin' && $user->type == 'admin';
 
         try {
-            $donate = DonateTransactions::where("id", $id)->where("user_id", $user->id)->firstOrFail();
+            $donate = DonateTransactions::findOrFail($id);
 
-            $donate->delete();
+            if ($isAdmin || $donate->user_id === $user->id) {
+                $donate->delete();
+                return response()->json(['message' => 'Donation Transaction deleted successfully']);
+            } else {
+                return response()->json(['message' => "You don't have permission to delete this transaction."], 401);
+            }
 
-            return response()->json(['message' => 'Donation Transaction deleted successfully']);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Donate Transaction not found'], 404);
         } catch (\Exception $e) {

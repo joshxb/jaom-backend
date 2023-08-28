@@ -159,6 +159,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     //******************for transactions api**********************
     //transactions/donate?per_page=2&page=1&month=august&year=2023
     Route::get('/transactions/donate', [DonateTransactionsController::class, 'index']);
+    Route::get('/transactions/donate/all', [DonateTransactionsController::class, 'getAllIndex']);
     Route::post('/transactions/donate', [DonateTransactionsController::class, 'store']);
     Route::get('/transactions/donate/{id}', [DonateTransactionsController::class, 'show']);
     Route::put('/transactions/donate/{id}', [DonateTransactionsController::class, 'update']);
