@@ -19,6 +19,7 @@ use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
+use App\Http\Controllers\PageAnalyticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 //  api/users/?base=l or api/users/?base=d
 Route::post('/users', [UserController::class, 'store']);
+Route::post('/page-analytics', [PageAnalyticsController::class, 'store']);
 
 Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
@@ -142,6 +144,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for history api**********************
     Route::get('/history', [UserHistoryController::class, 'index']);
+    Route::get('/history/all', [UserHistoryController::class, 'indexAll']);
     Route::post('/history', [UserHistoryController::class, 'store']);
     Route::get('/history/{id}', [UserHistoryController::class, 'show']);
     Route::delete('/history/{id}', [UserHistoryController::class, 'destroy']);
@@ -175,6 +178,11 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     Route::put('/offer/{id}', [OfferController::class, 'update']);
     Route::delete('/offer/{id}', [OfferController::class, 'destroy']);
     Route::delete('/offer', [OfferController::class, 'destroyAll']);
+
+    Route::get('/page-analytics', [PageAnalyticsController::class, 'index']);
+    Route::get('/page-analytics/{id}', [PageAnalyticsController::class, 'show']);
+    Route::delete('/page-analytics/{id}', [PageAnalyticsController::class, 'destroy']);
+    Route::delete('/page-analytics', [PageAnalyticsController::class, 'destroyAll']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

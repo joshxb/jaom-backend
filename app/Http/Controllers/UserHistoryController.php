@@ -28,6 +28,21 @@ class UserHistoryController extends Controller
         return response()->json($userHistory, 201);
     }
 
+    public function indexAll()
+    {
+        $user = Auth::user();
+        if ($user->type == 'admin') {
+            $userHistories = $user ? UserHistory::orderBy('created_at', 'desc')->paginate(10) : null;
+
+            if (!$userHistories) {
+                return response()->json(['error' => 'User history not found.'], 404);
+            }
+            return response()->json($userHistories);
+        } else {
+            return response()->json(['message' => 'Permission denied'], 401);
+        }
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -59,14 +74,17 @@ class UserHistoryController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
+        $userHistory = null;
 
-        // If the user is authenticated, retrieve the user_history by ID only if it belongs to the current user
-        $userHistory = $user ? UserHistory::where('id', $id)->where('user_id', $user->id)->first() : null;
+        if ($user->type == 'admin') {
+            $userHistory = $user ? UserHistory::where('id', $id)->first() : null;
+        } else {
+            $userHistory = $user ? UserHistory::where('id', $id)->where('user_id', $user->id)->first() : null;
+        }
 
         if (!$userHistory) {
             return response()->json(['error' => 'User history not found.'], 404);
         }
-
         $userHistory->delete();
 
         return response()->json(['message' => 'User history deleted.']);

@@ -44,8 +44,7 @@ class DonateTransactionsController extends Controller
         // Calculate total amount for the specific month and year
         $totalAmountPerMonthAndYear = intval($query->sum('amount'));
 
-        // Count total users
-        $totalUsers = DonateTransactions::count();
+        $totalDonations = DonateTransactions::count();
 
 
         $results = DB::table('donate_transactions')
@@ -67,7 +66,7 @@ class DonateTransactionsController extends Controller
             'data' => $donate->items(),
             'total_amount' => $totalAmount,
             'total_amount_per_month_and_year' => $totalAmountPerMonthAndYear,
-            'total_user_donations' => $totalUsers,
+            'total_user_donations' => $totalDonations,
             'current_page' => $donate->currentPage(),
             'last_page' => $donate->lastPage(),
             'transactions' => $transactions
