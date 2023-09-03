@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Database\Seeders\FAQSDataSeeder;
 use Database\Seeders\UserDataSeeder;
+use Database\Seeders\ConfigurationSeeder;
 
 class FactoriesSeeder extends Seeder
 {
@@ -16,5 +17,6 @@ class FactoriesSeeder extends Seeder
     {
         $this->call(FAQSDataSeeder::class);
         $this->call(UserDataSeeder::class);
+        $this->call(ConfigurationSeeder::class);
     }
 }

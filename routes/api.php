@@ -20,6 +20,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
 use App\Http\Controllers\PageAnalyticsController;
+use App\Http\Controllers\ConfigurationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,147 +43,190 @@ Route::post('/page-analytics', [PageAnalyticsController::class, 'store']);
 Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     //******************for users api**********************
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/count', [UserController::class, 'userCounts']);
-    Route::get('/users/status', [UserController::class, 'countUsersByStatus']);
-    // api/users/user-range?range=xxxxx
-    Route::get('/users/user-range', [UserController::class, 'userRange']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    // api/search-users?search=xxxxx&&range=xxx
-    Route::get('/search-users', [UserController::class, 'searchUsers']);
-    // api/search-users/group_id?search=xxxxx&&range=xxx
-    Route::get('/search-users/{group_id}', [UserController::class, 'searchUsersWithExceptCurrentGroup']);
-    // api/search-users/v2/group_id?search=xxxxx&&range=xxx
-    Route::get('/search-users/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::get('/count', [UserController::class, 'userCounts']);
+        Route::get('/status', [UserController::class, 'countUsersByStatus']);
+        Route::get('/user-range', [UserController::class, 'userRange']);
+        Route::get('/{id}', [UserController::class, 'show']);
+        Route::put('/{id}', [UserController::class, 'update']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
+    });
+
+    Route::prefix('search-users')->group(function () {
+        // api/search-users?search=xxxxx&&range=xxx
+        Route::get('/', [UserController::class, 'searchUsers']);
+        // api/search-users/group_id?search=xxxxx&&range=xxx
+        Route::get('/{group_id}', [UserController::class, 'searchUsersWithExceptCurrentGroup']);
+        // api/search-users/v2/group_id?search=xxxxx&&range=xxx
+        Route::get('/v2/{group_id}', [UserController::class, 'searchUsersWithCurrentGroup']);
+    });
 
     //******************for room api**********************
-    Route::get('/group-image/{id}', [GroupChatImageController::class, 'getGroupImage']);
-    Route::get('/user-image', [UserImagesController::class, 'getUserImage']);
     Route::get('/other-user-image/{user_id}', [UserImagesController::class, 'getOtherUserImage']);
-    Route::post('/user-image/update', [UserImagesController::class, 'updateUserImage']);
-    Route::post('/user-image/{id}/update', [UserImagesController::class, 'updateOtherImage']);
-    Route::post('/group-image/update', [GroupChatImageController::class, 'updateGroupImage']);
+
+    Route::prefix('user-image')->group(function () {
+        Route::post('/update', [UserImagesController::class, 'updateUserImage']);
+        Route::post('/{id}/update', [UserImagesController::class, 'updateOtherImage']);
+        Route::get('/', [UserImagesController::class, 'getUserImage']);
+    });
+
+    Route::prefix('group-image')->group(function () {
+        Route::post('/update', [GroupChatImageController::class, 'updateGroupImage']);
+        Route::get('/{id}', [GroupChatImageController::class, 'getGroupImage']);
+    });
 
     //******************for conversations api**********************
-    Route::post('/conversations', [ConversationController::class, 'add_conversation']);
-    Route::get('/conversations/count', [ConversationController::class, 'conversationCounts']);
-    Route::get('/conversations/all', [MessageController::class, 'all_conversations']);
-    Route::get('/conversations', [MessageController::class, 'conversations']);
-    Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
-    Route::get('/conversations/{conversation}', [MessageController::class, 'messages']);
-    Route::post('/conversations/{conversation}/message', [MessageController::class, 'send_messages']);
-    Route::delete('/conversations/{conversation}/message/v1', [ConversationController::class, 'deleteConversation']);
-    Route::delete('/conversations/{conversation}/message/v2', [MessageController::class, 'clearMessages']);
-    Route::delete('/messages/{id}', [MessageController::class, 'deleteSpecificMessage']);
-    Route::get('/conversations/{conversation}/other-user-id', [ConversationController::class, 'getOtherUserId']);
-    Route::get('/conversations/newest/id', [ConversationController::class, 'getFirstConversationId']);
+    Route::prefix('conversations')->group(function () {
+        Route::post('/', [ConversationController::class, 'add_conversation']);
+        Route::get('/count', [ConversationController::class, 'conversationCounts']);
+        Route::get('/all', [MessageController::class, 'all_conversations']);
+        Route::get('/', [MessageController::class, 'conversations']);
+        Route::get('/{conversation}', [MessageController::class, 'messages']);
+        Route::post('/{conversation}/message', [MessageController::class, 'send_messages']);
+        Route::delete('/{conversation}/message/v1', [ConversationController::class, 'deleteConversation']);
+        Route::delete('/{conversation}/message/v2', [MessageController::class, 'clearMessages']);
+        Route::get('/{conversation}/other-user-id', [ConversationController::class, 'getOtherUserId']);
+        Route::get('/newest/id', [ConversationController::class, 'getFirstConversationId']);
+    });
+
     Route::put('/active/left_convo', [ConversationController::class, 'updateActiveLeftConvo']);
+    Route::get('/first-conversations', [MessageController::class, 'first_conversations']);
+    Route::delete('/messages/{id}', [MessageController::class, 'deleteSpecificMessage']);
 
     //******************for groupchats api**********************
-    Route::get('/group_chats', [GroupChatController::class, 'index']);
-    Route::get('/group_chats/count', [GroupChatController::class, 'groupChatCounts']);
-    Route::get('/group_chats/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
+    Route::prefix('group_chats')->group(function () {
+        Route::get('/', [GroupChatController::class, 'index']);
+        Route::get('/count', [GroupChatController::class, 'groupChatCounts']);
+        Route::get('/current_user', [GroupChatController::class, 'indexWithCurrentUser']);
+        Route::post('/', [GroupChatController::class, 'store']);
+        Route::get('/{groupId}', [GroupChatController::class, 'show']);
+        Route::put('/{groupChat}', [GroupChatController::class, 'update']);
+        Route::delete('/{groupId}', [GroupChatController::class, 'destroyV2']);
+        Route::delete('/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
+        Route::post('/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
+    });
+
+    Route::put('/active/left_group_convo', [GroupChatController::class, 'updateActiveLeftGroupConvo']);
     Route::get('/first-group-messages', [GroupChatController::class, 'getFirstGroupMessages']);
     Route::get('/specific-group-messages/{group_id}', [GroupChatController::class, 'getSpecificGroupMessages']);
-    Route::post('/group_chats', [GroupChatController::class, 'store']);
-    Route::get('/group_chats/{groupId}', [GroupChatController::class, 'show']);
-    Route::put('/group_chats/{groupChat}', [GroupChatController::class, 'update']);
-    Route::delete('/group_chats/{groupId}', [GroupChatController::class, 'destroyV2']);
-    Route::delete('/group_chats/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
-    Route::post('/group_chats/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);
-    Route::put('/active/left_group_convo', [GroupChatController::class, 'updateActiveLeftGroupConvo']);
 
     //******************for group-users api**********************
-    Route::get('/group_users', [GroupUserController::class, 'index']);
-    Route::post('/group_users', [GroupUserController::class, 'store']);
-    Route::get('/group_users/{group_id}', [GroupUserController::class, 'show']);
-    Route::put('/group_users/{groupUser}', [GroupUserController::class, 'update']);
-    Route::delete('/group_users/{groupUser}', [GroupUserController::class, 'destroy']);
+    Route::prefix('group_users')->group(function () {
+        Route::get('/', [GroupUserController::class, 'index']);
+        Route::post('/', [GroupUserController::class, 'store']);
+        Route::get('/{group_id}', [GroupUserController::class, 'show']);
+        Route::put('/{groupUser}', [GroupUserController::class, 'update']);
+        Route::delete('/{groupUser}', [GroupUserController::class, 'destroy']);
+    });
 
     //******************for groupchats api**********************
     Route::get('/group-chats/{groupId}/messages', [GroupMessageController::class, 'getGroupMessagesWithUsers']);
-    Route::get('/group_messages', [GroupMessageController::class, 'index']);
-    Route::get('/group_messages/{group_message}', [GroupMessageController::class, 'show']);
-    Route::post('/group_messages', [GroupMessageController::class, 'store']);
-    Route::put('/group_messages/{group_message}', [GroupMessageController::class, 'update']);
-    Route::delete('/group_messages/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
-    Route::delete('/group_messages/v2/{id}', [GroupMessageController::class, 'destroy']);
+    Route::prefix('group_messages')->group(function () {
+        Route::get('/', [GroupMessageController::class, 'index']);
+        Route::get('/{group_message}', [GroupMessageController::class, 'show']);
+        Route::post('/', [GroupMessageController::class, 'store']);
+        Route::put('/{group_message}', [GroupMessageController::class, 'update']);
+        Route::delete('/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
+        Route::delete('/v2/{id}', [GroupMessageController::class, 'destroy']);
+    });
 
     //******************for current user updates api**********************
-    Route::get('/updates/count', [UpdateController::class, 'updatesCounts']);
-    Route::get('/updates', [UpdateController::class, 'allUpdates']);
-    Route::get('/updates/current_user', [UpdateController::class, 'index']);
-    Route::post('/updates/current_user', [UpdateController::class, 'store']);
-    Route::get('/updates/{id}/current_user', [UpdateController::class, 'show']);
-    Route::put('/updates/{id}/current_user', [UpdateController::class, 'update']);
-    Route::put('/updates/{id}/permission', [UpdateController::class, 'updatePermission']);
-    Route::delete('/updates/{id}/current_user', [UpdateController::class, 'destroy']);
+    Route::prefix('updates')->group(function () {
+        Route::get('/count', [UpdateController::class, 'updatesCounts']);
+        Route::get('/', [UpdateController::class, 'allUpdates']);
+        Route::get('/current_user', [UpdateController::class, 'index']);
+        Route::post('/current_user', [UpdateController::class, 'store']);
+        Route::get('/{id}/current_user', [UpdateController::class, 'show']);
+        Route::put('/{id}/current_user', [UpdateController::class, 'update']);
+        Route::put('/{id}/permission', [UpdateController::class, 'updatePermission']);
+        Route::delete('/{id}/current_user', [UpdateController::class, 'destroy']);
+    });
 
     //******************for todo-task api**********************
-    Route::get('/todos', [TodoController::class, 'index']);
-    Route::get('/v2/todos', [TodoController::class, 'allTodos']);
-    Route::post('/todos', [TodoController::class, 'store']);
-    Route::get('/todos/{id}', [TodoController::class, 'show']);
-    Route::put('/todos/{id}', [TodoController::class, 'update']);
-    Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
+    Route::prefix('todos')->group(function () {
+        Route::get('/', [TodoController::class, 'index']);
+        Route::get('/v2', [TodoController::class, 'allTodos']);
+        Route::post('/', [TodoController::class, 'store']);
+        Route::get('/{id}', [TodoController::class, 'show']);
+        Route::put('/{id}', [TodoController::class, 'update']);
+        Route::delete('/{id}', [TodoController::class, 'destroy']);
+    });
 
     //******************for faqs api**********************
-    Route::get('/faqs', [FAQSController::class, 'index']);
-    Route::post('/faqs', [FAQSController::class, 'store']);
-    Route::get('/faqs/{faq}', [FAQSController::class, 'show']);
-    Route::put('/faqs/{faq}', [FAQSController::class, 'update']);
-    Route::delete('/faqs/{faq}', [FAQSController::class, 'destroy']);
+    Route::prefix('faqs')->group(function () {
+        Route::get('/', [FAQSController::class, 'index']);
+        Route::post('/', [FAQSController::class, 'store']);
+        Route::get('/{faq}', [FAQSController::class, 'show']);
+        Route::put('/{faq}', [FAQSController::class, 'update']);
+        Route::delete('/{faq}', [FAQSController::class, 'destroy']);
+    });
 
     //******************for feedbacks api**********************
-    Route::get('/feedbacks', [FeedbackController::class, 'index']);
-    Route::post('/feedbacks', [FeedbackController::class, 'store']);
-    Route::get('/feedbacks/{id}', [FeedbackController::class, 'show']);
-    Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
-    Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
+    Route::prefix('feedbacks')->group(function () {
+        Route::get('/', [FeedbackController::class, 'index']);
+        Route::post('/', [FeedbackController::class, 'store']);
+        Route::get('/{id}', [FeedbackController::class, 'show']);
+        Route::put('/{id}', [FeedbackController::class, 'update']);
+        Route::delete('/{id}', [FeedbackController::class, 'destroy']);
+    });
 
     //******************for history api**********************
-    Route::get('/history', [UserHistoryController::class, 'index']);
-    Route::get('/history/all', [UserHistoryController::class, 'indexAll']);
-    Route::post('/history', [UserHistoryController::class, 'store']);
-    Route::get('/history/{id}', [UserHistoryController::class, 'show']);
-    Route::delete('/history/{id}', [UserHistoryController::class, 'destroy']);
-    Route::delete('/history', [UserHistoryController::class, 'destroyAll']);
+    Route::prefix('history')->group(function () {
+        Route::get('/', [UserHistoryController::class, 'index']);
+        Route::get('/all', [UserHistoryController::class, 'indexAll']);
+        Route::post('/', [UserHistoryController::class, 'store']);
+        Route::get('/{id}', [UserHistoryController::class, 'show']);
+        Route::delete('/{id}', [UserHistoryController::class, 'destroy']);
+        Route::delete('/', [UserHistoryController::class, 'destroyAll']);
+    });
 
     //******************for notifications api**********************
-    Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::get('/notifications/current', [NotificationController::class, 'currentIndex']);
-    Route::post('/notifications', [NotificationController::class, 'store']);
-    Route::get('/notifications/{id}', [NotificationController::class, 'show']);
-    Route::put('/notifications/{id}', [NotificationController::class, 'update']);
-    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-    Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/current', [NotificationController::class, 'currentIndex']);
+        Route::post('/', [NotificationController::class, 'store']);
+        Route::get('/{id}', [NotificationController::class, 'show']);
+        Route::put('/{id}', [NotificationController::class, 'update']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        Route::delete('/', [NotificationController::class, 'destroyAll']);
+    });
 
     //******************for transactions api**********************
     //transactions/donate?per_page=2&page=1&month=august&year=2023
-    Route::get('/transactions/donate', [DonateTransactionsController::class, 'index']);
-    Route::get('/transactions/donate/all', [DonateTransactionsController::class, 'getAllIndex']);
-    Route::post('/transactions/donate', [DonateTransactionsController::class, 'store']);
-    Route::get('/transactions/donate/{id}', [DonateTransactionsController::class, 'show']);
-    Route::put('/transactions/donate/{id}', [DonateTransactionsController::class, 'update']);
-    Route::delete('/transactions/donate/{id}', [DonateTransactionsController::class, 'destroy']);
-    Route::delete('/transactions/donate', [DonateTransactionsController::class, 'destroyAll']);
-    Route::get('/transactions/donate/ss/{id}', [DonationImageController::class, 'getScreenShot']);
-    Route::post('/transactions/donate/ss/{id}', [DonationImageController::class, 'updateDonationSS']);
+    Route::prefix('transactions/donate')->group(function () {
+        Route::get('/', [DonateTransactionsController::class, 'index']);
+        Route::get('/all', [DonateTransactionsController::class, 'getAllIndex']);
+        Route::post('/', [DonateTransactionsController::class, 'store']);
+        Route::get('/{id}', [DonateTransactionsController::class, 'show']);
+        Route::put('/{id}', [DonateTransactionsController::class, 'update']);
+        Route::delete('/{id}', [DonateTransactionsController::class, 'destroy']);
+        Route::delete('/', [DonateTransactionsController::class, 'destroyAll']);
+        Route::get('/ss/{id}', [DonationImageController::class, 'getScreenShot']);
+        Route::post('/ss/{id}', [DonationImageController::class, 'updateDonationSS']);
+    });
 
     //offer?per_page=2&page=1
-    Route::get('/offer', [OfferController::class, 'index']);
-    Route::post('/offer', [OfferController::class, 'store']);
-    Route::get('/offer/{id}', [OfferController::class, 'show']);
-    Route::put('/offer/{id}', [OfferController::class, 'update']);
-    Route::delete('/offer/{id}', [OfferController::class, 'destroy']);
-    Route::delete('/offer', [OfferController::class, 'destroyAll']);
+    Route::prefix('offer')->group(function () {
+        Route::get('/', [OfferController::class, 'index']);
+        Route::post('/', [OfferController::class, 'store']);
+        Route::get('/{id}', [OfferController::class, 'show']);
+        Route::put('/{id}', [OfferController::class, 'update']);
+        Route::delete('/{id}', [OfferController::class, 'destroy']);
+        Route::delete('/', [OfferController::class, 'destroyAll']);
+    });
 
-    Route::get('/page-analytics', [PageAnalyticsController::class, 'index']);
-    Route::get('/page-analytics/{id}', [PageAnalyticsController::class, 'show']);
-    Route::delete('/page-analytics/{id}', [PageAnalyticsController::class, 'destroy']);
-    Route::delete('/page-analytics', [PageAnalyticsController::class, 'destroyAll']);
+    Route::prefix('page-analytics')->group(function () {
+        Route::get('/', [PageAnalyticsController::class, 'index']);
+        Route::get('/{id}', [PageAnalyticsController::class, 'show']);
+        Route::delete('/{id}', [PageAnalyticsController::class, 'destroy']);
+        Route::delete('/', [PageAnalyticsController::class, 'destroyAll']);
+    });
+
+    Route::prefix('configuration')->group(function () {
+        Route::get('/', [ConfigurationController::class, 'show']);
+        Route::put('/', [ConfigurationController::class, 'update']);
+    });
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
