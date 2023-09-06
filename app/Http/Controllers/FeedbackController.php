@@ -10,7 +10,7 @@ class FeedbackController extends Controller
 {
     public function index()
     {
-        $feedbacks = Feedback::all();
+        $feedbacks = Feedback::orderBy('created_at', 'desc')->paginate();
         return response()->json($feedbacks);
     }
 
@@ -44,18 +44,21 @@ class FeedbackController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'description' => 'required',
+            'description' => 'string',
+            'response_object' => 'json'
         ]);
 
         $feedback = Feedback::findOrFail($id);
         $user = Auth::user();
 
-        if ($feedback->user_id !== $user->id) {
-            return response()->json('Unauthorized', 401);
+        if ($user->type == 'admin') {
+        } else {
+            if ($feedback->user_id !== $user->id) {
+                return response()->json('Permission denied!', 401);
+            }
         }
 
         $feedback->update($validatedData);
-
         return response()->json($feedback);
     }
 
@@ -64,8 +67,11 @@ class FeedbackController extends Controller
         $feedback = Feedback::findOrFail($id);
         $user = Auth::user();
 
-        if ($feedback->user_id !== $user->id) {
-            return response()->json('Unauthorized', 401);
+        if ($user->type == 'admin') {
+        } else {
+            if ($feedback->user_id !== $user->id) {
+                return response()->json('Unauthorized', 401);
+            }
         }
 
         $feedback->delete();
