@@ -22,6 +22,8 @@ class FeedbackController extends Controller
             'description' => 'required',
         ]);
 
+        $validatedData['response_object'] = json_encode([]);
+
         $feedback = new Feedback($validatedData);
         $feedback->user_id = $user->id;
         $feedback->save();
