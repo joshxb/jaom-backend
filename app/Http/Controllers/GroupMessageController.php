@@ -62,6 +62,7 @@ class GroupMessageController extends Controller
                     'user_id' => $message->user_id,
                     'sender_name' => $message->user->firstname . ' ' . $message->user->lastname,
                     'group_name' => $message->groupChat->name,
+                    'content' => $message->content,
                     'created_at' => $message->created_at
                 ];
             } else {
@@ -72,6 +73,7 @@ class GroupMessageController extends Controller
                     'user_id' => $message->user_id,
                     'sender_name' => 'Unknown User',
                     'group_name' => $message->groupChat->name,
+                    'content' => $message->content,
                     'created_at' => $message->created_at
                 ];
             }
