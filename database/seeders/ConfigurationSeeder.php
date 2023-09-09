@@ -24,6 +24,18 @@ class ConfigurationSeeder extends Seeder
                 'phone_number' => '09345673456',
                 'email_address' => 'jaomconnect.info@gmail.com',
             ]),
+            'auto_add_room' => true,
+            'login_credentials' => json_encode([
+                'email' => false,
+                'phone' => false,
+                'both' => true
+            ]),
+            'account_deactivation' => json_encode([
+                '1' => true,
+                '2' => false,
+                '3' => false,
+                '>3' => false
+            ])
         ]);
     }
 }

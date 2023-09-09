@@ -13,7 +13,7 @@ class GroupChat extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'user_id', 'group_image', 'left_active_count'];
+    protected $fillable = ['name', 'user_id', 'group_image', 'left_active_count', 'type'];
 
     public function groupUsers()
     {

@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class GroupChatController extends Controller
 {
-    public function groupChatCounts() {
+    public function groupChatCounts()
+    {
         $groupChatCount = GroupChat::count();
         return response()->json(['room_count' => $groupChatCount]);
     }
@@ -28,7 +29,7 @@ class GroupChatController extends Controller
             ->select('group_id', DB::raw('MAX(id) as latest_message_id'))
             ->groupBy('group_id');
 
-        $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count')
+        $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count, c.type')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoinSub($latestMessageIds, 'm', function ($join) {
@@ -204,7 +205,12 @@ class GroupChatController extends Controller
 
     public function index()
     {
-        $groupChats = GroupChat::with("user")->paginate(10);
+        $groupChats = null;
+        if (request()->filled('default') && request('default') === 'true') {
+            $groupChats = GroupChat::where('type', 'default')->with("user")->paginate(10);
+        } else {
+            $groupChats = GroupChat::with("user")->paginate(10);
+        }
         return response()->json($groupChats);
     }
 
@@ -214,9 +220,7 @@ class GroupChatController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required',
-            'user_ids' => 'array',
-            // Ensure user_ids is an array
-            'user_ids.*' => 'exists:users,id', // Validate that each user_id exists in the users table
+            'user_ids' => 'string|nullable', // Change the validation rule for user_ids to accept a JSON string
         ]);
 
         $groupChat = GroupChat::where("user_id", $user->id)
@@ -224,23 +228,48 @@ class GroupChatController extends Controller
             ->first();
 
         if (!$groupChat) {
-            $groupChat = GroupChat::create([
-                "name" => $validatedData["name"],
-                "user_id" => $user->id,
-            ]);
+            if ($request->image) {
+                $image = $request->file('image');
+
+                $imageBlob = file_get_contents($image->getPathname());
+                $imageBlob = base64_encode($imageBlob);
+
+                $groupChat = GroupChat::create([
+                    "name" => $validatedData["name"],
+                    "user_id" => $user->id,
+                    "group_image" => $imageBlob,
+                    "type" => 'default'
+                ]);
+            } else {
+                $groupChat = GroupChat::create([
+                    "name" => $validatedData["name"],
+                    "user_id" => $user->id,
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Room name already exists. Please choose a different name'
+            ], 422);
         }
 
-        $userIds = $validatedData['user_ids'];
-
-        $groupId = $groupChat->id;
-
         $groupUsers = [];
-        foreach ($userIds as $userId) {
-            $groupUser = GroupUser::create([
-                'group_id' => $groupId,
-                'user_id' => $userId,
-            ]);
-            $groupUsers[] = $groupUser;
+        if ($validatedData['user_ids']) {
+            $userIds = json_decode($validatedData['user_ids']); // Decode the JSON string into an array
+
+            $groupId = $groupChat->id;
+
+            foreach ($userIds as $userId) {
+                if (GroupUser::where('group_id', $groupId)->where('user_id', $userId)->exists()) {
+                    continue;
+                }
+
+                $groupUser = GroupUser::create([
+                    'group_id' => $groupId,
+                    'user_id' => $userId,
+                ]);
+                $groupUsers[] = $groupUser;
+            }
         }
 
         return response()->json([

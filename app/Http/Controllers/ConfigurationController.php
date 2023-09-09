@@ -47,6 +47,18 @@ class ConfigurationController extends Controller
             $configuration->contact_details_object = $request->input('contact_details_object');
         }
 
+        if ($request->filled('auto_add_room')) {
+            $configuration->auto_add_room = $request->input('auto_add_room');
+        }
+
+        if ($request->filled('login_credentials')) {
+            $configuration->login_credentials = $request->input('login_credentials');
+        }
+
+        if ($request->filled('account_deactivation')) {
+            $configuration->account_deactivation = $request->input('account_deactivation');
+        }
+
         $configuration->save();
         return response()->json(['message' => 'Configuration updated successfully']);
     }
