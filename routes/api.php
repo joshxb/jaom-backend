@@ -225,7 +225,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
 
     Route::prefix('configuration')->group(function () {
         Route::get('/', [ConfigurationController::class, 'show']);
-        Route::put('/', [ConfigurationController::class, 'updgrouate']);
+        Route::put('/', [ConfigurationController::class, 'update']);
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
