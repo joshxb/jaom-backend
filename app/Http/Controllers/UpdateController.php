@@ -77,9 +77,6 @@ class UpdateController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        // if ($user->type !== 'admin') {
-        //     return response()->json(['message' => "You are not authorize yet to add new updates. Contact to your administrator."], 403);
-        // }
         $update = new Update;
         $update->subject = $request->subject;
         $update->content = $request->content;
@@ -109,9 +106,6 @@ class UpdateController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        // if ($user->type !== 'admin') {
-        //     return response()->json(['message' => "You are not authorize yet to add new updates. Contact to your administrator."], 403);
-        // }
         $update = Update::find($id);
         if (!$update) {
             return response()->json(['message' => 'Update not found'], 404);
