@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
 use App\Models\Update;
@@ -54,11 +53,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    // public function groupChats()
-    // {
-    //     return $this->hasMany(GroupChat::class);
-    // }
 
     public function groupMessages()
     {
