@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('configurations', function (Blueprint $table) {
             $table->boolean('auto_add_room')->default(true)->after('contact_details_object');
-            $table->json('login_credentials')->default(json_encode([]))->after('auto_add_room');
-            $table->json('account_deactivation')->default(json_encode([]))->after('login_credentials');
+            $table->json('login_credentials')->after('auto_add_room');
+            $table->json('account_deactivation')->after('login_credentials');
         });
     }
 
