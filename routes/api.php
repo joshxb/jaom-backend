@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::post('/', [GroupChatController::class, 'store']);
         Route::get('/{groupId}', [GroupChatController::class, 'show']);
         Route::put('/{groupChat}', [GroupChatController::class, 'update']);
+        Route::put('/v2/{groupChat}', [GroupChatController::class, 'update2']);
         Route::delete('/{groupId}', [GroupChatController::class, 'destroyV2']);
         Route::delete('/{user_id}/{group_id}', [GroupChatController::class, 'destroy']);
         Route::post('/v1/{group_id}', [GroupChatController::class, 'destroySelectedGroupUsers']);

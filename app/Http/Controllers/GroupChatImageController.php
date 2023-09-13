@@ -34,7 +34,7 @@ class GroupChatImageController extends Controller
         $user = Auth::user();
 
         // Check if the user is authenticated
-        if ($user === null || intval($user->id) !== intval($request->user_id)) {
+        if ($user->type !== 'admin' && ($user === null || intval($user->id) !== intval($request->user_id))) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthenticated.',
@@ -53,10 +53,16 @@ class GroupChatImageController extends Controller
         $imageBlob = file_get_contents($image->getPathname());
         $imageBlob = base64_encode($imageBlob);
 
-        // Create a new image record in the database
-        $groupImage = GroupChat::find($request->id);
-        $groupImage->group_image = $imageBlob;
-        $groupImage->save();
+        if ($user->type === 'admin') {
+            $roomId = $request->groupId;
+            $groupImage = GroupChat::find($roomId);
+            $groupImage->group_image = $imageBlob;
+            $groupImage->save();
+        } else {
+            $groupImage = GroupChat::find($request->id);
+            $groupImage->group_image = $imageBlob;
+            $groupImage->save();
+        }
 
         // Redirect or perform additional actions as needed
         return response()->json([
