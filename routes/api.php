@@ -146,12 +146,12 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     //******************for todo-task api**********************
     Route::prefix('todos')->group(function () {
         Route::get('/', [TodoController::class, 'index']);
-        Route::get('/v2', [TodoController::class, 'allTodos']);
         Route::post('/', [TodoController::class, 'store']);
         Route::get('/{id}', [TodoController::class, 'show']);
         Route::put('/{id}', [TodoController::class, 'update']);
         Route::delete('/{id}', [TodoController::class, 'destroy']);
     });
+    Route::get('/v2/todos', [TodoController::class, 'allTodos']);
 
     //******************for faqs api**********************
     Route::prefix('faqs')->group(function () {
