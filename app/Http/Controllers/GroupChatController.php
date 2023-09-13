@@ -301,6 +301,27 @@ class GroupChatController extends Controller
         ]);
     }
 
+    public function update2(Request $request, $groupChat)
+    {
+
+        $user = Auth::user();
+        if ($user->type !== 'admin') {
+            return response()->json(['message' => 'Permission denied. You are not allowed to modify the room data.'], 403);
+        }
+
+        $validatedData = $request->validate([
+        ]);
+        if ($request->filled('name')) {
+            $validatedData['name'] = $request->name;
+        }
+
+        GroupChat::find($groupChat)->update($validatedData);
+
+        return response()->json([
+            'message' => 'Group chat updated successfully.',
+        ]);
+    }
+
     public function destroy($user_id, $group_id)
     {
         $user = Auth::user();
