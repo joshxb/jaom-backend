@@ -12,12 +12,12 @@ class ConfigurationController extends Controller
 
     public function show()
     {
-        $user = Configuration::find(self::$configurationId);
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+        $configure = Configuration::find(self::$configurationId);
+        if (!$configure) {
+            return response()->json(['message' => 'Configuration not found'], 404);
         }
 
-        return response()->json(['data' => $user]);
+        return response()->json(['data' => $configure]);
     }
 
     public function update(Request $request)
@@ -62,4 +62,24 @@ class ConfigurationController extends Controller
         $configuration->save();
         return response()->json(['message' => 'Configuration updated successfully']);
     }
+
+    public function getTrueLoginCredentials()
+    {
+        $configure = Configuration::find(self::$configurationId);
+        if (!$configure) {
+            return response()->json(['message' => 'Configuration not found'], 404);
+        }
+
+        $credentials = json_decode($configure->login_credentials, true);
+        $trueCredentials = [];
+
+        foreach ($credentials as $key => $value) {
+            if ($value === true) {
+                $trueCredentials[] = $key;
+            }
+        }
+
+        return response()->json(['access_method' => $trueCredentials]);
+    }
+
 }

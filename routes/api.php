@@ -243,3 +243,4 @@ Route::post('/migrate', [MigrationController::class, 'migrate']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/login-method/access/credentials', [ConfigurationController::class, 'getTrueLoginCredentials']);

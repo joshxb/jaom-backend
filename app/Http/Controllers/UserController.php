@@ -57,16 +57,16 @@ class UserController extends Controller
         ]);
     }
 
-    public function adminAccessUsers() 
+    public function adminAccessUsers()
     {
         if (Auth::user()->type != 'admin') {
             return response()->json(['message' => "Unauthorized you don't have a permission!"], 401);
         }
-        
-        $users = User::where('type', 'admin')->get();
+
+        $users = User::where('id', '!=', Auth::user()->id)->where('type', 'admin')->get();
         return response()->json(['data' => $users]);
     }
-    
+
     public function userRange(Request $request)
     {
         $range = $request->input('range');
@@ -157,7 +157,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-        
+
         return response()->json(['data' => $user]);
     }
 

@@ -3,21 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    public static $configurationId = 2023;
+
     public function login(Request $request)
     {
         $credentials = $request->only(['email', 'phone', 'password']);
 
         $user = null;
 
+        $configure = Configuration::find(self::$configurationId);
+        if (!$configure) {
+            return response()->json(['message' => 'Configuration not found'], 404);
+        }
+
+        $login_credentials = json_decode($configure->login_credentials, true);
+        $trueCredentials = [];
+
+        foreach ($login_credentials as $key => $value) {
+            if ($value === true) {
+                $trueCredentials[] = $key;
+            }
+        }
+
         if (isset($credentials['email'])) {
+            if ($trueCredentials[0] === 'phone') {
+                return response()->json(['message' => 'Email address is not supported for login credentials'], 401);
+            }
             $user = User::where('email', $credentials['email'])->first();
         } else if (isset($credentials['phone'])) {
+            if ($trueCredentials[0] === 'email') {
+                return response()->json(['message' => 'Phone number is not supported for login credentials'], 401);
+            }
             $user = User::where('phone', $credentials['phone'])->first();
         }
 
