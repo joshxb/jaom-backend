@@ -45,6 +45,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     //******************for users api**********************
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
+        Route::get('/administrative-access', [UserController::class, 'adminAccessUsers']);
         Route::get('/count', [UserController::class, 'userCounts']);
         Route::get('/status', [UserController::class, 'countUsersByStatus']);
         Route::get('/user-range', [UserController::class, 'userRange']);

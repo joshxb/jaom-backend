@@ -57,6 +57,12 @@ class UserController extends Controller
         ]);
     }
 
+    public function adminAccessUsers() 
+    {
+        $users = User::where('type', 'admin')->get();
+        return response()->json(['data' => $users]);
+    }
+    
     public function userRange(Request $request)
     {
         $range = $request->input('range');
