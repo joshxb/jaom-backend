@@ -53,7 +53,7 @@ class GroupChatImageController extends Controller
         $imageBlob = file_get_contents($image->getPathname());
         $imageBlob = base64_encode($imageBlob);
 
-        if ($user->type === 'admin') {
+        if ($user->type === 'admin' && $request->input('role') === 'admin') {
             $roomId = $request->groupId;
             $groupImage = GroupChat::find($roomId);
             $groupImage->group_image = $imageBlob;
