@@ -281,17 +281,17 @@ class UserController extends Controller
     {
         $range = $request->input('range');
         $search = $request->input('search');
+        $groupUsers = GroupUser::where("group_id", $request->group_id)->get()->pluck('user_id')->toArray();
 
-        $groupUsers = GroupUser::where("group_id", $request->group_id)->get();
+        $users = User::query();
 
-        $users = User::where(function ($query) use ($search, $groupUsers) {
-            foreach ($groupUsers as $groupUser) {
-                // Access individual groupUser properties
-                $userId = $groupUser->user_id;
-                $query->where("id", "!=", $userId);
+        if (!empty($search)) {
+            $users->where(function ($query) use ($search) {
                 $query->where(DB::raw("concat(firstname, ' ', lastname)"), 'like', '%' . $search . '%');
-            }
-        });
+            });
+        }
+
+        $users->whereNotIn('id', $groupUsers);
 
         // Add the 'where' condition for visibility
         $users->where('visibility', 'visible');

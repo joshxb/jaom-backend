@@ -208,9 +208,15 @@ class GroupChatController extends Controller
         $groupChats = null;
         if (request()->filled('default') && request('default') === 'true') {
             $groupChats = GroupChat::where('type', 'default')->with("user")->paginate(10);
+
+            $groupChats->each(function ($item) {
+                $item->total_messages = $this->getTotalMessages($item->id);
+            });
+
         } else {
             $groupChats = GroupChat::with("user")->paginate(10);
         }
+
         return response()->json($groupChats);
     }
 
@@ -429,16 +435,18 @@ class GroupChatController extends Controller
 
             return response()->json(['message' => 'updated successfully']);
         } else {
-            $groupUser = GroupUser::where('group_id', $validatedData['id'])->where('user_id', $user->id)->first();
+            if (GroupChat::where('id', $validatedData['id'])->where('type', 'local')->first()) {
+                $groupUser = GroupUser::where('group_id', $validatedData['id'])->where('user_id', $user->id)->first();
 
-            if ($groupUser) {
-                $groupUser->update([
-                    'left_active_count' => $validatedData['messages_count'],
-                ]);
+                if ($groupUser) {
+                    $groupUser->update([
+                        'left_active_count' => $validatedData['messages_count'],
+                    ]);
 
-                return response()->json(['message' => 'updated successfully']);
-            } else {
-                return response()->json(['error' => 'Group Conversation not found'], 404);
+                    return response()->json(['message' => 'updated successfully']);
+                } else {
+                    return response()->json(['error' => 'Group Conversation not found'], 404);
+                }
             }
         }
     }
