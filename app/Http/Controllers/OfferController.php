@@ -15,7 +15,9 @@ class OfferController extends Controller
     {
         $user = Auth::user();
         $perPage = $request->input('per_page', 20); // Change 'page' to 'per_page'
-        $offer = Offer::where('user_id', $user->id)->paginate($perPage);
+        $offer = $request->input('role') === 'admin' && $user->type === 'admin' ?
+            Offer::paginate($perPage) :
+            Offer::where('user_id', $user->id)->paginate($perPage);
 
         return response()->json($offer);
     }
@@ -85,10 +87,12 @@ class OfferController extends Controller
         $user = Auth::user();
 
         try {
-            $offer = Offer::where("id", $id)->where("user_id", $user->id)->firstOrFail();
+            $offer = request()->input('role') === 'admin' && $user->type === 'admin' ?
+                Offer::where("id", $id)->firstOrFail() :
+                Offer::where("id", $id)->where("user_id", $user->id)->firstOrFail();
 
             // Check if the authenticated user has permission to delete the donation
-            if ($offer->user_id !== $user->id) {
+            if ($offer->user_id !== $user->id && request()->input('role') !== 'admin') {
                 return response()->json(['message' => 'Permission denied. You are not allowed to delete this offer list.'], 403);
             }
 

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Djunehor\Logos\Bible;
 use Exception;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Notification;
 
 class BibleGeneratorController extends Controller
 {
@@ -19,12 +20,41 @@ class BibleGeneratorController extends Controller
     {
         try {
             $bibleBooks = [
-                'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalms', 'Proverbs',
-                'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel',
-                'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew',
-                'Mark', 'Luke', 'John', 'Acts', 'Romans', 'Galatians', 'Ephesians', 'Philippians',
-                'Colossians', 'Titus', 'Philemon', 'Hebrews', 'James',
-                'Jude', 'Revelation',
+                'Genesis',
+                'Joshua',
+                'Judges',
+                'Ruth',
+                'Ezra',
+                'Nehemiah',
+                'Esther',
+                'Psalms',
+                'Proverbs',
+                'Isaiah',
+                'Jeremiah',
+                'Daniel',
+                'Hosea',
+                'Joel',
+                'Amos',
+                'Obadiah',
+                'Jonah',
+                'Micah',
+                'Nahum',
+                'Zephaniah',
+                'Haggai',
+                'Zechariah',
+                'Malachi',
+                'Matthew',
+                'Mark',
+                'John',
+                'Romans',
+                'Galatians',
+                'Ephesians',
+                'Philippians',
+                'Philemon',
+                'Hebrews',
+                'James',
+                'Jude',
+                'Revelation',
             ];
 
             // Get a random book from the array
@@ -67,14 +97,23 @@ class BibleGeneratorController extends Controller
                 'day' => $currentDay,
             ];
 
-            $limit = 50;
-            $usersToSend = $users->take($limit);
+            $limit = 100;
+            $usersToSend = $users;
 
             foreach ($usersToSend as $user) {
                 Mail::to($user->email)->send(new BibleQuoteMail($bibleEmailData));
             }
 
-            // Return the random verse along with the complete quote
+            $notification = new Notification();
+            $notification->title = 'Newly Bible Quote Sent to Email';
+            $notification->notification_object = json_encode([
+                'todo_id' => null,
+                'title' => 'Hello there, bible-quote was successfully sent to respective emails based on scheduled time:',
+                'content' => $verse . ': ' .$quote,
+            ]);
+            $notification->user_id = auth()->user()->id;
+            $notification->save();
+
             return [
                 'verse' => $verse,
                 'quote' => $quote,

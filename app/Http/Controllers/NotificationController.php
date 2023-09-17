@@ -11,14 +11,16 @@ use Illuminate\Support\Facades\Mail;
 
 class NotificationController extends Controller
 {
-
     public function index()
     {
-        $notifications = Notification::all();
+        $notifications = Notification
+            ::where('title', "Prayer Offer Request Notification")
+            ->orWhere('title', "Donation's Transaction Notification")
+            ->orWhere('title', "Newly Bible Quote Sent to Email")
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        return response()->json([
-            'data' => $notifications,
-        ]);
+        return response()->json($notifications);
     }
 
     public function currentIndex()
