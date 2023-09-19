@@ -24,7 +24,7 @@ Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verif
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
 Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote'])->name('generate.bible.quote');
 Route::post('/forgot-pass-request', [PasswordResetRequestController::class, 'sendRequest'])->name('forgot.pass.request');
+Route::post('/reset-password', [PasswordResetRequestController::class, 'resetPassword'])->name('reset.pass');
 
 // Include the API routes
 require __DIR__.'/api.php';
-    
