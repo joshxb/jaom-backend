@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\BibleGeneratorController;
+use App\Http\Controllers\PasswordResetRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,10 @@ Route::get('/send-donation', function() {
 });
 
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
-
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
-
 Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote'])->name('generate.bible.quote');
+Route::post('/forgot-pass-request', [PasswordResetRequestController::class, 'sendRequest'])->name('forgot.pass.request');
+
 // Include the API routes
 require __DIR__.'/api.php';
+    
