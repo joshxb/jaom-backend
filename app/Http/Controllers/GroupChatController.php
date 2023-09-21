@@ -226,7 +226,7 @@ class GroupChatController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required',
-            'user_ids' => 'string|nullable', // Change the validation rule for user_ids to accept a JSON string
+            'user_ids' => 'nullable', // Change the validation rule for user_ids to accept a JSON string
         ]);
 
         $groupChat = GroupChat::where("user_id", $user->id)
@@ -253,28 +253,33 @@ class GroupChatController extends Controller
                 ]);
             }
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Room name already exists. Please choose a different name'
-            ], 422);
+            if ($request->status !== 'update') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Room name already exists. Please choose a different name'
+                ], 422);
+            }
         }
 
         $groupUsers = [];
         if ($validatedData['user_ids']) {
-            $userIds = json_decode($validatedData['user_ids']); // Decode the JSON string into an array
+            $userIdsJsonString = json_encode($validatedData['user_ids']);
+            $userIds = json_decode($userIdsJsonString);
 
             $groupId = $groupChat->id;
 
-            foreach ($userIds as $userId) {
-                if (GroupUser::where('group_id', $groupId)->where('user_id', $userId)->exists()) {
-                    continue;
-                }
+            if (is_array($userIds) || is_object($userIds)) {
+                foreach ($userIds as $userId) {
+                    if (GroupUser::where('group_id', $groupId)->where('user_id', $userId)->exists()) {
+                        continue;
+                    }
 
-                $groupUser = GroupUser::create([
-                    'group_id' => $groupId,
-                    'user_id' => $userId,
-                ]);
-                $groupUsers[] = $groupUser;
+                    $groupUser = GroupUser::create([
+                        'group_id' => $groupId,
+                        'user_id' => $userId,
+                    ]);
+                    $groupUsers[] = $groupUser;
+                }
             }
         }
 

@@ -96,12 +96,17 @@ class BibleGeneratorController extends Controller
                 'quote' => $quote,
                 'day' => $currentDay,
             ];
-
-            $limit = 100;
+            
+            $limit = 50;
             $usersToSend = $users;
+            $counter = 0;
 
             foreach ($usersToSend as $user) {
+                if ($counter >= $limit) {
+                    break;
+                }
                 Mail::to($user->email)->send(new BibleQuoteMail($bibleEmailData));
+                $counter++;
             }
 
             $notification = new Notification();
