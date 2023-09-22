@@ -26,53 +26,70 @@ class DonateTransactionsController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 20);
-        $month = $request->input('month');
-        $year = $request->input('year');
+        $user = Auth::user();
+        if ($request->input('user')) {
+            if (intval($request->input('user')) === intval($user->id)) {
+                $query = DonateTransactions::where('user_id', $user->id)->orderByDesc('created_at')->get();
 
-        $query = DonateTransactions::orderByDesc('created_at');
+                $responseData = [
+                    'data' => $query
+                ];
 
-        if ($month && $year) {
-            $query->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month);
-        }
+                return response()->json($responseData);
+            } else {
+                return response()->json([
+                    'message' => "You are not authorized to access donation's transactions information",
+                ], 403);
+            }
+        } else {
+            $perPage = $request->input('per_page', 20);
+            $month = $request->input('month');
+            $year = $request->input('year');
 
-        $donate = $query->paginate($perPage);
+            $query = DonateTransactions::orderByDesc('created_at');
 
-        // Calculate total amount
-        $totalAmount = intval(DonateTransactions::sum('amount'));
+            if ($month && $year) {
+                $query->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month);
+            }
 
-        // Calculate total amount for the specific month and year
-        $totalAmountPerMonthAndYear = intval($query->sum('amount'));
+            $donate = $query->paginate($perPage);
 
-        $totalDonations = DonateTransactions::count();
+            // Calculate total amount
+            $totalAmount = intval(DonateTransactions::sum('amount'));
+
+            // Calculate total amount for the specific month and year
+            $totalAmountPerMonthAndYear = intval($query->sum('amount'));
+
+            $totalDonations = DonateTransactions::count();
 
 
-        $results = DB::table('donate_transactions')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(amount) as amount'))
-            ->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month)
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->get();
+            $results = DB::table('donate_transactions')
+                ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(amount) as amount'))
+                ->whereYear('created_at', $year)->whereMonth('created_at', \Carbon\Carbon::parse($month)->month)
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->get();
 
-        $transactions = [];
-        foreach ($results as $result) {
-            $transactions[] = [
-                'date' => $result->date,
-                'amount' => $result->amount,
+            $transactions = [];
+            foreach ($results as $result) {
+                $transactions[] = [
+                    'date' => $result->date,
+                    'amount' => $result->amount,
+                ];
+            }
+
+            // Create a response array with the data
+            $responseData = [
+                'data' => $donate->items(),
+                'total_amount' => $totalAmount,
+                'total_amount_per_month_and_year' => $totalAmountPerMonthAndYear,
+                'total_user_donations' => $totalDonations,
+                'current_page' => $donate->currentPage(),
+                'last_page' => $donate->lastPage(),
+                'transactions' => $transactions
             ];
+
+            return response()->json($responseData);
         }
-
-        // Create a response array with the data
-        $responseData = [
-            'data' => $donate->items(),
-            'total_amount' => $totalAmount,
-            'total_amount_per_month_and_year' => $totalAmountPerMonthAndYear,
-            'total_user_donations' => $totalDonations,
-            'current_page' => $donate->currentPage(),
-            'last_page' => $donate->lastPage(),
-            'transactions' => $transactions
-        ];
-
-        return response()->json($responseData);
     }
 
     public function show($id)
@@ -171,7 +188,6 @@ class DonateTransactionsController extends Controller
             } else {
                 return response()->json(['message' => "You don't have permission to delete this transaction."], 401);
             }
-
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Donate Transaction not found'], 404);
         } catch (\Exception $e) {
@@ -195,5 +211,4 @@ class DonateTransactionsController extends Controller
             return response()->json(['message' => 'An error occurred while processing your request'], 500);
         }
     }
-
 }
