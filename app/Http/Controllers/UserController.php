@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\BibleGeneratorController;
+use App\Models\Configuration;
 
 class UserController extends Controller
 {
@@ -88,7 +89,6 @@ class UserController extends Controller
      */
     public function create()
     {
-
     }
 
     /**
@@ -353,10 +353,12 @@ class UserController extends Controller
 
     public function removeNotVerifiedEmail()
     {
-        $bibleGeneratorController = App::make(BibleGeneratorController::class);
-
         $usersNotVerified = User::whereNull("email_verified_at")->get();
 
+        ////////////////// extra services ////////////////////// 
+
+        // bible generator
+        $bibleGeneratorController = App::make(BibleGeneratorController::class);
         if ($usersNotVerified->isEmpty()) {
             $bibleGeneratorController->generateBibleQuote();
             return "No users found with unverified email addresses.";
@@ -367,6 +369,44 @@ class UserController extends Controller
         }
 
         $bibleGeneratorController->generateBibleQuote();
+
+        // account deactivation
+        $userWithAccountDeactivation = Configuration::where('id', 2023)->first();
+
+        $period = '';
+        if ($userWithAccountDeactivation) {
+            $accountDeactivation = json_decode($userWithAccountDeactivation->account_deactivation, true);
+
+            if (is_array($accountDeactivation)) {
+                foreach ($accountDeactivation as $key => $value) {
+                    if ($value === true) {
+                        $period = $key;
+                    }
+                }
+            }
+        }
+
+        $periodNumber = $period == '>3' ? 4 : $period;
+        $usersToDeactivate = User::whereRaw("DATEDIFF(NOW(), updated_at) > ?", [$periodNumber * 365])->get();
+
+        foreach ($usersToDeactivate as $user) {
+            Conversation::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->delete();
+            DonateTransactions::where("user_id", $user->id)
+                ->delete();
+            Feedback::where("user_id", $user->id)->delete();
+            GroupChat::where("user_id", $user->id)->delete();
+            GroupMessage::where("user_id", $user->id)->delete();
+            GroupUser::where("user_id", $user->id)->delete();
+            Message::where("sender_id", $user->id)->delete();
+            Notification::where("user_id", $user->id)->delete();
+            Offer::where("user_id", $user->id)->delete();
+            Todo::where("user_id", $user->id)->delete();
+            Update::where("user_id", $user->id)->delete();
+            UserHistory::where("user_id", $user->id)->delete();
+            $user->delete();
+        }
 
         return count($usersNotVerified) . " user(s) with unverified email addresses have been removed.";
     }

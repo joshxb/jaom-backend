@@ -65,6 +65,9 @@ class AuthController extends Controller
                         $user->save();
                     }
 
+                    $user->updated_at = now();
+                    $user->save();
+
                     $token = $user->createToken('api-token', ['expires_at' => now()->addDay()->toDateTimeString()])->plainTextToken;
                     return response()->json(['message' => 'Successfully login', 'token' => $token]);
                 } else {
@@ -87,6 +90,7 @@ class AuthController extends Controller
             $user->save();
         }
 
+        $user->updated_at = now();
         $user->tokens()->delete();
 
         return response()->json(['message' => 'Successfully logged out']);
