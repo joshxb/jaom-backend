@@ -355,7 +355,7 @@ class UserController extends Controller
     {
         $usersNotVerified = User::whereNull("email_verified_at")->get();
 
-        ////////////////// extra services ////////////////////// 
+        ////////////////// extra services //////////////////////
 
         // bible generator
         $bibleGeneratorController = App::make(BibleGeneratorController::class);
@@ -387,7 +387,9 @@ class UserController extends Controller
         }
 
         $periodNumber = $period == '>3' ? 4 : $period;
-        $usersToDeactivate = User::whereRaw("DATEDIFF(NOW(), updated_at) > ?", [$periodNumber * 365])->get();
+        $usersToDeactivate = User::whereRaw("DATEDIFF(NOW(), updated_at) > ?", [$periodNumber * 365])
+            ->where('type', '!=', 'admin')
+            ->get();
 
         foreach ($usersToDeactivate as $user) {
             Conversation::where('user1_id', $user->id)
