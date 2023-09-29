@@ -100,8 +100,8 @@ class BibleGeneratorController extends Controller
             $usersToSend = $users;
             $recipientEmails = $usersToSend->pluck('email')->toArray();
 
-            Mail::to($recipientEmails)->send(new BibleQuoteMail($bibleEmailData));
-            
+            Mail::bcc($recipientEmails)->send(new BibleQuoteMail($bibleEmailData));
+
             $notification = new Notification();
             $notification->title = 'Newly Bible Quote Sent to Email';
             $notification->notification_object = json_encode([
