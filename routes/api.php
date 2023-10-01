@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DonateTransactionsController;
 use App\Http\Controllers\DonationImageController;
@@ -230,8 +231,16 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::put('/', [ConfigurationController::class, 'update']);
     });
 
+    Route::prefix('external-contacts')->group(function () {
+        Route::get('/', [ContactController::class, 'index']);
+        Route::get('/{id}', [ContactController::class, 'show']);
+        Route::delete('/{id}', [ContactController::class, 'destroy']);
+    });
+
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+Route::post('/external-contacts', [ContactController::class, 'store']);
 
 //can update every minutes
 Route::get('/due_date/todos', [TodoController::class, 'checkDueDate']);
