@@ -227,7 +227,6 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     });
 
     Route::prefix('configuration')->group(function () {
-        Route::get('/', [ConfigurationController::class, 'show']);
         Route::put('/', [ConfigurationController::class, 'update']);
     });
 
@@ -238,6 +237,10 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::prefix('configuration')->group(function () {
+    Route::get('/', [ConfigurationController::class, 'show']);
 });
 
 Route::post('/external-contacts', [ContactController::class, 'store']);
