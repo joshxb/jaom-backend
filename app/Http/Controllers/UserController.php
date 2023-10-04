@@ -19,11 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Crypt;
 use App\Models\Conversation;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\App;
 use App\Http\Controllers\BibleGeneratorController;
 use App\Models\Configuration;
@@ -38,7 +34,7 @@ class UserController extends Controller
     {
         $pagination = 10;
         $users = User::paginate($pagination);
-        return response()->json([$users]);
+        return response()->json($users);
     }
 
     public function userCounts()
