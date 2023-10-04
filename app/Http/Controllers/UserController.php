@@ -34,7 +34,7 @@ class UserController extends Controller
     {
         $pagination = 10;
         $users = User::paginate($pagination);
-        return response()->json($users);
+        return response()->json([$users]);
     }
 
     public function userCounts()
