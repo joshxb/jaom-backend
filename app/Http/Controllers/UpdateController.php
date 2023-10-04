@@ -19,15 +19,13 @@ class UpdateController extends Controller
     public function allUpdates()
     {
         $user = Auth::user();
-
-        if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
-            return response()->json(['message' => "You don't have permission to get the data."], 404);
+        if ($user->type !== 'admin') {
+            return response()->json(['message' => "You don't have permission to get the data."], 403);
         }
-
-        $updates = Update::paginate(10);
-
+    
+        $updates = Update::orderByDesc('created_at')->paginate(10);
         return response()->json([$updates]);
-    }
+    }    
 
     public function index(Request $request)
     {
