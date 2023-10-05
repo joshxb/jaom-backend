@@ -247,7 +247,6 @@ class UserController extends Controller
             });
         }
 
-        // Add the 'where' condition for visibility
         $users->where('visibility', 'visible');
 
         $total_users = $users->count();
@@ -263,6 +262,7 @@ class UserController extends Controller
         $users = $users->get();
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
+        $request->searchUser = true;
         return response()->json([
             'data' => UserResource::collection($users),
             'max_range' => $max_range,
@@ -302,6 +302,7 @@ class UserController extends Controller
         $users = $users->get();
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
+        $request->searchUser = true;
         return response()->json([
             'data' => UserResource::collection($users),
             'max_range' => $max_range,
@@ -336,6 +337,7 @@ class UserController extends Controller
         $users = $users->get();
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
+        $request->searchUser = true;
         return response()->json([
             'data' => UserResource::collection($users),
             'max_range' => $max_range,

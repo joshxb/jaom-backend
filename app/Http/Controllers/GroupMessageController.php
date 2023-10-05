@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Events\MessageEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GroupChatResource;
+use App\Http\Resources\GroupMessageResource;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
 use App\Models\User;
@@ -16,7 +18,7 @@ class GroupMessageController extends Controller
     {
         // Fetch the first GroupChat record associated with the current user
         $groupChat = GroupChat::where('id', $groupId)->first();
-
+        $request->roomOwnerHide = true;
         // If no matching GroupChat record is found, return an error response
         if (!$groupChat) {
             return response()->json([
@@ -39,10 +41,25 @@ class GroupMessageController extends Controller
             $message->user = User::find($message->user_id);
         }
 
+        $data = [
+            'current_page' => $groupMessages->currentPage(),
+            'data' => GroupMessageResource::collection($groupMessages),
+            'first_page_url' => $groupMessages->url(1),
+            'from' => $groupMessages->firstItem(),
+            'last_page' => $groupMessages->lastPage(),
+            'last_page_url' => $groupMessages->url($groupMessages->lastPage()),
+            'next_page_url' => $groupMessages->nextPageUrl(),
+            'path' => $groupMessages->path(),
+            'per_page' => $groupMessages->perPage(),
+            'prev_page_url' => $groupMessages->previousPageUrl(),
+            'to' => $groupMessages->lastItem(),
+            'total' => $groupMessages->total(),
+        ];
+
         return response()->json([
             'data' => [
-                'group_chat' => $groupChat,
-                'group_messages' => $groupMessages,
+                'group_chat' => new GroupChatResource($groupChat),
+                'group_messages' => $data,
             ],
         ]);
     }

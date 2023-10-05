@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GroupUserResource;
+use App\Http\Resources\UserResource;
 use App\Models\GroupChat;
 use App\Models\GroupUser;
 use Illuminate\Http\Request;
@@ -59,9 +61,9 @@ class GroupUserController extends Controller
         }
 
         $user_data = GroupUser::where("group_id", $request->group_id)->with('user')->get();
-
+        $request->searchUser = true;
         return response()->json([
-            'data' => $user_data,
+            'data' => GroupUserResource::collection($user_data),
             'group_owner_id' => GroupChat::where("id", $request->group_id)->first()->user_id
         ]);
     }

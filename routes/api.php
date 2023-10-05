@@ -22,6 +22,7 @@ use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
 use App\Http\Controllers\PageAnalyticsController;
 use App\Http\Controllers\ConfigurationController;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -250,6 +251,7 @@ Route::get('/users/check/email_verified_at', [UserController::class, 'removeNotV
 //add migrations to database
 Route::post('/migrate', [MigrationController::class, 'migrate']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+    return response()->json(new UserResource($user));
 });
 Route::get('/login-method/access/credentials', [ConfigurationController::class, 'getTrueLoginCredentials']);

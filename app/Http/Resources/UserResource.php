@@ -7,28 +7,56 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
+    /*
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
+            'nickname' => $this->nickname,
             'phone' => $this->phone,
             'type' => $this->type,
             'email' => $this->email,
             'email_verified_at' => $this->email_verified_at,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'nickname' => $this->nickname,
             'age' => $this->age,
             'location' => $this->location,
             'visibility' => $this->visibility,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
+
+        if ($request->roomOwnerHide) {
+            unset(
+                $data['phone'],
+                $data['type'],
+                $data['email'],
+                $data['email_verified_at'],
+                $data['status'],
+                $data['age'],
+                $data['location'],
+                $data['visibility'],
+                $data['created_at'],
+                $data['updated_at']
+            );
+        } elseif ($request->searchUser) {
+            unset(
+                $data['phone'],
+                $data['type'],
+                $data['email'],
+                $data['email_verified_at'],
+                $data['status'],
+                $data['age'],
+                $data['location'],
+                $data['visibility'],
+            );
+        }
+
+        return $data;
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GroupChatResource extends JsonResource
+class GroupUserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,17 +16,25 @@ class GroupChatResource extends JsonResource
     {
         $data = [
             'id' => $this->id,
-            'name' => $this->name,
+            'group_id' => $this->group_id,
             'user_id' => $this->user_id,
             'left_active_count' => $this->left_active_count,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'type' => $this->type,
-            'total_messages' => $this->total_messages,
+            'user' => new UserResource($this->user)
         ];
 
-        if (!$request->roomOwnerHide) {
-            $data['user'] = new UserResource($this->user);
+        if ($request->searchUser) {
+            unset(
+                $data['phone'],
+                $data['type'],
+                $data['email'],
+                $data['email_verified_at'],
+                $data['status'],
+                $data['age'],
+                $data['location'],
+                $data['visibility'],
+            );
         }
 
         return $data;

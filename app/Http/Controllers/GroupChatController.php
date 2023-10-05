@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\GroupChatResource;
+use App\Http\Resources\GroupMessageResource;
+use App\Http\Resources\UserResource;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
 use App\Models\GroupUser;
@@ -196,15 +198,31 @@ class GroupChatController extends Controller
             }
         }
 
+        $request->roomOwnerHide = true;
+        $data = [
+            'current_page' =>  $groupMessages->currentPage(),
+            'data' => GroupMessageResource::collection($groupMessages),
+            'first_page_url' => $groupMessages->url(1),
+            'from' =>  $groupMessages->firstItem(),
+            'last_page' =>  $groupMessages->lastPage(),
+            'last_page_url' => $groupMessages->url($groupMessages->lastPage()),
+            'next_page_url' => $groupMessages->nextPageUrl(),
+            'path' => $groupMessages->path(),
+            'per_page' => $groupMessages->perPage(),
+            'prev_page_url' => $groupMessages->previousPageUrl(),
+            'to' => $groupMessages->lastItem(),
+            'total' => $groupMessages->total(),
+        ];
+
         return response()->json([
             'data' => [
-                'group_chat' => $groupChat,
-                'group_messages' => $groupMessages,
+                'group_chat' => new GroupChatResource($groupChat),
+                'group_messages' => $data,
             ],
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $groupChats = null;
         if (request()->filled('default') && request('default') === 'true') {
@@ -217,7 +235,7 @@ class GroupChatController extends Controller
         } else {
             $groupChats = GroupChat::with("user")->paginate(10);
         }
-
+        $request->roomOwnerHide = true;
         $data = [
             'current_page' => $groupChats->currentPage(),
             'data' => GroupChatResource::collection($groupChats),
@@ -309,8 +327,9 @@ class GroupChatController extends Controller
     public function show(Request $request)
     {
         $result = GroupChat::where("id", $request->groupId)->first();
+        $request->roomOwnerHide = true;
         return response()->json([
-            "data" => $result,
+            "data" => new GroupChatResource($result),
         ]);
     }
 
