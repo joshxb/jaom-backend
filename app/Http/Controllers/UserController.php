@@ -36,7 +36,6 @@ class UserController extends Controller
         $pagination = 10;
         $users = User::paginate($pagination);
 
-        // Manually create an array to include pagination details
         $data = [
             'current_page' => $users->currentPage(),
             'data' => UserResource::collection($users),
@@ -98,16 +97,6 @@ class UserController extends Controller
         return response()->json(['data' => $users]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([

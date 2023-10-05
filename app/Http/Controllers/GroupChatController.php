@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GroupChatResource;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
 use App\Models\GroupUser;
@@ -217,7 +218,22 @@ class GroupChatController extends Controller
             $groupChats = GroupChat::with("user")->paginate(10);
         }
 
-        return response()->json($groupChats);
+        $data = [
+            'current_page' => $groupChats->currentPage(),
+            'data' => GroupChatResource::collection($groupChats),
+            'first_page_url' => $groupChats->url(1),
+            'from' => $groupChats->firstItem(),
+            'last_page' => $groupChats->lastPage(),
+            'last_page_url' => $groupChats->url($groupChats->lastPage()),
+            'next_page_url' => $groupChats->nextPageUrl(),
+            'path' => $groupChats->path(),
+            'per_page' => $groupChats->perPage(),
+            'prev_page_url' => $groupChats->previousPageUrl(),
+            'to' => $groupChats->lastItem(),
+            'total' => $groupChats->total(),
+        ];
+
+        return response()->json($data);
     }
 
     public function store(Request $request)
