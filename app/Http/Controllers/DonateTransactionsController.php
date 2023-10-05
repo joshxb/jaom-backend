@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DonateTransactionResource;
 use App\Models\DonateTransactions;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,7 +22,22 @@ class DonateTransactionsController extends Controller
         }
 
         $donateTransactions = DonateTransactions::orderByDesc('created_at')->paginate(10);
-        return response()->json($donateTransactions);
+
+        $data = [
+            'current_page' => $donateTransactions->currentPage(),
+            'data' => DonateTransactionResource::collection($donateTransactions),
+            'first_page_url' => $donateTransactions->url(1),
+            'from' => $donateTransactions->firstItem(),
+            'last_page' => $donateTransactions->lastPage(),
+            'last_page_url' => $donateTransactions->url($donateTransactions->lastPage()),
+            'next_page_url' => $donateTransactions->nextPageUrl(),
+            'path' => $donateTransactions->path(),
+            'per_page' => $donateTransactions->perPage(),
+            'prev_page_url' => $donateTransactions->previousPageUrl(),
+            'to' => $donateTransactions->lastItem(),
+            'total' => $donateTransactions->total(),
+        ];
+        return response()->json($data);
     }
 
     public function index(Request $request)
