@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\DonateTransactions;
 use App\Models\Feedback;
 use App\Models\GroupChat;
@@ -30,12 +31,29 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
 
-    public function index()
-    {
-        $pagination = 10;
-        $users = User::paginate($pagination);
-        return response()->json([$users]);
-    }
+     public function index()
+     {
+         $pagination = 10;
+         $users = User::paginate($pagination);
+     
+         // Manually create an array to include pagination details
+         $data = [
+             'current_page' => $users->currentPage(),
+             'data' => UserResource::collection($users),
+             'first_page_url' => $users->url(1),
+             'from' => $users->firstItem(),
+             'last_page' => $users->lastPage(),
+             'last_page_url' => $users->url($users->lastPage()),
+             'next_page_url' => $users->nextPageUrl(),
+             'path' => $users->path(),
+             'per_page' => $users->perPage(),
+             'prev_page_url' => $users->previousPageUrl(),
+             'to' => $users->lastItem(),
+             'total' => $users->total(),
+         ];
+     
+         return response()->json([$data]);
+     }
 
     public function userCounts()
     {
