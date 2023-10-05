@@ -78,7 +78,7 @@ class UserController extends Controller
         }
 
         $users = User::where('id', '!=', Auth::user()->id)->where('type', 'admin')->get();
-        return response()->json(['data' => $users]);
+        return response()->json(['data' => UserResource::collection($users)]);
     }
 
     public function userRange(Request $request)
@@ -164,17 +164,6 @@ class UserController extends Controller
         return response()->json(['data' => new UserResource($user)]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $user = User::find($id);
@@ -275,7 +264,7 @@ class UserController extends Controller
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
         return response()->json([
-            'data' => $users,
+            'data' => UserResource::collection($users),
             'max_range' => $max_range,
         ]);
     }
@@ -314,7 +303,7 @@ class UserController extends Controller
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
         return response()->json([
-            'data' => $users,
+            'data' => UserResource::collection($users),
             'max_range' => $max_range,
             'groupUsers' => $groupUsers,
         ]);
@@ -348,7 +337,7 @@ class UserController extends Controller
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
         return response()->json([
-            'data' => $users,
+            'data' => UserResource::collection($users),
             'max_range' => $max_range,
             'groupUsers' => $groupUsers,
         ]);
