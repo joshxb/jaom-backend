@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\MessageEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -70,7 +71,19 @@ class MessageController extends Controller
     public function conversations()
     {
         $user = Auth::user();
-        $conversations = Conversation::where('user1_id', $user->id)
+
+
+        $conversationsTest = Conversation::where('user1_id', $user->id)
+            ->orWhere('user2_id', $user->id)
+            ->with([
+                'messages' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ])
+            ->latest()
+            ->first();
+
+        $conversationsTest2 = Conversation::where('user1_id', $user->id)
             ->orWhere('user2_id', $user->id)
             ->with([
                 'messages' => function ($query) {
@@ -82,23 +95,51 @@ class MessageController extends Controller
                     ->whereColumn('conversation_id', 'conversations.id')
                     ->latest()
                     ->limit(1)
-            )
-            ->paginate(10); // Pagination with 10 items per page
+            )->latest()
+            ->first();
 
-        $conversationIds = $conversations->pluck('id')->toArray();
+        $result = null;
+        if ($conversationsTest->created_at > $conversationsTest2->messages[0]->created_at) {
+            $result = Conversation::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with([
+                    'messages' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
+                ->orderByDesc('created_at')
+                ->paginate(10);
+        } else {
+            $result = Conversation::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with([
+                    'messages' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
+                ->orderByDesc(
+                    Message::select('created_at')
+                        ->whereColumn('conversation_id', 'conversations.id')
+                        ->latest()
+                        ->limit(1)
+                )
+                ->paginate(10);
+        }
+
+        $conversationIds = $result->pluck('id')->toArray();
         $messageCounts = Message::whereIn('conversation_id', $conversationIds)
             ->selectRaw('conversation_id, COUNT(*) as count')
             ->groupBy('conversation_id')
             ->pluck('count', 'conversation_id')
             ->toArray();
 
-        $conversations->getCollection()->each(function ($conversation) use ($user, $messageCounts) {
+        $result->getCollection()->each(function ($conversation) use ($user, $messageCounts) {
             $otherUserId = ($user->id === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
             $conversation->other_user_id = $otherUserId;
             $conversation->messages_count = $messageCounts[$conversation->id] ?? 0;
         });
 
-        return $conversations;
+        return $result;
     }
 
     public function first_conversations()
@@ -111,15 +152,29 @@ class MessageController extends Controller
                     $query->orderBy('created_at', 'desc');
                 }
             ])
+            ->latest()
+            ->first();
+
+        $conversations2 = Conversation::where('user1_id', $user->id)
+            ->orWhere('user2_id', $user->id)
+            ->with([
+                'messages' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ])
             ->orderByDesc(
                 Message::select('created_at')
                     ->whereColumn('conversation_id', 'conversations.id')
                     ->latest()
                     ->limit(1)
-            )
+            )->latest()
             ->first();
 
-        return $conversations;
+        if ($conversations->created_at > $conversations2->messages[0]->created_at) {
+            return $conversations;
+        } else {
+            return $conversations2;
+        }
     }
 
     public function messages(Conversation $conversation)
@@ -134,8 +189,9 @@ class MessageController extends Controller
             ->forPage($currentPage, $perPage)
             ->get();
 
+        request()->chatUser = true;
         return new LengthAwarePaginator(
-            $messages,
+            MessageResource::collection($messages),
             $totalMessages,
             $perPage,
             $currentPage,

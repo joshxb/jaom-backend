@@ -44,7 +44,7 @@ class UserResource extends JsonResource
                 $data['created_at'],
                 $data['updated_at']
             );
-        } elseif ($request->searchUser) {
+        } elseif ($request->searchUser || $request->chatUser) {
             unset(
                 $data['phone'],
                 $data['type'],
@@ -53,6 +53,13 @@ class UserResource extends JsonResource
                 $data['status'],
                 $data['age'],
                 $data['location'],
+                $data['visibility'],
+            );
+        } elseif ($request->showUser) {
+            unset(
+                $data['type'],
+                $data['email_verified_at'],
+                $data['status'],
                 $data['visibility'],
             );
         }
