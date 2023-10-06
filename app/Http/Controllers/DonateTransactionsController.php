@@ -48,7 +48,7 @@ class DonateTransactionsController extends Controller
                 $query = DonateTransactions::where('user_id', $user->id)->orderByDesc('created_at')->get();
 
                 $responseData = [
-                    'data' => $query
+                    'data' => DonateTransactionResource::collection($query)
                 ];
 
                 return response()->json($responseData);
