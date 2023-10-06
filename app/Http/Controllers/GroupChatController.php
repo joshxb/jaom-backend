@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class GroupChatController extends Controller
 {
@@ -32,7 +33,7 @@ class GroupChatController extends Controller
             ->select('group_id', DB::raw('MAX(id) as latest_message_id'))
             ->groupBy('group_id');
 
-        $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count, c.type')
+        $results = GroupChat::selectRaw('c.name, c.user_id, c.id, c.left_active_count, c.type, c.created_at')
             ->from('group_chats as c')
             ->leftJoin('group_user as u', 'u.group_id', '=', 'c.id')
             ->leftJoinSub($latestMessageIds, 'm', function ($join) {
@@ -69,8 +70,13 @@ class GroupChatController extends Controller
             }
         });
 
+        $highestCreatedAtItem = $results->where('created_at', $results->max('created_at'))->first();
+        $highestCreatedAtItem2 = GroupMessage::orderBy('created_at', 'desc')->first();
+
+        $sortedResults = $results->sortByDesc('created_at')->values()->all();
+
         return response()->json([
-            'data' => $results->items(),
+            'data' => $highestCreatedAtItem->created_at > $highestCreatedAtItem2->created_at ? $sortedResults : $results->items(),
             'meta' => [
                 'current_page' => $results->currentPage(),
                 'per_page' => $results->perPage(),
@@ -94,15 +100,24 @@ class GroupChatController extends Controller
     {
         $user = Auth::user();
 
-        $results = DB::select("
-        SELECT c.name, c.id
-        FROM group_chats c
-        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-        LEFT JOIN group_messages m ON m.group_id = c.id
-        WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
-        ORDER BY m.id DESC
-        LIMIT 1;
-    ", [$user->id, $user->id, $user->id]);
+        $highestCreatedAtItem = GroupChat::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        $highestCreatedAtItem2 = GroupMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+
+        $results = [];
+        if ($highestCreatedAtItem->created_at > $highestCreatedAtItem2->created_at) {
+            $results[0] = new stdClass();
+            $results[0]->id = $highestCreatedAtItem->id;
+            $results[0]->name = $highestCreatedAtItem->name;
+        } else {
+            $results = DB::select("
+                SELECT c.name, c.id
+                FROM group_chats c
+                LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+                LEFT JOIN group_messages m ON m.group_id = c.id
+                WHERE c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)
+                ORDER BY m.id DESC
+                LIMIT 1;", [$user->id, $user->id, $user->id]);
+        }
 
         $data = [];
 
@@ -117,8 +132,7 @@ class GroupChatController extends Controller
         if (isset($data["id"])) {
             $groupChat = GroupChat::where("id", $data["id"])->first();
         }
-        // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
+        $page = $request->input('page', 0);
         $perPage = 20;
 
         $groupMessages = null;
@@ -133,15 +147,30 @@ class GroupChatController extends Controller
         }
 
         if (isset($data["id"])) {
-            // Loop through the GroupMessage records and include the associated User record for each message
             foreach ($groupMessages as $message) {
                 $message->user = User::find($message->user_id);
             }
         }
+        $data = [
+            'current_page' =>  $groupMessages->currentPage(),
+            'data' => GroupMessageResource::collection($groupMessages),
+            'first_page_url' => $groupMessages->url(1),
+            'from' =>  $groupMessages->firstItem(),
+            'last_page' =>  $groupMessages->lastPage(),
+            'last_page_url' => $groupMessages->url($groupMessages->lastPage()),
+            'next_page_url' => $groupMessages->nextPageUrl(),
+            'path' => $groupMessages->path(),
+            'per_page' => $groupMessages->perPage(),
+            'prev_page_url' => $groupMessages->previousPageUrl(),
+            'to' => $groupMessages->lastItem(),
+            'total' => $groupMessages->total(),
+        ];
+
+        $request->roomOwnerHide = true;
         return response()->json([
             'data' => [
-                'group_chat' => $groupChat,
-                'group_messages' => $groupMessages,
+                'group_chat' => new GroupChatResource($groupChat),
+                'group_messages' => $data,
             ],
         ]);
     }
@@ -150,17 +179,25 @@ class GroupChatController extends Controller
     {
         $user = Auth::user();
 
-        $results = DB::select("
-        SELECT c.name, c.id
-        FROM group_chats c
-        LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-        LEFT JOIN group_messages m ON m.group_id = c.id
-        WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-        GROUP BY c.name, c.id
-        ORDER BY m.created_at DESC
-        LIMIT 1;
-    ", [$user->id, $user->id, $user->id, $request->group_id]);
+        $highestCreatedAtItem = GroupChat::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        $highestCreatedAtItem2 = GroupMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
 
+        $results = [];
+        if ($highestCreatedAtItem->created_at > $highestCreatedAtItem2->created_at) {
+            $results[0] = new stdClass();
+            $results[0]->id = $highestCreatedAtItem->id;
+            $results[0]->name = $highestCreatedAtItem->name;
+        } else {
+            $results = DB::select("
+                SELECT c.name, c.id
+                FROM group_chats c
+                LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
+                LEFT JOIN group_messages m ON m.group_id = c.id
+                WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
+                GROUP BY c.name, c.id
+                ORDER BY m.created_at DESC
+                LIMIT 1;", [$user->id, $user->id, $user->id, $request->group_id]);
+        }
         $data = [];
 
         if (!empty($results)) {
@@ -175,8 +212,8 @@ class GroupChatController extends Controller
         if (isset($data["id"])) {
             $groupChat = GroupChat::where("id", $data["id"])->first();
         }
-        // Fetch the corresponding GroupMessage records for the first GroupChat record
-        $page = $request->input('page', 0); // Get the 'page' parameter from the request, defaulting to 1 if not provided
+
+        $page = $request->input('page', 0);
         $perPage = 20;
 
         $groupMessages = null;
@@ -192,7 +229,6 @@ class GroupChatController extends Controller
         }
 
         if (isset($data["id"])) {
-            // Loop through the GroupMessage records and include the associated User record for each message
             foreach ($groupMessages as $message) {
                 $message->user = User::find($message->user_id);
             }
@@ -231,7 +267,6 @@ class GroupChatController extends Controller
             $groupChats->each(function ($item) {
                 $item->total_messages = $this->getTotalMessages($item->id);
             });
-
         } else {
             $groupChats = GroupChat::with("user")->paginate(10);
         }
@@ -355,8 +390,7 @@ class GroupChatController extends Controller
             return response()->json(['message' => 'Permission denied. You are not allowed to modify the room data.'], 403);
         }
 
-        $validatedData = $request->validate([
-        ]);
+        $validatedData = $request->validate([]);
         if ($request->filled('name')) {
             $validatedData['name'] = $request->name;
         }
