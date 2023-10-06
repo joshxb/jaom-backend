@@ -27,14 +27,14 @@ use App\Models\Configuration;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
     public function index()
     {
         $pagination = 10;
         $users = User::paginate($pagination);
+
+        if (request()->input('configuration')) {
+            request()->userConfiguration = true;
+        }
 
         $data = [
             'current_page' => $users->currentPage(),
@@ -77,6 +77,7 @@ class UserController extends Controller
             return response()->json(['message' => "Unauthorized you don't have a permission!"], 401);
         }
 
+        request()->searchUser = true;
         $users = User::where('id', '!=', Auth::user()->id)->where('type', 'admin')->get();
         return response()->json(['data' => UserResource::collection($users)]);
     }
@@ -161,7 +162,11 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        request()->showUser = true;
+        if (request()->input('configure-edit')) {
+            request()->configureEdit = true;
+        } else {
+            request()->showUser = true;
+        }
         return response()->json(['data' => new UserResource($user)]);
     }
 
@@ -197,9 +202,6 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, $id)
     {
         $user = User::find($id);

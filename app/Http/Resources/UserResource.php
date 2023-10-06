@@ -62,6 +62,17 @@ class UserResource extends JsonResource
                 $data['status'],
                 $data['visibility'],
             );
+        } elseif ($request->userConfiguration || $request->configureEdit) {
+            unset(
+                $data['firstname'],
+                $data['lastname'],
+                $data['phone'],
+                $data['type'],
+                $data['email'],
+                $data['email_verified_at'],
+                $data['age'],
+                $data['location'],
+            );
         }
 
         return $data;
