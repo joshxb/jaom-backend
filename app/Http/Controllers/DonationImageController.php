@@ -24,6 +24,8 @@ class DonationImageController extends Controller
                 return response($imageData)
                     ->header('Content-Type', $imageType)
                     ->header('Content-Disposition', 'inline');
+            } else {
+                return null;
             }
         }
         return response()->json(['message' => 'Image not found.'], 404);
@@ -33,34 +35,31 @@ class DonationImageController extends Controller
     {
         try {
             $transac = DonateTransactions::findOrFail($id);
-            // Validate the uploaded file
-            $request->validate([
-                'screenshot_img' => 'required|image', // Assuming maximum 50MB file size limit
-            ]);
 
             if (Auth::user()->id !== $transac->user_id) {
                 return response()->json(['message' => 'Permission denied'], 401);
             }
 
-            // Retrieve the uploaded file
-            $image = $request->file('screenshot_img');
+            if ($request->hasFile('screenshot_img')) {
+                $request->validate([
+                    'screenshot_img' => 'image|max:50000',
+                ]);
 
-            // Read the contents of the file and convert it to a blob
-            $imageBlob = file_get_contents($image->getPathname());
-            $imageBlob = base64_encode($imageBlob);
+                $image = $request->file('screenshot_img');
 
-            // Create a new image record in the database
-            $ss = DonateTransactions::find($id);
-            $ss->screenshot_img = $imageBlob;
-            $ss->save();
+                $imageBlob = file_get_contents($image->getPathname());
+                $imageBlob = base64_encode($imageBlob);
 
-            // Redirect or perform additional actions as needed
+                $ss = DonateTransactions::find($id);
+                $ss->screenshot_img = $imageBlob;
+                $ss->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Image updated successfully.',
             ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
         } catch (ModelNotFoundException $exception) {
-            // If the model is not found, throw an error response.
             return response()->json(['error' => 'Not found exception'], 404);
         }
     }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendReplyFeedbackMail;
 use App\Models\Feedback;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class FeedbackController extends Controller
 {
@@ -60,6 +63,15 @@ class FeedbackController extends Controller
             }
         }
 
+        $otherAccount = User::where('id', $feedback->user_id)->first();
+
+        $userData = [
+            "fullname" => $otherAccount->firstname . " " . $otherAccount->lastname,
+            "description" => $request->description,
+            "response" => $request->response
+        ];
+
+        Mail::to($otherAccount->email)->send(new SendReplyFeedbackMail($userData));
         $feedback->update($validatedData);
         return response()->json($feedback);
     }

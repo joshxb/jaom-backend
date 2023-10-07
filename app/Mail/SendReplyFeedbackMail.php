@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendDonationMail extends Mailable
+class SendReplyFeedbackMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -24,14 +24,8 @@ class SendDonationMail extends Mailable
 
     public function build()
     {
-        $mail = $this->view('send_donation')
-            ->subject('Donation to Ministry');
-
-        if ($this->user['screenshot_img']) {
-            $mail->attachData(base64_decode($this->user['screenshot_img']), 'donation-process.jpg', [
-                'mime' => 'image/jpeg',
-            ]);
-        }
+        $mail = $this->view('send_reply_feedback')
+            ->subject('Feedback Response from Ministry');
 
         return $mail;
     }
@@ -52,7 +46,7 @@ class SendDonationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'send_donation',
+            view: 'send_reply_feedback',
         );
     }
 

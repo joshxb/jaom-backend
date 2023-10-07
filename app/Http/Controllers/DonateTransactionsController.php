@@ -132,14 +132,15 @@ class DonateTransactionsController extends Controller
             'location' => 'required|string',
             'payment_method' => 'required',
             'amount' => 'required|integer|min:1',
-            'screenshot_img' => 'required|image',
+            'screenshot_img' => 'nullable|image',
         ]);
 
-        $image = $request->file('screenshot_img');
-
-        // Read the contents of the file and convert it to a blob
-        $ss = file_get_contents($image->getPathname());
-        $ss = base64_encode($ss);
+        $ss = null;
+        if ($request->hasFile('screenshot_img')) {
+            $image = $request->file('screenshot_img');
+            $ss = file_get_contents($image->getPathname());
+            $ss = base64_encode($ss);
+        }
 
         // Create a new donation transaction record to the database
         DonateTransactions::create([
