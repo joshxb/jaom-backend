@@ -103,15 +103,16 @@
         <div class="card">
             <div style="padding: 20px 30px">
                 <div class="greeting">
-                    Hello good day {{$user['fullname']}},
+                    Hello good day {{ $user['fullname'] }},
                 </div>
-                <div class="offer-detail-item" style="text-indent: 0">Your feedback or concern has been responded please check the details below:</div>
+                <div class="offer-detail-item" style="text-indent: 0">Your feedback or concern has been responded please
+                    check the details below:</div>
                 <div class="prayer-offer-text">
-                    <div class="appreciation-message" style="font-weight: bold">
-                        Your Feedback or Concern: {{$user['description']}}
+                    <div class="appreciation-message">
+                        Your Feedback or Concern: <b>{{ $user['description'] }}</b>
                     </div>
                     <div class="appreciation-message">
-                        Replied: {{$user['response']}}
+                        Replied: {{ $user['response'] }}
                     </div>
                     <div class="footer">
                         <p>&copy; 2023 JAO Ministry. All rights reserved.</p>
@@ -119,8 +120,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 </body>
-
 </html>
