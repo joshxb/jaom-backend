@@ -64,29 +64,29 @@ class GroupMessageManagerResponse
         $groupMessages = GroupMessage::with(['groupChat.groupUsers', 'user'])
             ->paginate(10, ['id', 'group_id', 'user_id', 'content', 'created_at']);
 
-        $formattedMessages = $groupMessages->map(function ($message) {
-            if ($message->user) {
-                return [
+            $formattedMessages = $groupMessages->map(function ($message) {
+                $formattedMessage = [
                     'id' => $message->id,
                     'group_id' => $message->group_id,
                     'user_id' => $message->user_id,
-                    'sender_name' => $message->user->firstname . ' ' . $message->user->lastname,
-                    'group_name' => $message->groupChat->name,
                     'content' => $message->content,
-                    'created_at' => $message->created_at
+                    'created_at' => $message->created_at,
                 ];
-            } else {
-                return [
-                    'id' => $message->id,
-                    'group_id' => $message->group_id,
-                    'user_id' => $message->user_id,
-                    'sender_name' => 'Unknown User',
-                    'group_name' => $message->groupChat->name,
-                    'content' => $message->content,
-                    'created_at' => $message->created_at
-                ];
-            }
-        });
+
+                if ($message->user) {
+                    $formattedMessage['sender_name'] = $message->user->firstname . ' ' . $message->user->lastname;
+                } else {
+                    $formattedMessage['sender_name'] = 'Unknown User';
+                }
+
+                if ($message->groupChat && $message->groupChat->name) {
+                    $formattedMessage['group_name'] = $message->groupChat->name;
+                } else {
+                    $formattedMessage['group_name'] = 'Unknown Group Name';
+                }
+
+                return $formattedMessage;
+            });
 
         return response()->json([
             'data' => [
