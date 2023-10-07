@@ -267,7 +267,11 @@ class GroupChatManagerResponse
         } else {
             $groupChats = GroupChat::with("user")->paginate(10);
         }
-        $request->roomOwnerHide = true;
+        if ($request->input('v2')) {
+            $request->roomOwnerShow = true;
+        } else {
+            $request->roomOwnerHide = true;
+        }
         $data = [
             'current_page' => $groupChats->currentPage(),
             'data' => GroupChatResource::collection($groupChats),

@@ -25,7 +25,9 @@ class GroupChatResource extends JsonResource
             'total_messages' => $this->total_messages,
         ];
 
-        if (!$request->roomOwnerHide) {
+        if ($request->roomOwnerShow) {
+            $data['user'] = new UserResource($this->user);
+        } else if (!$request->roomOwnerHide) {
             $data['user'] = new UserResource($this->user);
         }
 
