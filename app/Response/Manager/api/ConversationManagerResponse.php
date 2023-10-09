@@ -44,10 +44,9 @@ class ConversationManagerResponse
         ], 201);
     }
 
-    public function getOtherUserId(Conversation $conversation)
+    public function getOtherUserId($conversation)
     {
         $currentUserId = auth()->id();
-
         if ($conversation->user1_id === $currentUserId) {
             return response()->json(['other_user_id' => $conversation->user2_id]);
         } else if ($conversation->user2_id === $currentUserId) {
@@ -55,7 +54,6 @@ class ConversationManagerResponse
         } else {
             return response()->json(['message' => 'User is not part of this conversation.'], 403);
         }
-
     }
 
     public function getFirstConversationId()

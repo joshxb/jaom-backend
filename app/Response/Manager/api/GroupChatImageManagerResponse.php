@@ -23,7 +23,7 @@ class GroupChatImageManagerResponse
                     ->header('Content-Disposition', 'inline');
             }
         }
-        return response()->json(['message' => 'Image not found.'], 404);
+        return response()->json(['message' => 'Image not found.']);
     }
 
     public function updateGroupImage(Request $request)

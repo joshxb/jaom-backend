@@ -20,7 +20,7 @@ class FAQSDataSeeder extends Seeder
 
         faqs::factory()->create([
             'title' => 'Who founded JAOM and what is their passion?',
-            'definition' => 'JAOM, an organization with a deep commitment to serving God and His people, was founded by Pastor Gretchen C. Jaos. With an unwavering passion and dedication, Pastor Gretchen C. Jaos established JAOM to fulfill his mission of making a positive impact on the lives of others through the love and teachings of God.',
+            'definition' => 'JAOM, an organization with a deep commitment to serving God and His people, was founded by Prophet Jomarie Jaos. With an unwavering passion and dedication, Prophet Jomarie Jaos established JAOM to fulfill his mission of making a positive impact on the lives of others through the love and teachings of God.',
         ]);
 
         faqs::factory()->create([

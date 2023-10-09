@@ -92,17 +92,19 @@ class MessageManagerResponse
             ->first();
 
         $result = null;
-        if ($conversationsTest->created_at > $conversationsTest2->messages[0]->created_at) {
-            $result = Conversation::where('user1_id', $user->id)
-                ->orWhere('user2_id', $user->id)
-                ->with([
-                    'messages' => function ($query) {
-                        $query->orderBy('created_at', 'desc');
-                    }
-                ])
-                ->orderByDesc('created_at')
-                ->paginate(10);
-        } else {
+        try {
+            if ($conversationsTest->created_at > $conversationsTest2->messages[0]->created_at) {
+                $result = Conversation::where('user1_id', $user->id)
+                    ->orWhere('user2_id', $user->id)
+                    ->with([
+                        'messages' => function ($query) {
+                            $query->orderBy('created_at', 'desc');
+                        }
+                    ])
+                    ->orderByDesc('created_at')
+                    ->paginate(10);
+            }
+        } catch (\Throwable $th) {
             $result = Conversation::where('user1_id', $user->id)
                 ->orWhere('user2_id', $user->id)
                 ->with([
@@ -163,10 +165,14 @@ class MessageManagerResponse
             )->latest()
             ->first();
 
-        if ($conversations->created_at > $conversations2->messages[0]->created_at) {
-            return $conversations;
+        if (!is_null($conversations) && !is_null($conversations2)) {
+            if ($conversations->created_at > $conversations2->messages[0]->created_at) {
+                return $conversations;
+            } else {
+                return $conversations2;
+            }
         } else {
-            return $conversations2;
+            return [];
         }
     }
 
