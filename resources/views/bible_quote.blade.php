@@ -3,9 +3,14 @@
 
 <head>
     <title>Bible Quote - JAO Ministry</title>
-    <link rel="icon" type="image/x-icon"
-        href="https://github.com/joshxb/jaom-angular/blob/main/src/assets/favicon.png?raw=true">
+    <link rel="icon" type="image/x-icon" href="https://github.com/joshxb/jaom-angular/blob/main/src/assets/favicon.png?raw=true">
     <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
         /* Inline CSS Styles */
         .btn-hover-effect:hover {
             opacity: 0.9;
@@ -14,16 +19,15 @@
         }
 
         body {
+            width: 100%;
+            height: 100%;
             font-family: Arial, sans-serif;
             font-size: 14px;
         }
 
         .container {
             width: 100%;
-            padding-right: 20px;
-            padding-left: 20px;
-            margin-right: auto;
-            margin-left: auto;
+            height: 100%;
         }
 
         .row {
@@ -44,7 +48,6 @@
 
         .card {
             position: relative;
-            min-width: 0;
             word-wrap: break-word;
             background-color: #fff;
             background-clip: border-box;
@@ -105,7 +108,7 @@
 
         /* Custom Inline CSS Styles */
         .greeting {
-            text-align: left;
+            text-align: center;
             font-size: 15px;
             font-weight: bold;
             color: #106898;
@@ -200,6 +203,7 @@
             color: #fff;
             font-size: 12px;
         }
+
     </style>
 </head>
 
@@ -212,21 +216,21 @@
                         <div class="greeting">
                             Greetings,
                             @if (isset($user['day']))
-                                today is {{ $user['day'] }}! We are sharing an enlightening quote to all of us.
+                            today is {{ $user['day'] }}! We are sharing an enlightening verses with quote for you.
                             @else
-                                We are sharing an enlightening quote to all of us.
+                            We are sharing an enlightening quote to all of us.
                             @endif
-                            Have a great day! 😊
-
+                            You may take time to read and have a great day to you! 😊
+                            <br><div style="color:#666;margin-top:20px"><small>From: JAO Ministry</small></div>
                         </div>
                         <br>
                         <div class="prayer-offer">
                             <div class="prayer-offer-text">
                                 <b>
                                     @isset($user['verse'])
-                                        {{ $user['verse'] }}
+                                    {{ $user['verse'] }}
                                     @else
-                                        Verse 1
+                                    Verse 1
                                     @endisset
                                 </b>
 
@@ -235,20 +239,23 @@
                         <div class="appreciation-message">
                             <p>
                                 @isset($user['quote'])
-                                    "{{ $user['quote'] }}"
+                                "{{ $user['quote'] }}"
                                 @else
-                                    "Hello world"
+                                "Hello world"
                                 @endisset
                             </p>
 
                         </div>
                         <div class="image-container" style="text-align: center">
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true"
-                                alt="Image 1">
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337600841_1224255664889243_5242546871589928112_n.jpg?raw=true"
-                                alt="Image 2">
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337664640_998857938189489_2265375645851121647_n.jpg?raw=true"
-                                alt="Image 3">
+                            @isset($user['quote'])
+                            @foreach ($user['randomImages'] as $image)
+                            <img src="{{ $image }}" alt="Random Image">
+                            @endforeach
+                            @else
+                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true" alt="Image 1">
+                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337600841_1224255664889243_5242546871589928112_n.jpg?raw=true" alt="Image 2">
+                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337664640_998857938189489_2265375645851121647_n.jpg?raw=true" alt="Image 3">
+                            @endisset
                         </div>
                         <div class="footer">
                             <div class="footer-message">

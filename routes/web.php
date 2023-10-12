@@ -20,6 +20,10 @@ Route::get('/send-donation', function() {
     return view('send_donation');
 });
 
+Route::get('/bible-quote', function() {
+    return view('bible_quote');
+});
+
 Route::post('/verify_email/{email}', [EmailVerificationController::class, 'verifyEmail'])->name('verify.email');
 Route::get('/email-verification/{email}/{base}', [EmailVerificationController::class, 'verifyEmailSent']);
 Route::get('/generate-bible-quote', [BibleGeneratorController::class, 'generateBibleQuote'])->name('generate.bible.quote');

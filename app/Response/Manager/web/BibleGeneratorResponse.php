@@ -74,10 +74,26 @@ class BibleGeneratorResponse
             $users = User::whereNotNull("email_verified_at")->get()->shuffle();
             $currentDay = Carbon::now()->format('l');
 
+            $images = [
+                'https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/337600841_1224255664889243_5242546871589928112_n.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/337664640_998857938189489_2265375645851121647_n.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM4.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM13.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM1.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM2.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM3.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM6.jpg?raw=true',
+                'https://github.com/joshxb/joam-project-images/blob/main/JAOM14.jpg?raw=true'
+            ];
+            shuffle($images);
+            $randomImages = array_slice(array_unique($images), 0, 3);
+
             $bibleEmailData = [
                 'verse' => $verse,
                 'quote' => $quote,
                 'day' => $currentDay,
+                'randomImages' => $randomImages,
             ];
 
             $usersToSend = $users;
@@ -104,8 +120,8 @@ class BibleGeneratorResponse
             $randomVerse = $data[$randomIndex]['verse'];
 
             return [
-                'verse' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1 ) ? $randomVerse : $verse,
-                'quote' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1 ) ? $randomQuote : $quote,
+                'verse' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomVerse : $verse,
+                'quote' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomQuote : $quote,
                 'day' => $currentDay,
             ];
         } catch (Exception $e) {
