@@ -95,9 +95,17 @@ class BibleGeneratorResponse
             $notification->user_id = auth()->user()->id;
             $notification->save();
 
+            $jsonPath = public_path('json/bible-quotes.json');
+            $jsonContent = file_get_contents($jsonPath);
+            $data = json_decode($jsonContent, true)['quotes'];
+
+            $randomIndex = array_rand($data);
+            $randomQuote = $data[$randomIndex]['text'];
+            $randomVerse = $data[$randomIndex]['verse'];
+
             return [
-                'verse' => $verse,
-                'quote' => $quote,
+                'verse' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1 ) ? $randomVerse : $verse,
+                'quote' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1 ) ? $randomQuote : $quote,
                 'day' => $currentDay,
             ];
         } catch (Exception $e) {
@@ -107,6 +115,11 @@ class BibleGeneratorResponse
                 return response()->json(['error' => 'An error occurred while generating the Bible quote.'], 500);
             }
         }
+    }
 
+    private function returnZeroOrOne()
+    {
+        $randomNumber = rand(0, 2);
+        return $randomNumber;
     }
 }
