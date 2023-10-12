@@ -248,7 +248,12 @@ class UserManagerResponse
         $users = $users->get();
         $max_range = $total_users > 0 ? ceil($total_users / 10) : 0;
 
-        $request->searchUser = true;
+        if ($request->type === 'v2') {
+            $request->searchUserV2 = true;
+        } else {
+            $request->searchUser = true;
+        }
+
         return response()->json([
             'data' => UserResource::collection($users),
             'max_range' => $max_range,

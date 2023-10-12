@@ -71,7 +71,18 @@ class UserResource extends JsonResource
                 $data['location'],
                 $data['visibility'],
             );
-        } elseif ($request->showUser) {
+        } elseif ($request->searchUserV2) {
+            unset(
+                $data['phone'],
+                $data['email'],
+                $data['email_verified_at'],
+                $data['status'],
+                $data['age'],
+                $data['location'],
+                $data['visibility'],
+            );
+        }
+        elseif ($request->showUser) {
             unset(
                 $data['type'],
                 $data['email_verified_at'],
