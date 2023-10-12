@@ -103,6 +103,21 @@ class MessageManagerResponse
                     ])
                     ->orderByDesc('created_at')
                     ->paginate(10);
+            } else {
+                $result = Conversation::where('user1_id', $user->id)
+                    ->orWhere('user2_id', $user->id)
+                    ->with([
+                        'messages' => function ($query) {
+                            $query->orderBy('created_at', 'desc');
+                        }
+                    ])
+                    ->orderByDesc(
+                        Message::select('created_at')
+                            ->whereColumn('conversation_id', 'conversations.id')
+                            ->latest()
+                            ->limit(1)
+                    )
+                    ->paginate(10);
             }
         } catch (\Throwable $th) {
             $result = Conversation::where('user1_id', $user->id)
