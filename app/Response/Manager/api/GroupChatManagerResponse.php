@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
-use function PHPUnit\Framework\isNull;
-
 class GroupChatManagerResponse
 {
     public function groupChatCounts()
@@ -75,7 +73,7 @@ class GroupChatManagerResponse
         $sortedResults = $results->sortByDesc('created_at')->values()->all();
 
         $data = null;
-        if (!isNull($highestCreatedAtItem) && !isNull($highestCreatedAtItem2)) {
+        if (!is_null($highestCreatedAtItem) && !is_null($highestCreatedAtItem2)) {
             $data = $highestCreatedAtItem->created_at > $highestCreatedAtItem2->created_at ? $sortedResults : $results->items();
         } else {
             $data = $results->items();
