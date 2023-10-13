@@ -216,7 +216,7 @@
                         <div class="greeting">
                             Greetings,
                             @if (isset($user['day']))
-                            today is {{ $user['day'] }}! We are sharing an enlightening verses with quote for you.
+                            today is {{ $user['day'] }}! We are sharing an enlightening verse with quote for you.
                             @else
                             We are sharing an enlightening quote to all of us.
                             @endif
