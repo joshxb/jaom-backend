@@ -124,10 +124,14 @@
                         </p>
 
                         <p style="text-indent: 25px">
-                            Welcome to JAO Ministry! We are excited to have you as part of our online group ministry. To
-                            create a safe and secure environment for all our members, we kindly request you to complete
-                            your registration by verifying your email address. Verifying your email ensures that we can
-                            maintain the legibility of accounts and foster a positive experience for everyone involved.
+                            @isset($user['verify'])
+                                Let's take a neccessary step to make your account secure by verifying your new email address.
+                            @else
+                                Welcome to JAO Ministry! We are excited to have you as part of our online group ministry. To
+                                create a safe and secure environment for all our members, we kindly request you to complete
+                                your registration by verifying your email address. Verifying your email ensures that we can
+                                maintain the legibility of accounts and foster a positive experience for everyone involved.
+                            @endisset
                         </p>
                         <p>
                             Please take a moment to click the button below to verify your email address:

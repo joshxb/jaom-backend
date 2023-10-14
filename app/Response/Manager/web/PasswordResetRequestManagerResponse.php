@@ -24,8 +24,15 @@ class PasswordResetRequestManagerResponse
                 'message' => 'Email account does not exist'
             ], 400);
         }
-        $token = Password::getRepository()->create($user);
 
+        $user = User::where('email', $request->email)->where('email_verified_at', '!==', '')->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Your request cannot be processed because the email address is not verified. Please check your previous email.'
+            ], 400);
+        }
+
+        $token = Password::getRepository()->create($user);
         $userData = [
             'email' => $email,
             'base' => $base,

@@ -14,10 +14,12 @@ class EmailVerificationManagerResponse
         $name = $request->input('name');
         $email = $request->input('email');
         $base = $request->input('base');
+        $verify = $request->input('verify');
         $userData = [
             'name' =>  $name,
             'email' => $email,
-            'base' => $base
+            'base' => $base,
+            'verify' => $verify
         ];
 
         Mail::to($userData['email'])->send(new VerificationEmail($userData));

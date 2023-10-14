@@ -131,7 +131,7 @@ class UserManagerResponse
         $requestData = [
             'email' => $validatedData['email'],
             'name' => ucwords($validatedData['firstname'] . " " . $validatedData['lastname']),
-            'base' => $base
+            'base' => $base,
         ];
 
         $request = Request::create('/verify_email/' . $validatedData['email'], 'POST', $requestData);
@@ -173,13 +173,56 @@ class UserManagerResponse
         }
 
         $requestData = $request->all();
+
+        if (isset($requestData['email'])) {
+            $existingUser = User::where('email', $requestData['email'])->where('id', '!=', $id)->first();
+            if ($existingUser) {
+                return response()->json([
+                    'message' => 'Email already exists from other accounts',
+                    'type' => 'email'
+                ], 422);
+            }
+        }
+
+        if (isset($requestData['phone'])) {
+            $existingUser = User::where('phone', $requestData['phone'])->where('id', '!=', $id)->first();
+            if ($existingUser) {
+                return response()->json([
+                    'message' => 'Phone number already exists from other accounts',
+                    'type' => 'phone'
+                ], 422);
+            }
+        }
+
         if (isset($requestData['password'])) {
             $requestData['password'] = Hash::make($requestData['password']);
         }
 
         $requestData['updated_at'] = now();
-        $user->update($requestData);
+        if (!request()->has('role') && request()->input('role') !== 'admin' && isset($requestData['email'])) {
 
+            $requestData['email_verified_at'] = null;
+            $base = $request->input('base', "l");
+            $sendData = [
+                'email' => $requestData['email'],
+                'name' => ucwords(Auth::user()->firstname . " " . Auth::user()->lastname),
+                'base' => $base,
+                'verify' => $request->input('verify')
+            ];
+
+            $request = Request::create('/verify_email/' . $requestData['email'], 'POST', $sendData);
+            $response = app()->handle($request);
+            if ($response->getStatusCode() === 200) {
+                $user->update($requestData);
+                return response()->json([
+                    'data' => $user,
+                    'message' => 'Email updated successfully, please check your email for further verification!',
+                    'type' => 'email_verify'
+                ]);
+            }
+        }
+
+        $user->update($requestData);
         return response()->json([
             'data' => $user,
             'message' => 'Data updated successfully!',
