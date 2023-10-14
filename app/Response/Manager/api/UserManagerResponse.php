@@ -77,7 +77,7 @@ class UserManagerResponse
         }
 
         request()->searchUser = true;
-        $users = User::where('id', '!=', Auth::user()->id)->where('type', 'admin')->get();
+        $users = User::where('type', 'admin')->get();
         return response()->json(['data' => UserResource::collection($users)]);
     }
 
