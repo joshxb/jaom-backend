@@ -382,17 +382,14 @@ class UserManagerResponse
 
         ////////////////// extra services //////////////////////
 
+        if (!$usersNotVerified->isEmpty()) {
+            foreach ($usersNotVerified as $user) {
+                $user->delete();
+            }
+        }
+
         // bible generator
         $bibleGeneratorController = App::make(BibleGeneratorController::class);
-        if ($usersNotVerified->isEmpty()) {
-            $bibleGeneratorController->generateBibleQuote();
-            return "No users found with unverified email addresses.";
-        }
-
-        foreach ($usersNotVerified as $user) {
-            $user->delete();
-        }
-
         $bibleGeneratorController->generateBibleQuote();
 
         // account deactivation
