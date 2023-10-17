@@ -126,7 +126,7 @@ class BibleGeneratorResponse
             ];
         } catch (Exception $e) {
             if ($retryCount < $this->maxRetries) {
-                return $this->generateBibleQuote($retryCount + 1);
+                // return $this->generateBibleQuote($retryCount + 1);
             } else {
                 return response()->json(['error' => 'An error occurred while generating the Bible quote.'], 500);
             }
