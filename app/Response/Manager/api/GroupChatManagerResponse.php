@@ -177,18 +177,18 @@ class GroupChatManagerResponse
         ];
 
         $data = [
-            'current_page' => $groupMessages ? $groupMessages->currentPage(): 1,
-            'data' => $groupMessages ? GroupMessageResource::collection($groupMessages): $temp,
-            'first_page_url' =>$groupMessages ? $groupMessages->url(1): null,
-            'from' => $groupMessages ? $groupMessages->firstItem(): null,
-            'last_page' => $groupMessages ? $groupMessages->lastPage(): null,
+            'current_page' => $groupMessages ? $groupMessages->currentPage() : 1,
+            'data' => $groupMessages ? GroupMessageResource::collection($groupMessages) : $temp,
+            'first_page_url' => $groupMessages ? $groupMessages->url(1) : null,
+            'from' => $groupMessages ? $groupMessages->firstItem() : null,
+            'last_page' => $groupMessages ? $groupMessages->lastPage() : null,
             'last_page_url' => $groupMessages ? $groupMessages->url($groupMessages->lastPage()) : null,
             'next_page_url' => $groupMessages ? $groupMessages->nextPageUrl() : null,
-            'path' => $groupMessages ? $groupMessages->path(): null,
-            'per_page' => $groupMessages ? $groupMessages->perPage(): null,
-            'prev_page_url' => $groupMessages ? $groupMessages->previousPageUrl(): null,
-            'to' => $groupMessages ? $groupMessages->lastItem(): null,
-            'total' => $groupMessages ? $groupMessages->total(): null,
+            'path' => $groupMessages ? $groupMessages->path() : null,
+            'per_page' => $groupMessages ? $groupMessages->perPage() : null,
+            'prev_page_url' => $groupMessages ? $groupMessages->previousPageUrl() : null,
+            'to' => $groupMessages ? $groupMessages->lastItem() : null,
+            'total' => $groupMessages ? $groupMessages->total() : null,
         ];
 
         $temp = [
@@ -206,7 +206,7 @@ class GroupChatManagerResponse
         $request->roomOwnerHide = true;
         return response()->json([
             'data' => [
-                'group_chat' => $groupChat ? new GroupChatResource($groupChat): $temp,
+                'group_chat' => $groupChat ? new GroupChatResource($groupChat) : $temp,
                 'group_messages' => $data,
             ],
         ]);
@@ -216,71 +216,21 @@ class GroupChatManagerResponse
     {
         $user = Auth::user();
 
-        $highestCreatedAtItem = GroupChat::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-        $highestCreatedAtItem2 = GroupMessage::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-
         $results = [];
-        if (!is_null($highestCreatedAtItem) && !is_null($highestCreatedAtItem2)) {
-            if ($highestCreatedAtItem->created_at > $highestCreatedAtItem2->created_at) {
-                $results[0] = new stdClass();
-                $results[0]->id = $highestCreatedAtItem->id;
-                $results[0]->name = $highestCreatedAtItem->name;
-            } else {
-                $results = DB::select("
-                    SELECT c.name, c.id
-                    FROM group_chats c
-                    LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-                    LEFT JOIN group_messages m ON m.group_id = c.id
-                    WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-                    GROUP BY c.name, c.id
-                    ORDER BY m.created_at DESC
-                    LIMIT 1;", [$user->id, $user->id, $user->id, $request->group_id]);
-            }
-        } else {
-            $results = DB::select("
-            SELECT c.name, c.id
-            FROM group_chats c
-            LEFT JOIN group_user u ON u.group_id = c.id OR u.user_id = c.user_id
-            LEFT JOIN group_messages m ON m.group_id = c.id
-            WHERE (c.user_id = ? OR (u.user_id = ? AND c.user_id != ?)) AND c.id = ?
-            GROUP BY c.name, c.id
-            ORDER BY m.created_at DESC
-            LIMIT 1;", [$user->id, $user->id, $user->id, $request->group_id]);
-        }
 
-        $data = [];
-        if (!empty($results)) {
-            $data = [
-                'id' => $results[0]->id,
-                'name' => $results[0]->name,
-            ];
-        }
-
-        $groupChat = null;
-
-        if (isset($data["id"])) {
-            $groupChat = GroupChat::where("id", $data["id"])->first();
-        }
+        $groupChat = GroupChat::where('id', $request->group_id)->first();
 
         $page = $request->input('page', 0);
         $perPage = 20;
 
-        $groupMessages = null;
-        if (isset($data["id"])) {
-            $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage);
-        }
-
+        $groupMessages = GroupMessage::where('group_id', $request->group_id)->paginate($perPage);
         if ($page == 0 || !$page) {
-            if (isset($data["id"])) {
-                $page = $groupMessages->lastPage();
-                $groupMessages = GroupMessage::where('group_id', $data['id'])->paginate($perPage, ['*'], 'page', $page);
-            }
+            $page = $groupMessages->lastPage();
+            $groupMessages = GroupMessage::where('group_id', $request->group_id)->paginate($perPage, ['*'], 'page', $page);
         }
 
-        if (isset($data["id"])) {
-            foreach ($groupMessages as $message) {
-                $message->user = User::find($message->user_id);
-            }
+        foreach ($groupMessages as $message) {
+            $message->user = User::find($message->user_id);
         }
 
         $request->roomOwnerHide = true;
