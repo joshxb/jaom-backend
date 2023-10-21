@@ -15,6 +15,7 @@ class NotificationManagerResponse
             ::where('title', "Prayer Offer Request Notification")
             ->orWhere('title', "Donation's Transaction Notification")
             ->orWhere('title', "Newly Bible Quote Sent to Email")
+            ->orWhere('title', "Concern & Feedback Notification")
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -94,6 +95,13 @@ class NotificationManagerResponse
                         'title' => "Hello there, " . $request->name . ",",
                         'content' => "We have successfully processed and recorded your donation's transaction to the ministry. Thank you so much for your generous support to
                         our ministry and we appreciate this all a lot from you.",
+                    ]);
+                } else if ($request->type == "successAddFeedbackNotification") {
+                    $notification->title = "Concern & Feedback Notification";
+                    $notification->notification_object = json_encode([
+                        'todo_id' => null,
+                        'title' => "Hello there, " . $request->name . ",",
+                        'content' => "Your concern or feedback to the ministry has been successfully raised. Please await further responses, thank you so much!",
                     ]);
                 } else if ($request->type == "successAddOfferNotification") {
                     $notification->title = "Prayer Offer Request Notification";
