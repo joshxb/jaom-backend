@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DonateTransactionsController;
 use App\Http\Controllers\DonationImageController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FAQSController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GroupChatController;
@@ -235,6 +236,12 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::get('/', [ContactController::class, 'index']);
         Route::get('/{id}', [ContactController::class, 'show']);
         Route::delete('/{id}', [ContactController::class, 'destroy']);
+    });
+
+    Route::prefix('export')->group(function () {
+        Route::get('/offer/{value}', [ExportController::class, 'exportOffers']);
+        Route::get('/contact/{value}', [ExportController::class, 'exportContacts']);
+        Route::get('/donation/{value}', [ExportController::class, 'exportDonations']);
     });
 
     Route::post('/logout', [AuthController::class, 'logout']);
