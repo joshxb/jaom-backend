@@ -18,14 +18,14 @@ class PasswordResetRequestManagerResponse
         $email = $request->input('email');
         $base = $request->input('base');
 
-        $user = User::whereEmail($request->email)->first();
+        $user = User::where('email', $request->email)->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Email account does not exist'
             ], 400);
         }
 
-        $user = User::where('email', $request->email)->where('email_verified_at', '!==', '')->first();
+        $user = User::where('email', $request->email)->whereNotNull('email_verified_at')->first();
         if (!$user) {
             return response()->json([
                 'message' => 'Your request cannot be processed because the email address is not verified. Please check your previous email.'
@@ -45,7 +45,8 @@ class PasswordResetRequestManagerResponse
         ], 200);
     }
 
-    public function resetPassword(Request $request) {
+    public function resetPassword(Request $request)
+    {
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
