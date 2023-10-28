@@ -21,22 +21,18 @@ class ServerManagerResponse
         $dbConnection = env('DB_CONNECTION', 'mysql'); // Default to mysql if .env is empty
 
         // Query to retrieve the database engine
-        $engineResult = \DB::table('information_schema.tables')
+        $engineResult = DB::table('information_schema.tables')
             ->where('table_schema', env('DB_DATABASE'))
             ->select('ENGINE')
             ->first();
 
         $tableStatus = DB::table('information_schema.tables')
-            ->where('table_schema', env('DB_DATABASE'))
             ->select('table_name', 'engine', 'data_length', 'index_length')
+            ->where('table_schema', env('DB_DATABASE'))
             ->get();
 
-        foreach ($tableStatus as $table) {
-            $table->total_storage_kb = ($table->data_length + $table->index_length) / 1024;
-        }
-
         // Calculate the used storage space on the server based on the storage per tables (in KB)
-        $usedStorage = array_sum(array_column($tableStatus->toArray(), 'total_storage_kb'));
+        $usedStorage = (array_sum(array_column($tableStatus->toArray(), 'data_length')) +  array_sum(array_column($tableStatus->toArray(), 'index_length'))) / 1024;
 
         // Convert totalStorage, usedStorage, and freeStorage to MB
         $totalStorageMB = $usedStorage / 1024;
