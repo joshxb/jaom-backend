@@ -2,6 +2,7 @@
 
 namespace App\Response\Manager\web;
 
+use App\Assets\BibleQuote;
 use App\Mail\BibleQuoteMail;
 use App\Models\User;
 use Carbon\Carbon;
@@ -13,6 +14,13 @@ use App\Models\Notification;
 class BibleGeneratorResponse
 {
     private $maxRetries = 3;
+
+    private $bibleQuotes;
+
+    public function __construct(BibleQuote $bibleQuotes)
+    {
+        $this->bibleQuotes = $bibleQuotes;
+    }
 
     public function generateBibleQuote($retryCount = 0)
     {
@@ -111,19 +119,18 @@ class BibleGeneratorResponse
             $notification->user_id = auth()->user()->id;
             $notification->save();
 
-            $jsonPath = public_path('json/bible-quotes.json');
-            $jsonContent = file_get_contents($jsonPath);
-            $data = json_decode($jsonContent, true)['quotes'];
+            $data = $this->bibleQuotes->getQuote();
 
             $randomIndex = array_rand($data);
             $randomQuote = $data[$randomIndex]['text'];
             $randomVerse = $data[$randomIndex]['verse'];
 
             return [
-                'verse' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomVerse : $verse,
-                'quote' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomQuote : $quote,
+                'verse' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomVerse : $randomVerse,
+                'quote' => ($this->returnZeroOrOne() == 0 || $this->returnZeroOrOne() == 1) ? $randomQuote : $randomQuote,
                 'day' => $currentDay,
             ];
+
         } catch (Exception $e) {
             if ($retryCount < $this->maxRetries) {
                 // return $this->generateBibleQuote($retryCount + 1);
