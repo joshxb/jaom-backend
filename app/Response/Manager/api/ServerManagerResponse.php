@@ -18,24 +18,25 @@ class ServerManagerResponse
         }
 
         // Get the database connection configuration from .env
-        $dbConnection = env('DB_CONNECTION', 'mysql'); // Default to 'mysql' if not specified
-
-        // Get the MySQL connection
-        $connection = DB::connection();
+        $dbConnection = env('DB_CONNECTION', 'mysql'); // Default to mysql if .env is empty
 
         // Query to retrieve the database engine
-        $engineResult = $connection->select('SELECT ENGINE FROM information_schema.tables WHERE table_schema = \'' . env('DB_DATABASE') . '\' LIMIT 1');
+        $engineResult = \DB::table('information_schema.tables')
+            ->where('table_schema', env('DB_DATABASE'))
+            ->select('ENGINE')
+            ->first();
 
-        // Count all tables and get their status
-        $tableStatus = $connection->select('SELECT table_name, engine, data_length, index_length FROM information_schema.tables WHERE table_schema = \'' . env('DB_DATABASE') . '\'');
+        $tableStatus = DB::table('information_schema.tables')
+            ->where('table_schema', env('DB_DATABASE'))
+            ->select('table_name', 'engine', 'data_length', 'index_length')
+            ->get();
 
-        // Calculate the total storage per table in KB
         foreach ($tableStatus as $table) {
             $table->total_storage_kb = ($table->data_length + $table->index_length) / 1024;
         }
 
         // Calculate the used storage space on the server based on the storage per tables (in KB)
-        $usedStorage = array_sum(array_column($tableStatus, 'total_storage_kb'));
+        $usedStorage = array_sum(array_column($tableStatus->toArray(), 'total_storage_kb'));
 
         // Convert totalStorage, usedStorage, and freeStorage to MB
         $totalStorageMB = $usedStorage / 1024;
@@ -43,7 +44,7 @@ class ServerManagerResponse
         $freeStorageMB = $totalStorageMB - $usedStorageMB;
 
         // Get CPU Usage
-        $cpuUsageResult = $connection->select('SHOW GLOBAL STATUS LIKE "CPU%"');
+        $cpuUsageResult = DB::select('SHOW GLOBAL STATUS LIKE "CPU%"');
         $cpuUsage = null;
 
         foreach ($cpuUsageResult as $row) {
@@ -56,7 +57,7 @@ class ServerManagerResponse
         $cpuUsage = $cpuUsage !== null ? $cpuUsage . '%' : 'N/A';
 
         // Get Network Traffic
-        $networkTrafficResult = $connection->select('SHOW STATUS LIKE "Bytes_received"');
+        $networkTrafficResult = DB::select('SHOW STATUS LIKE "Bytes_received"');
         $rxBytes = null;
 
         foreach ($networkTrafficResult as $row) {
