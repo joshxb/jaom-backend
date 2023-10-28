@@ -31,13 +31,15 @@ class ServerManagerResponse
             ->where('table_schema', env('DB_DATABASE'))
             ->get();
 
-        // Calculate the used storage space on the server based on the storage per tables (in KB)
-        $usedStorage = (array_sum(array_column($tableStatus->toArray(), 'data_length')) +  array_sum(array_column($tableStatus->toArray(), 'index_length'))) / 1024;
+        // Calculate the number of rows for data_length and index_length
+        $dataRowCount = DB::table('information_schema.tables')
+            ->where('table_schema', env('DB_DATABASE'))
+            ->sum('data_length');
 
-        // Convert totalStorage, usedStorage, and freeStorage to MB
-        $totalStorageMB = $usedStorage / 1024;
-        $usedStorageMB = $usedStorage / 1024;
-        $freeStorageMB = $totalStorageMB - $usedStorageMB;
+        $indexRowCount = DB::table('information_schema.tables')
+            ->where('table_schema', env('DB_DATABASE'))
+            ->sum('index_length');
+
 
         // Get CPU Usage
         $cpuUsageResult = DB::select('SHOW GLOBAL STATUS LIKE "CPU%"');
@@ -76,9 +78,7 @@ class ServerManagerResponse
         return [
             'databaseType' => $dbConnection,
             'databaseEngine' => $engineResult,
-            'totalStorage' => $totalStorageMB . ' MB',
-            'usedStorage' => $usedStorageMB . ' MB',
-            'freeStorage' => $freeStorageMB . ' MB',
+            'totalStorage' => (($dataRowCount + $indexRowCount) / 1024) / 1024 . ' MB',
             'tableCount' => count($tableStatus),
             'tableStatus' => $tableStatus,
             'cpuUsage' => $cpuUsage,
