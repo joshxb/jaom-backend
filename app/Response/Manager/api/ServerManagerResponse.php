@@ -24,10 +24,10 @@ class ServerManagerResponse
         $connection = DB::connection();
 
         // Query to retrieve the database engine
-        $engineResult = $connection->select('SELECT ENGINE FROM information_schema.tables WHERE table_schema = ? LIMIT 1', [env('DB_DATABASE')]);
+        $engineResult = $connection->select('SELECT ENGINE FROM information_schema.tables WHERE table_schema = \'' . env('DB_DATABASE') . '\' LIMIT 1');
 
         // Count all tables and get their status
-        $tableStatus = $connection->select('SELECT table_name, engine, data_length, index_length FROM information_schema.tables WHERE table_schema = ?', [env('DB_DATABASE')]);
+        $tableStatus = $connection->select('SELECT table_name, engine, data_length, index_length FROM information_schema.tables WHERE table_schema = \'' . env('DB_DATABASE') . '\'');
 
         // Calculate the total storage per table in KB
         foreach ($tableStatus as $table) {
