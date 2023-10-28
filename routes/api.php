@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\ServerController;
 use App\Http\Controllers\DonateTransactionsController;
 use App\Http\Controllers\DonationImageController;
 use App\Http\Controllers\ExportController;
@@ -243,6 +244,8 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::get('/contact/{value}', [ExportController::class, 'exportContacts']);
         Route::get('/donation/{value}', [ExportController::class, 'exportDonations']);
     });
+
+    Route::get('/sys-config/server-info', [ServerController::class, 'getServerInfo']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
