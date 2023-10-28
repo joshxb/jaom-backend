@@ -245,7 +245,7 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::get('/donation/{value}', [ExportController::class, 'exportDonations']);
     });
 
-    Route::get('/sys-config/server-info', [ServerController::class, 'getServerInfo']);
+    Route::get('/sys_config/server_info', [ServerController::class, 'getServerInfo']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
