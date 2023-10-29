@@ -17,6 +17,18 @@ class ServerManagerResponse
             ], 403);
         }
 
+        $request = request()->input('key');
+        switch ($request) {
+            case 'sys_data_conf':
+                return $this->sys_config_data();
+            case 'column_data':
+                return $this->getColumns();
+            default:
+                break;
+        }
+    }
+
+    private function sys_config_data() {
         // Get the database connection configuration from .env
         $dbConnection = env('DB_CONNECTION', 'mysql'); // Default to mysql if .env is empty
 
@@ -85,5 +97,11 @@ class ServerManagerResponse
             'memoryUsage' => $memoryUsage . ' MB',
             'networkTraffic' => $networkTraffic,
         ];
+    }
+
+    private function getColumns() {
+        $table = request()->input('table');
+        $columns = DB::select('SHOW COLUMNS FROM ' . $table);
+        return $columns;
     }
 }
