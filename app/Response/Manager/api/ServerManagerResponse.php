@@ -88,6 +88,7 @@ class ServerManagerResponse
 
         // Display the server information with labels in MB and KB
         return [
+            'database' => env('DB_DATABASE'),
             'databaseType' => $dbConnection,
             'databaseEngine' => $engineResult,
             'totalStorage' => (($dataRowCount + $indexRowCount) / 1024) / 1024 . ' MB',
