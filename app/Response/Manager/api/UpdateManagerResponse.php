@@ -56,7 +56,7 @@ class UpdateManagerResponse
                     'id' => $update->id,
                     'user_id' => $update->user_id,
                     'firstname' => $update->user->firstname ? $update->user->firstname : null,
-                    'lastname' => $update->user->lastname ?  $update->user->lastname : null,
+                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
                     'nickname' => $update->user->nickname ? $update->user->nickname : null,
                     'subject' => $update->subject,
                     'content' => $update->content,
@@ -76,7 +76,7 @@ class UpdateManagerResponse
         $update->subject = $request->subject;
         $update->content = $request->content;
         $update->user_id = $user->id;
-        $update->permission = "disapproved";
+        $update->permission = $user->type === 'admin' ? "approved" : "disapproved";
         $update->save();
 
         return response()->json(['data' => $update], 201);
@@ -135,7 +135,7 @@ class UpdateManagerResponse
         return response()->json([
             'data' => $update,
             'message' => "Permission updated successfully!"
-    ]);
+        ]);
     }
 
     public function destroy($id)
