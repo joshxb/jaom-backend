@@ -30,11 +30,14 @@ class UpdateManagerResponse
         $user = Auth::user();
 
         $per_page = $request->input('per_page', 10);
-
+        $filter = $request->input('filter', 'all');
+        $order = $request->input('order', 'newest');
         $page = $request->input('page');
         $page = 10 * ($page - 1);
 
-        $results = $user->updates()
+        $results = null;
+        if ($filter === 'all') {
+            $results = $user->updates()
             ->with('user')
             ->where(function ($query) use ($user) {
                 $query->where('user_id', $user->id)
@@ -47,7 +50,7 @@ class UpdateManagerResponse
                 $query->where('user_id', '!=', $user->id)
                     ->where('permission', 'approved');
             })
-            ->orderByDesc('created_at')
+            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
             ->skip($page)
             ->take($per_page)
             ->get()
@@ -65,7 +68,57 @@ class UpdateManagerResponse
                     'max_page' => ceil(($update->count()) / 10)
                 ];
             });
-
+        } else if ($filter === 'current') {
+            $results = $user->updates()
+            ->with('user')
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->where(function ($query) {
+                        $query->where('permission', 'approved')
+                            ->orWhere('permission', 'disapproved');
+                    });
+            })
+            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
+            ->skip($page)
+            ->take($per_page)
+            ->get()
+            ->map(function ($update) {
+                return [
+                    'id' => $update->id,
+                    'user_id' => $update->user_id,
+                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
+                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
+                    'subject' => $update->subject,
+                    'content' => $update->content,
+                    'permission' => $update->permission,
+                    'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                    'max_page' => ceil(($update->count()) / 10)
+                ];
+            });
+        } else if ($filter === 'other') {
+            $results = Update::with('user')
+            ->where('user_id', '!=', $user->id)
+            ->where('permission', 'approved')
+            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
+            ->skip($page)
+            ->take($per_page)
+            ->get()
+            ->map(function ($update) {
+                return [
+                    'id' => $update->id,
+                    'user_id' => $update->user_id,
+                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
+                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
+                    'subject' => $update->subject,
+                    'content' => $update->content,
+                    'permission' => $update->permission,
+                    'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                    'max_page' => ceil(($update->count()) / 10)
+                ];
+            });
+        }
         return response()->json(['result' => $results]);
     }
 
