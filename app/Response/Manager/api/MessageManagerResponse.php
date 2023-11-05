@@ -154,39 +154,47 @@ class MessageManagerResponse
 
     public function first_conversations()
     {
-        $user = Auth::user();
-        $conversations = Conversation::where('user1_id', $user->id)
-            ->orWhere('user2_id', $user->id)
-            ->with([
-                'messages' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
-            ->latest()
-            ->first();
+        try {
+            $user = Auth::user();
+            $conversations = Conversation::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with([
+                    'messages' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
+                ->latest()
+                ->first();
 
-        $conversations2 = Conversation::where('user1_id', $user->id)
-            ->orWhere('user2_id', $user->id)
-            ->with([
-                'messages' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
-            ->orderByDesc(
-                Message::select('created_at')
-                    ->whereColumn('conversation_id', 'conversations.id')
-                    ->latest()
-                    ->limit(1)
-            )->latest()
-            ->first();
+            $conversations2 = Conversation::where('user1_id', $user->id)
+                ->orWhere('user2_id', $user->id)
+                ->with([
+                    'messages' => function ($query) {
+                        $query->orderBy('created_at', 'desc');
+                    }
+                ])
+                ->orderByDesc(
+                    Message::select('created_at')
+                        ->whereColumn('conversation_id', 'conversations.id')
+                        ->latest()
+                        ->limit(1)
+                )->latest()
+                ->first();
 
-        if (!is_null($conversations) && !is_null($conversations2)) {
-            if ($conversations->created_at > $conversations2->messages[0]->created_at) {
-                return $conversations;
+            if (!is_null($conversations) && !is_null($conversations2)) {
+                try {
+                    if ($conversations->created_at > $conversations2->messages[0]->created_at) {
+                        return $conversations;
+                    } else {
+                        return $conversations2;
+                    }
+                } catch (\Throwable $th) {
+                    return $conversations2;
+                }
             } else {
-                return $conversations2;
+                return [];
             }
-        } else {
+        } catch (\Throwable $th) {
             return [];
         }
     }
