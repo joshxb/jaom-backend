@@ -260,14 +260,24 @@ class GroupChatManagerResponse
     public function index(Request $request)
     {
         $groupChats = null;
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         if (request()->filled('default') && request('default') === 'true') {
-            $groupChats = GroupChat::where('type', 'default')->with("user")->paginate(10);
+            $groupChats = GroupChat::where('type', 'default')->with("user")
+            ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination);
 
             $groupChats->each(function ($item) {
                 $item->total_messages = $this->getTotalMessages($item->id);
             });
         } else {
-            $groupChats = GroupChat::with("user")->paginate(10);
+            $groupChats = GroupChat::with("user")
+            ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination);
         }
         if ($request->input('v2')) {
             $request->roomOwnerShow = true;

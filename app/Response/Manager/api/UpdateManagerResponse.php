@@ -16,12 +16,19 @@ class UpdateManagerResponse
 
     public function allUpdates()
     {
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         $user = Auth::user();
         if ($user->type !== 'admin') {
             return response()->json(['message' => "You don't have permission to get the data."], 403);
         }
 
-        $updates = Update::orderByDesc('created_at')->paginate(10);
+        $updates = Update::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination);
         return response()->json([$updates]);
     }
 
@@ -38,86 +45,86 @@ class UpdateManagerResponse
         $results = null;
         if ($filter === 'all') {
             $results = $user->updates()
-            ->with('user')
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->where(function ($query) {
-                        $query->where('permission', 'approved')
-                            ->orWhere('permission', 'disapproved');
-                    });
-            })
-            ->orWhere(function ($query) use ($user) {
-                $query->where('user_id', '!=', $user->id)
-                    ->where('permission', 'approved');
-            })
-            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
-            ->skip($page)
-            ->take($per_page)
-            ->get()
-            ->map(function ($update) {
-                return [
-                    'id' => $update->id,
-                    'user_id' => $update->user_id,
-                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
-                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
-                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
-                    'subject' => $update->subject,
-                    'content' => $update->content,
-                    'permission' => $update->permission,
-                    'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
-                    'max_page' => ceil(($update->count()) / 10)
-                ];
-            });
+                ->with('user')
+                ->where(function ($query) use ($user) {
+                    $query->where('user_id', $user->id)
+                        ->where(function ($query) {
+                            $query->where('permission', 'approved')
+                                ->orWhere('permission', 'disapproved');
+                        });
+                })
+                ->orWhere(function ($query) use ($user) {
+                    $query->where('user_id', '!=', $user->id)
+                        ->where('permission', 'approved');
+                })
+                ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
+                ->skip($page)
+                ->take($per_page)
+                ->get()
+                ->map(function ($update) {
+                    return [
+                        'id' => $update->id,
+                        'user_id' => $update->user_id,
+                        'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                        'lastname' => $update->user->lastname ? $update->user->lastname : null,
+                        'nickname' => $update->user->nickname ? $update->user->nickname : null,
+                        'subject' => $update->subject,
+                        'content' => $update->content,
+                        'permission' => $update->permission,
+                        'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                        'max_page' => ceil(($update->count()) / 10)
+                    ];
+                });
         } else if ($filter === 'current') {
             $results = $user->updates()
-            ->with('user')
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->where(function ($query) {
-                        $query->where('permission', 'approved')
-                            ->orWhere('permission', 'disapproved');
-                    });
-            })
-            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
-            ->skip($page)
-            ->take($per_page)
-            ->get()
-            ->map(function ($update) {
-                return [
-                    'id' => $update->id,
-                    'user_id' => $update->user_id,
-                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
-                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
-                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
-                    'subject' => $update->subject,
-                    'content' => $update->content,
-                    'permission' => $update->permission,
-                    'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
-                    'max_page' => ceil(($update->count()) / 10)
-                ];
-            });
+                ->with('user')
+                ->where(function ($query) use ($user) {
+                    $query->where('user_id', $user->id)
+                        ->where(function ($query) {
+                            $query->where('permission', 'approved')
+                                ->orWhere('permission', 'disapproved');
+                        });
+                })
+                ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
+                ->skip($page)
+                ->take($per_page)
+                ->get()
+                ->map(function ($update) {
+                    return [
+                        'id' => $update->id,
+                        'user_id' => $update->user_id,
+                        'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                        'lastname' => $update->user->lastname ? $update->user->lastname : null,
+                        'nickname' => $update->user->nickname ? $update->user->nickname : null,
+                        'subject' => $update->subject,
+                        'content' => $update->content,
+                        'permission' => $update->permission,
+                        'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                        'max_page' => ceil(($update->count()) / 10)
+                    ];
+                });
         } else if ($filter === 'other') {
             $results = Update::with('user')
-            ->where('user_id', '!=', $user->id)
-            ->where('permission', 'approved')
-            ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
-            ->skip($page)
-            ->take($per_page)
-            ->get()
-            ->map(function ($update) {
-                return [
-                    'id' => $update->id,
-                    'user_id' => $update->user_id,
-                    'firstname' => $update->user->firstname ? $update->user->firstname : null,
-                    'lastname' => $update->user->lastname ? $update->user->lastname : null,
-                    'nickname' => $update->user->nickname ? $update->user->nickname : null,
-                    'subject' => $update->subject,
-                    'content' => $update->content,
-                    'permission' => $update->permission,
-                    'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
-                    'max_page' => ceil(($update->count()) / 10)
-                ];
-            });
+                ->where('user_id', '!=', $user->id)
+                ->where('permission', 'approved')
+                ->orderBy('created_at', $order === 'newest' ? 'desc' : 'asc')
+                ->skip($page)
+                ->take($per_page)
+                ->get()
+                ->map(function ($update) {
+                    return [
+                        'id' => $update->id,
+                        'user_id' => $update->user_id,
+                        'firstname' => $update->user->firstname ? $update->user->firstname : null,
+                        'lastname' => $update->user->lastname ? $update->user->lastname : null,
+                        'nickname' => $update->user->nickname ? $update->user->nickname : null,
+                        'subject' => $update->subject,
+                        'content' => $update->content,
+                        'permission' => $update->permission,
+                        'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
+                        'max_page' => ceil(($update->count()) / 10)
+                    ];
+                });
         }
         return response()->json(['result' => $results]);
     }

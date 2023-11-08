@@ -61,32 +61,39 @@ class GroupMessageManagerResponse
 
     public function index()
     {
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         $groupMessages = GroupMessage::with(['groupChat.groupUsers', 'user'])
-            ->paginate(10, ['id', 'group_id', 'user_id', 'content', 'created_at']);
+            ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination, ['id', 'group_id', 'user_id', 'content', 'created_at']);
 
-            $formattedMessages = $groupMessages->map(function ($message) {
-                $formattedMessage = [
-                    'id' => $message->id,
-                    'group_id' => $message->group_id,
-                    'user_id' => $message->user_id,
-                    'content' => $message->content,
-                    'created_at' => $message->created_at,
-                ];
+        $formattedMessages = $groupMessages->map(function ($message) {
+            $formattedMessage = [
+                'id' => $message->id,
+                'group_id' => $message->group_id,
+                'user_id' => $message->user_id,
+                'content' => $message->content,
+                'created_at' => $message->created_at,
+            ];
 
-                if ($message->user) {
-                    $formattedMessage['sender_name'] = $message->user->firstname . ' ' . $message->user->lastname;
-                } else {
-                    $formattedMessage['sender_name'] = 'Unknown User';
-                }
+            if ($message->user) {
+                $formattedMessage['sender_name'] = $message->user->firstname . ' ' . $message->user->lastname;
+            } else {
+                $formattedMessage['sender_name'] = 'Unknown User';
+            }
 
-                if ($message->groupChat && $message->groupChat->name) {
-                    $formattedMessage['group_name'] = $message->groupChat->name;
-                } else {
-                    $formattedMessage['group_name'] = 'Unknown Group Name';
-                }
+            if ($message->groupChat && $message->groupChat->name) {
+                $formattedMessage['group_name'] = $message->groupChat->name;
+            } else {
+                $formattedMessage['group_name'] = 'Unknown Group Name';
+            }
 
-                return $formattedMessage;
-            });
+            return $formattedMessage;
+        });
 
         return response()->json([
             'data' => [

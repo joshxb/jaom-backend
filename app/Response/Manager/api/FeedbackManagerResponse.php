@@ -13,7 +13,13 @@ class FeedbackManagerResponse
 {
     public function index()
     {
-        $feedbacks = Feedback::orderBy('created_at', 'desc')->paginate();
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
+        $feedbacks = Feedback::orderBy('created_at', request()->input("order") ? request()->input("order") : 'desc')->paginate($pagination);
         return response()->json($feedbacks);
     }
 

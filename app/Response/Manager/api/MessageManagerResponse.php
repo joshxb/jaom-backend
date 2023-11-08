@@ -15,6 +15,7 @@ class MessageManagerResponse
     public function all_conversations(Request $request)
     {
         $user = Auth::user();
+
         if ($user->type != 'admin' || !request()->input('role') || request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to access the data."], 404);
         }
@@ -22,7 +23,7 @@ class MessageManagerResponse
         $conversations = Conversation::with([
             'messages' => function ($query) {
                 $query->select('id', 'conversation_id', 'sender_id', 'body', 'created_at')
-                    ->orderBy('created_at', 'asc');
+                    ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc');
             }
         ])->get();
 
@@ -48,6 +49,10 @@ class MessageManagerResponse
         $totalMessages = count($allMessages);
 
         $perPage = $request->input('per_page', 10);
+
+        if (request()->input("items")) {
+            $perPage = request()->input("items");
+        }
 
         $currentPage = $request->input('page', 1);
         $lastPage = ceil($totalMessages / $perPage);

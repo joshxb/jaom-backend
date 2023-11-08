@@ -29,11 +29,25 @@ class UserManagerResponse
     public function index()
     {
         $pagination = 10;
-        $users = User::paginate($pagination);
+        $users = User::query(); // Create a query builder instance.
 
         if (request()->input('configuration')) {
             request()->userConfiguration = true;
         }
+
+        if (request()->input("order")) {
+            if (request()->input("order") === 'asc') {
+                $users->orderBy('id', 'asc');
+            } else {
+                $users->orderBy('id', 'desc');
+            }
+        }
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
+        $users = $users->paginate($pagination);
 
         $data = [
             'current_page' => $users->currentPage(),

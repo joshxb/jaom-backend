@@ -28,8 +28,15 @@ class UserHistoryManagerResponse
     public function indexAll()
     {
         $user = Auth::user();
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         if ($user->type == 'admin') {
-            $userHistories = $user ? UserHistory::orderBy('created_at', 'desc')->paginate(10) : null;
+            $userHistories = $user ? UserHistory::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination) : null;
 
             if (!$userHistories) {
                 return response()->json(['error' => 'User history not found.'], 404);

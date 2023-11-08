@@ -14,8 +14,15 @@ class TodoManagerResponse
     public function allTodos()
     {
         $user = Auth::user();
+        $paginate = 10;
+
+        if (request()->input("items")) {
+            $paginate = request()->input("items");
+        }
+
         if ($user->type == 'admin' && request()->has('role') && request()->input('role') == 'admin') {
-            $todos = Todo::orderBy('created_at', 'DESC')->paginate(10);
+            $todos = Todo::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+                ->paginate($paginate);
 
             return response()->json([
                 $todos,

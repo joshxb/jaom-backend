@@ -16,11 +16,18 @@ class DonateTransactionManagerResponse
 
     public function getAllIndex()
     {
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         if (request()->input('role') != 'admin') {
             return response()->json(['message' => "You don't have permission to get a user."], 401);
         }
 
-        $donateTransactions = DonateTransactions::orderByDesc('created_at')->paginate(10);
+        $donateTransactions = DonateTransactions::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+            ->paginate($pagination);
 
         $data = [
             'current_page' => $donateTransactions->currentPage(),

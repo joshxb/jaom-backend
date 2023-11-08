@@ -9,18 +9,21 @@ use Illuminate\Support\Facades\DB;
 
 class PageAnalyticsManagerResponse
 {
-    public static $paginate = 10;
-
     public function index()
     {
         $user = Auth::user();
+        $pagination = 10;
 
         $month = request()->input('month');
         $year = request()->input('year');
 
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         if ($user->type == 'admin') {
-            $query = PageAnalytics::orderByDesc('created_at');
-            $data = $query->paginate(self::$paginate);
+            $query = PageAnalytics::orderBy('created_at', request()->input("order") ? request()->input("order") : 'desc');
+            $data = $query->paginate($pagination);
 
             $totalVisits = PageAnalytics::count();
 
@@ -50,7 +53,7 @@ class PageAnalyticsManagerResponse
                 'total_visits_per_month_and_year' => $totalVisitsPerMonthAndYear,
                 'current_page' => $data->currentPage(),
                 'last_page' => $data->lastPage(),
-                'per_page' => self::$paginate,
+                'per_page' => $pagination,
                 'page_visits' => $pageVisits
             ];
 

@@ -12,10 +12,18 @@ class OfferManagerResponse
     public function index(Request $request)
     {
         $user = Auth::user();
-        $perPage = $request->input('per_page', 20);
+        $pagination = 20;
+
+        if ($request->input("items")) {
+            $pagination = $request->input("items");
+        }
+
+        $perPage = $request->input('per_page', $pagination);
         $offer = $request->input('role') === 'admin' && $user->type === 'admin' ?
-            Offer::paginate($perPage) :
-            Offer::where('user_id', $user->id)->paginate($perPage);
+            Offer::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')->paginate($perPage) :
+            Offer::where('user_id', $user->id)
+                ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+                ->paginate($perPage);
 
         return response()->json($offer);
     }

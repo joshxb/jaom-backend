@@ -11,8 +11,15 @@ class ContactManagerResponse
     public function index()
     {
         $user = Auth::user();
+        $pagination = 10;
+
+        if (request()->input("items")) {
+            $pagination = request()->input("items");
+        }
+
         if ($user->type === 'admin') {
-            $updates = Contact::paginate(10);
+            $updates = Contact::orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
+                ->paginate($pagination);
             return response()->json($updates);
         } else {
             return response()->json(['message' => "You don't have permission to get the data"], 403); // Use 403 for forbidden access
