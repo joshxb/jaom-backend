@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessagesBlobController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\DonateTransactionsController;
 use App\Http\Controllers\DonationImageController;
@@ -135,6 +136,13 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         Route::put('/{group_message}', [GroupMessageController::class, 'update']);
         Route::delete('/{group_message}', [GroupMessageController::class, 'deleteGroupMessages']);
         Route::delete('/v2/{id}', [GroupMessageController::class, 'destroy']);
+    });
+
+    Route::prefix('messages-blob')->group(function () {
+        Route::post('/', [MessagesBlobController::class, 'store']);
+        //param key: id or blobId
+        //parame id
+        Route::get('/{messages_blob_id}', [MessagesBlobController::class, 'getMessagesBlob']);
     });
 
     //******************for current user updates api**********************

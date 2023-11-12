@@ -47,7 +47,7 @@ class DonationImageManagerResponse
                 $image = $request->file('screenshot_img');
 
                 $imageBlob = file_get_contents($image->getPathname());
-                $imageBlob = base64_encode($imageBlob);
+            $imageBlob = base64_encode($imageBlob);
 
                 $ss = DonateTransactions::find($id);
                 $ss->screenshot_img = $imageBlob;

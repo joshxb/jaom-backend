@@ -12,7 +12,9 @@ class Message extends Model
     use HasFactory;
 
     protected $fillable = [
-        'body'
+        'body',
+        'type',
+        'messages_blob_id'
     ];
 
 

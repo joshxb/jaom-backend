@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('conversation_id');
-            $table->unsignedBigInteger('sender_id');
-            $table->text('body')->nullable();
+        Schema::create('messages_blobs', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('messages_blob_id');
+            $table->longText('data_blob')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('messages_blobs');
     }
 };

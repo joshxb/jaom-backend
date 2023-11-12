@@ -73,21 +73,11 @@ class MessageManagerResponse
         $user = Auth::user();
         $conversationsTest = Conversation::where('user1_id', $user->id)
             ->orWhere('user2_id', $user->id)
-            ->with([
-                'messages' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
             ->latest()
             ->first();
 
         $conversationsTest2 = Conversation::where('user1_id', $user->id)
             ->orWhere('user2_id', $user->id)
-            ->with([
-                'messages' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                }
-            ])
             ->orderByDesc(
                 Message::select('created_at')
                     ->whereColumn('conversation_id', 'conversations.id')
@@ -101,21 +91,11 @@ class MessageManagerResponse
             if ($conversationsTest->created_at > $conversationsTest2->messages[0]->created_at) {
                 $result = Conversation::where('user1_id', $user->id)
                     ->orWhere('user2_id', $user->id)
-                    ->with([
-                        'messages' => function ($query) {
-                            $query->orderBy('created_at', 'desc');
-                        }
-                    ])
                     ->orderByDesc('created_at')
                     ->paginate(10);
             } else {
                 $result = Conversation::where('user1_id', $user->id)
                     ->orWhere('user2_id', $user->id)
-                    ->with([
-                        'messages' => function ($query) {
-                            $query->orderBy('created_at', 'desc');
-                        }
-                    ])
                     ->orderByDesc(
                         Message::select('created_at')
                             ->whereColumn('conversation_id', 'conversations.id')
@@ -127,11 +107,6 @@ class MessageManagerResponse
         } catch (\Throwable $th) {
             $result = Conversation::where('user1_id', $user->id)
                 ->orWhere('user2_id', $user->id)
-                ->with([
-                    'messages' => function ($query) {
-                        $query->orderBy('created_at', 'desc');
-                    }
-                ])
                 ->orderByDesc(
                     Message::select('created_at')
                         ->whereColumn('conversation_id', 'conversations.id')
@@ -229,11 +204,13 @@ class MessageManagerResponse
     public function send_messages(Request $request, Conversation $conversation)
     {
         $validatedData = $request->validate([
-            'body' => 'required|string',
+            'body' => 'nullable|string',
         ]);
 
         $message = new Message;
         $message->body = $validatedData['body'];
+        $message->messages_blob_id = $request->messages_blob_id;
+        $message->type = $request->type;
         $message->conversation_id = $conversation->id;
         $message->sender_id = Auth::user()->id;
         $message->save();
