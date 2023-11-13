@@ -13,6 +13,7 @@ class MessagesBlob extends Model
     protected $fillable = [
         'messages_blob_id',
         'data_blob',
+        'file_name'
     ];
 
     public function message()

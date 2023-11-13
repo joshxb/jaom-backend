@@ -12,15 +12,22 @@ class MessagesBlobManagerResponse
     {
         $result = null;
         //// override parameters
-        ///// if key is id - get all ids
-        if (request()->input('key') == 'id') {
-            $result = MessagesBlob::where("messages_blob_id", request()->messages_blob_id)->pluck('id');
-            if ($result) {
+        ///// if key is info - get all info
+        if (request()->input('key') == 'info') {
+            $results = MessagesBlob::where("messages_blob_id", request()->messages_blob_id)->get(['id', 'file_name']);
+            if ($results->isNotEmpty()) {
+                $ids = $results->pluck('id')->toArray();
+                $fileNames = $results->pluck('file_name')->toArray();
+
                 return response()->json([
-                    'messages_blob_ids' => $result
+                    'messages_blob_ids' => $ids,
+                    'file_names' => $fileNames,
                 ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
             } else {
-                return null;
+                return response()->json([
+                    'messages_blob_ids' => [],
+                    'file_names' => [],
+                ], 200, ['Content-Type' => 'application/json; charset=utf-8']);
             }
         } else if (request()->input('key') == 'blob' && request()->input('id')) {
             ///// if key is blob - get blobs data and the id param for combination
@@ -49,10 +56,14 @@ class MessagesBlobManagerResponse
     public function store()
     {
         try {
-            foreach (request()->data_blob as $value) {
+            $dataBlobs = request()->data_blob;
+            $fileNames = request()->file_name;
+
+            foreach ($dataBlobs as $index => $dataBlob) {
                 MessagesBlob::create([
                     'messages_blob_id' => request()->messages_blob_id,
-                    'data_blob' => $value,
+                    'data_blob' => $dataBlob,
+                    'file_name' => $fileNames[$index] ?? null,
                 ]);
             }
 
