@@ -24,6 +24,8 @@ class GroupMessage extends Model
     protected $fillable = [
         'group_id',
         'user_id',
-        'content'
+        'content',
+        'type',
+        'group_messages_blob_id'
     ];
 }

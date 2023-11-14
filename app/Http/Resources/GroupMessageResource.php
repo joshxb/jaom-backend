@@ -19,6 +19,8 @@ class GroupMessageResource extends JsonResource
             'group_id' => $this->group_id,
             'user_id' => $this->user_id,
             'content' => $this->content,
+            'type' => $this->type,
+            'group_messages_blob_id' => $this->group_messages_blob_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'user' => new UserResource($this->user),
