@@ -12,7 +12,7 @@ class OfferManagerResponse
     public function index(Request $request)
     {
         $user = Auth::user();
-        $pagination = 20;
+        $pagination = 10;
 
         if ($request->input("items")) {
             $pagination = $request->input("items");

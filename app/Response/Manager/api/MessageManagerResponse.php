@@ -6,6 +6,7 @@ use App\Events\MessageEvent;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\MessagesBlob;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -178,7 +179,6 @@ class MessageManagerResponse
             return [];
         }
     }
-
     public function messages(Conversation $conversation)
     {
         $perPage = 10;
@@ -216,7 +216,7 @@ class MessageManagerResponse
         $message->save();
 
         if ($this->isConnectedToInternet()) {
-            event(new MessageEvent($conversation->id, $validatedData['body'], $request->other_user_id, null, null));
+            event(new MessageEvent($conversation->id, $validatedData['body'], $request->other_user_id, null, null, $request->messages_blob_id));
         }
         return response()->json(['message' => 'Message created successfully'], 201);
     }
@@ -231,6 +231,8 @@ class MessageManagerResponse
 
     public function clearMessages(Request $request, Conversation $conversation)
     {
+        $messageIds = Message::where('conversation_id', $conversation->id)->pluck('messages_blob_id');
+        MessagesBlob::whereIn('messages_blob_id', $messageIds)->delete();
         Message::where('conversation_id', $conversation->id)->delete();
 
         return response()->json([
@@ -245,6 +247,8 @@ class MessageManagerResponse
             return response()->json(['message' => "You don't have permission to remove the data."], 404);
         }
 
+        $messageIds = Message::where('id', $id)->pluck('messages_blob_id');
+        MessagesBlob::whereIn('messages_blob_id', $messageIds)->delete();
         Message::where('id', $id)->delete();
 
         return response()->json([

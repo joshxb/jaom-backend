@@ -6,6 +6,7 @@ use App\Http\Resources\GroupChatResource;
 use App\Http\Resources\GroupMessageResource;
 use App\Models\GroupChat;
 use App\Models\GroupMessage;
+use App\Models\GroupMessagesBlob;
 use App\Models\GroupUser;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -147,7 +148,7 @@ class GroupChatManagerResponse
             $groupChat = GroupChat::where("id", $data["id"])->first();
         }
         $page = $request->input('page', 0);
-        $perPage = 20;
+        $perPage = 10;
 
         $groupMessages = null;
         if (isset($data["id"])) {
@@ -221,7 +222,7 @@ class GroupChatManagerResponse
         $groupChat = GroupChat::where('id', $request->group_id)->first();
 
         $page = $request->input('page', 0);
-        $perPage = 20;
+        $perPage = 10;
 
         $groupMessages = GroupMessage::where('group_id', $request->group_id)->paginate($perPage);
         if ($page == 0 || !$page) {
@@ -436,6 +437,9 @@ class GroupChatManagerResponse
         $groupUser = GroupUser::where("group_id", $group_id);
         $groupMessage = GroupMessage::where("group_id", $group_id);
 
+        $messageIds = $groupMessage->pluck('group_messages_blob_id');
+        GroupMessagesBlob::whereIn('group_messages_blob_id', $messageIds)->delete();
+
         if ($groupUser) {
             $groupUser->delete();
         }
@@ -468,6 +472,9 @@ class GroupChatManagerResponse
 
         $groupUser = GroupUser::where("group_id", $group_id);
         $groupMessage = GroupMessage::where("group_id", $group_id);
+
+        $messageIds = $groupMessage->pluck('group_messages_blob_id');
+        GroupMessagesBlob::whereIn('group_messages_blob_id', $messageIds)->delete();
 
         if ($groupUser) {
             $groupUser->delete();

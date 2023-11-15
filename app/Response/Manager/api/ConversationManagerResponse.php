@@ -4,6 +4,7 @@ namespace App\Response\Manager\api;
 
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\MessagesBlob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -75,6 +76,8 @@ class ConversationManagerResponse
 
     public function deleteConversation(Request $request, Conversation $conversation)
     {
+        $messageIds = Message::where('conversation_id', $conversation->id)->pluck('messages_blob_id');
+        MessagesBlob::whereIn('messages_blob_id', $messageIds)->delete();
         Message::where('conversation_id', $conversation->id)->delete();
         Conversation::where('id', $conversation->id)->delete();
 

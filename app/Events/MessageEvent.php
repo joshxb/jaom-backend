@@ -21,13 +21,15 @@ class MessageEvent implements ShouldBroadcast
     public $created_at;
     public $group_id;
     public $other_user_name_in_group;
+    public $blob_id;
 
     public function __construct(
         $conversation_id,
         $message,
         $other_user_id,
         $group_id,
-        $other_user_name_in_group
+        $other_user_name_in_group,
+        $blob_id
     ) {
         $this->conversation_id = $conversation_id;
         $this->body = $message;
@@ -35,6 +37,7 @@ class MessageEvent implements ShouldBroadcast
         $this->created_at = Carbon::now();
         $this->group_id = $group_id;
         $this->other_user_name_in_group = $other_user_name_in_group;
+        $this->blob_id = $blob_id;
     }
 
     public function broadcastOn()

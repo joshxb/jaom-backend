@@ -10,6 +10,7 @@ use App\Models\GroupMessage;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\GroupMessagesBlob;
 
 class GroupMessageManagerResponse
 {
@@ -24,7 +25,7 @@ class GroupMessageManagerResponse
         }
 
         $page = $request->input('page', 0);
-        $perPage = 20;
+        $perPage = 10;
         $groupMessages = GroupMessage::where('group_id', $groupId)->paginate($perPage);
 
         if ($page == 0 || !$page) {
@@ -126,7 +127,7 @@ class GroupMessageManagerResponse
         $user = auth()->user();
 
         if ($this->isConnectedToInternet()) {
-            event(new MessageEvent(null, $request->content, $user->id, $request->group_id, $request->fullname));
+            event(new MessageEvent(null, $request->content, $user->id, $request->group_id, $request->fullname, $request->group_messages_blob_id));
         }
 
         return response()->json([
@@ -160,7 +161,14 @@ class GroupMessageManagerResponse
             return response()->json(['message' => "You don't have permission to remove the data."], 404);
         }
 
-        GroupMessage::findOrFail($id)->delete();
+        $groupMessage = GroupMessage::findOrFail($id);
+        if ($groupMessage) {
+            $messageId = $groupMessage->group_messages_blob_id;
+
+            $groupMessagesBlob = GroupMessagesBlob::where('group_messages_blob_id', $messageId);
+            $groupMessagesBlob->delete();
+            $groupMessage->delete();
+        }
 
         return response()->json([
             'message' => 'Group messages deleted successfully.',
@@ -175,6 +183,11 @@ class GroupMessageManagerResponse
                 'error' => 'No GroupChat record found for the current user.',
             ], 404);
         }
+
+        $groupMessages = GroupMessage::where('group_id', $groupId);
+        $messageId = $groupMessages->pluck('group_messages_blob_id');
+        $groupMessagesBlob = GroupMessagesBlob::whereIn('group_messages_blob_id', $messageId);
+        $groupMessagesBlob->delete();
 
         GroupMessage::where('group_id', $groupId)->delete();
         return response()->json([
