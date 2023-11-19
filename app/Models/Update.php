@@ -9,7 +9,7 @@ class Update extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['subject', 'content', 'user_id'];
+    protected $fillable = ['subject', 'content', 'user_id', 'type', 'updates_blob_id'];
 
     public function user()
     {

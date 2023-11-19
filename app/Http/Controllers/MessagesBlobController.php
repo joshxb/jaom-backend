@@ -17,9 +17,8 @@ class MessagesBlobController extends Controller
     public function getMessagesBlob(){
         return $this->messagesBlobManagerResponse->getMessagesBlob();
     }
-    
+
     public function store() {
         return $this->messagesBlobManagerResponse->store();
     }
-
 }

@@ -21,6 +21,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\UpdatesBlobsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryController;
 use App\Http\Controllers\UserImagesController;
@@ -151,6 +152,14 @@ Route::middleware(['auth:sanctum', 'throttle:1000,1'])->group(function () {
         //param key: id or blobId
         //parame id
         Route::get('/{group_messages_blob_id}', [GroupMessagesBlobController::class, 'getGroupMessagesBlob']);
+    });
+
+    Route::prefix('updates-blob')->group(function () {
+        Route::post('/', [UpdatesBlobsController::class, 'store']);
+        //param key: id or blobId
+        //parame id
+        Route::get('/{updates_blob_id}', [UpdatesBlobsController::class, 'getUpdatesBlob']);
+        Route::put('/{updates_blob_id}', [UpdatesBlobsController::class, 'setUpdatesBlob']);
     });
 
     //******************for current user updates api**********************

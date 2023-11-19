@@ -10,9 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
+        Schema::table('updates', function (Blueprint $table) {
             $table->enum('type', ['text', 'blob', 'text-blob'])->default('text');
-            $table->unsignedBigInteger('messages_blob_id')->nullable();
+            $table->unsignedBigInteger('updates_blob_id')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
+        Schema::table('updates', function (Blueprint $table) {
             // Drop the columns added in the 'up' method
             $table->dropColumn(['type', 'messages_blob_id']);
         });

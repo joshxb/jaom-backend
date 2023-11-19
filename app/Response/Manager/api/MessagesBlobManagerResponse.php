@@ -60,7 +60,7 @@ class MessagesBlobManagerResponse
             $fileNames = request()->file_name;
 
             foreach ($dataBlobs as $index => $dataBlob) {
-                MessagesBlob::create([
+                MessagesBlob::insert([
                     'messages_blob_id' => request()->messages_blob_id,
                     'data_blob' => $dataBlob,
                     'file_name' => $fileNames[$index] ?? null,

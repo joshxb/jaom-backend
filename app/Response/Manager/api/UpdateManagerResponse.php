@@ -71,6 +71,8 @@ class UpdateManagerResponse
                         'subject' => $update->subject,
                         'content' => $update->content,
                         'permission' => $update->permission,
+                        'type' => $update->type,
+                        'updates_blob_id' => $update->updates_blob_id,
                         'formatted_created_at' => $update->created_at->format('F j, Y \a\t g:i a - l'),
                         'max_page' => ceil(($update->count()) / 10)
                     ];
@@ -137,6 +139,8 @@ class UpdateManagerResponse
         $update->content = $request->content;
         $update->user_id = $user->id;
         $update->permission = $user->type === 'admin' ? "approved" : "disapproved";
+        $update->updates_blob_id = $request->updates_blob_id;
+        $update->type = $request->type;
         $update->save();
 
         return response()->json(['data' => $update], 201);

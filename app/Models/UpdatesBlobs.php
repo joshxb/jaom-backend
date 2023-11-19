@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
-class MessagesBlob extends Model
+class UpdatesBlobs extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'messages_blob_id',
+        'updates_blob_id',
         'data_blob',
         'file_name'
     ];
