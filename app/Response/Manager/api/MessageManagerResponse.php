@@ -23,7 +23,7 @@ class MessageManagerResponse
 
         $conversations = Conversation::with([
             'messages' => function ($query) {
-                $query->select('id', 'conversation_id', 'sender_id', 'body', 'created_at')
+                $query->select('id', 'conversation_id', 'sender_id', 'body', 'type', 'created_at')
                     ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc');
             }
         ])->get();
@@ -39,6 +39,7 @@ class MessageManagerResponse
                     'sender_id' => $senderId,
                     'receiver_id' => $receiverId,
                     'body' => $message->body,
+                    'type' => $message->type,
                     'date' => $message->created_at->format('F j, Y'),
                     'time' => $message->created_at->format('g:i A'),
                 ];

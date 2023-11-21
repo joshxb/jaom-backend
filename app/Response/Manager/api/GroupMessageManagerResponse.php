@@ -70,7 +70,7 @@ class GroupMessageManagerResponse
 
         $groupMessages = GroupMessage::with(['groupChat.groupUsers', 'user'])
             ->orderBy('id', request()->input("order") ? request()->input("order") : 'desc')
-            ->paginate($pagination, ['id', 'group_id', 'user_id', 'content', 'created_at']);
+            ->paginate($pagination, ['id', 'group_id', 'user_id', 'content', 'type', 'created_at']);
 
         $formattedMessages = $groupMessages->map(function ($message) {
             $formattedMessage = [
@@ -78,6 +78,7 @@ class GroupMessageManagerResponse
                 'group_id' => $message->group_id,
                 'user_id' => $message->user_id,
                 'content' => $message->content,
+                'type' => $message->type,
                 'created_at' => $message->created_at,
             ];
 
