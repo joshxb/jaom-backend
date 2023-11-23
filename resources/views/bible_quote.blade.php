@@ -152,7 +152,8 @@
 
         .image-container img {
             margin: 10px;
-            width: 30%;
+            width: 250px;
+            height: 200px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             /* This is the box shadow property */
@@ -248,12 +249,12 @@
                         <div class="image-container" style="text-align: center">
                             @isset($user['quote'])
                             @foreach ($user['randomImages'] as $image)
-                            <img src="{{ $image }}" alt="Random Image">
+                            <img class="attach-image" src="{{ $image }}" alt="Random Image">
                             @endforeach
                             @else
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true" alt="Image 1">
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337600841_1224255664889243_5242546871589928112_n.jpg?raw=true" alt="Image 2">
-                            <img src="https://github.com/joshxb/joam-project-images/blob/main/337664640_998857938189489_2265375645851121647_n.jpg?raw=true" alt="Image 3">
+                            <img class="attach-image" src="https://github.com/joshxb/joam-project-images/blob/main/337482704_1399156404249401_3014320667708945884_n.jpg?raw=true" alt="Image 1">
+                            <img class="attach-image" src="https://github.com/joshxb/joam-project-images/blob/main/337600841_1224255664889243_5242546871589928112_n.jpg?raw=true" alt="Image 2">
+                            <img class="attach-image" src="https://github.com/joshxb/joam-project-images/blob/main/337664640_998857938189489_2265375645851121647_n.jpg?raw=true" alt="Image 3">
                             @endisset
                         </div>
                         <div class="footer">
