@@ -214,13 +214,12 @@
                 <div class="card mt-5">
                     <div class="card-body">
                         <div class="greeting">
-                            Greetings,
                             @if (isset($user['day']))
-                            today is {{ $user['day'] }}! We are sharing an enlightening verse with quote for you.
+                                {{ $user['message'] }}
                             @else
-                            We are sharing an enlightening quote to all of us.
+                                Greetings, we are sharing an enlightening quote to all of us.
                             @endif
-                            You may take time to read and have a great day to you! 😊
+                                You may take time to read and have a great day to you! 😊
                             <br><div style="color:#666;margin-top:20px"><small>From: JAO Ministry</small></div>
                         </div>
                         <br>

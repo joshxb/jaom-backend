@@ -52,6 +52,7 @@ class BibleGeneratorResponse
                 'verse' => $randomVerse,
                 'quote' => $randomQuote,
                 'day' => $currentDay,
+                'message' => $this->getRandomMessage($currentDay),
                 'randomImages' => $randomImages,
             ];
 
@@ -76,5 +77,25 @@ class BibleGeneratorResponse
                 return response()->json(['error' => 'An error occurred while generating the Bible quote.'], 301);
             }
         }
+    }
+
+    public function getRandomMessage($day)
+    {
+        $messages = [
+            "Esteemed citizens, on this delightful " . $day . ", the Ministry shares a message of positivity with a quote designed to uplift your spirits.",
+            "Greetings to our wonderful community! As we embrace " . $day . ", the Ministry is excited to share a motivating quote to add a touch of inspiration to your day.",
+            "Good day, esteemed community members! " . $day . " is here, and the Ministry has curated a thoughtful quote to inspire reflection and positivity among us.",
+            "Greetings, dear community! On this " . $day . ", the Ministry presents a carefully selected quote to inspire contemplation and foster a sense of unity.",
+            "Hello community members! How's your " . $day . " going? The Ministry has a thought-provoking quote to share, encouraging a moment of reflection.",
+            "Greetings to our wonderful community! As " . $day . " unfolds, the Ministry presents an enriching quote to stimulate thought and enhance our collective experience.",
+            "Respected community members, as we navigate through " . $day . ", the Ministry extends warm regards. May you find inspiration in the motivational quote we share.",
+            "Greetings to our esteemed community! As " . $day . " unfolds, we offer you a carefully selected quote designed to bring inspiration and a renewed sense of community.",
+            "Salutations, valued community members! On this " . $day . ", the Ministry extends greetings and shares a motivational quote aimed at fostering a sense of community.",
+            "Greetings to our wonderful community! As " . $day . " unfolds, the Ministry presents you with an enlightening quote, carefully curated to stimulate community spirit and positivity.",
+        ];
+
+        $randomIndex = array_rand($messages);
+
+        return $messages[$randomIndex];
     }
 }
