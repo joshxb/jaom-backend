@@ -193,7 +193,7 @@ class GroupMessageManagerResponse
 
         GroupMessage::where('group_id', $groupId)->delete();
         return response()->json([
-            'message' => 'All group messages have been deleted successfully.',
+            'message' => 'All group messages have been cleared successfully.',
         ]);
     }
 }
