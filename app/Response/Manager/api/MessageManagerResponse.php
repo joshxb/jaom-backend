@@ -7,6 +7,7 @@ use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessagesBlob;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -129,6 +130,12 @@ class MessageManagerResponse
         $result->getCollection()->each(function ($conversation) use ($user, $messageCounts) {
             $otherUserId = ($user->id === $conversation->user1_id) ? $conversation->user2_id : $conversation->user1_id;
             $conversation->other_user_id = $otherUserId;
+
+            $other_user = User::where('id', $otherUserId)->first();
+            $conversation->other_user_name = strpos($other_user->nickname, 'true') !== false
+            ? explode('~!@#$%^&*()-=_+[]{}|;:,.<>?', $other_user->nickname)[0]
+            : $other_user->firstname . ' ' . $other_user->lastname;
+
             $conversation->messages_count = $messageCounts[$conversation->id] ?? 0;
         });
 
