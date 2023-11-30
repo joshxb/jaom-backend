@@ -100,7 +100,7 @@ class UserHistoryManagerResponse
         }
 
         $userHistories->each->delete();
-        return response()->json(['message' => 'User history logs successfully deleted!']);
+        return response()->json(['message' => 'User history logs successfully cleared!']);
     }
 }
 
