@@ -3,11 +3,13 @@
 namespace App\Response\Manager\api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TodoScheduleEmail;
 use App\Models\Notification;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TodoManagerResponse
 {
@@ -128,8 +130,9 @@ class TodoManagerResponse
         }
 
         $result = [];
+        $emailsSentHistory = [];
 
-        $todos->each(function ($todo) use (&$result) {
+        $todos->each(function ($todo) use (&$result, &$emailsSentHistory) {
             $notifications = Notification::where("user_id", $todo->user_id)->get();
 
             if ($notifications->isEmpty()) {
@@ -172,6 +175,24 @@ class TodoManagerResponse
         });
 
         $newNotifications = $remainingTodos->map(function ($todo) {
+            try {
+                $notify = User::where('id', $todo->user_id)->first();
+
+                $userData = [
+                    'email' => $notify->email,
+                    'fullname' => $notify->firstname . ' ' . $notify->lastname,
+                    'title' => $todo->title,
+                    'description' => $todo->description,
+                    'due-date' => $todo->due_date
+                ];
+                    Mail::to($userData['email'])->send(new TodoScheduleEmail($userData));
+                    sleep(1);
+            } catch (\Exception $e) {
+                // Handle the exception as needed
+            }
+
+            ///////////
+
             $notificationData = [
                 'todo_id' => $todo->id,
                 'title' => $todo->title,
