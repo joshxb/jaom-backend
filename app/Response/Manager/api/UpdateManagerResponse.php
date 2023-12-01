@@ -2,6 +2,7 @@
 
 namespace App\Response\Manager\api;
 
+use App\Models\Notification;
 use App\Models\Update;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -142,6 +143,18 @@ class UpdateManagerResponse
         $update->updates_blob_id = $request->updates_blob_id;
         $update->type = $request->type;
         $update->save();
+
+        if ($user->type === 'admin') {
+            $notification = new Notification();
+            $notification->title = 'New Update Notification';
+            $notification->notification_object = json_encode([
+                'todo_id' => null,
+                'title' => 'New Update Posted A While Ago',
+                'content' => "There is a new update that has been posted, please check it out.",
+            ]);
+            $notification->user_id = null;
+            $notification->save();
+        }
 
         return response()->json(['data' => $update], 201);
     }

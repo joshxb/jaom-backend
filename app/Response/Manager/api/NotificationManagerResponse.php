@@ -26,8 +26,9 @@ class NotificationManagerResponse
     {
         $user = auth()->user();
         $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        ->orWhereNull('user_id')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
         if ($notifications->isEmpty()) {
             return response()->json([
@@ -35,9 +36,7 @@ class NotificationManagerResponse
             ]);
         }
 
-        return response()->json([
-            'data' => $notifications,
-        ]);
+        return response()->json($notifications);
     }
 
     public function store(Request $request)
