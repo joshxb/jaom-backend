@@ -242,18 +242,25 @@ class UpdateManagerResponse
         ]);
         $notification->user_id = null;
         $notification->save();
-
-        $users = User::whereNotNull("email_verified_at")->get()->shuffle();
-        $recipientEmails = $users->pluck('email')->toArray();
-
-        $dataToSend = [
-            'subject' => $subject,
-            'content' => $content,
-        ];
-
+    
         try {
+            $users = User::whereNotNull("email_verified_at")->get()->shuffle();
+            $recipientEmails = $users->pluck('email')->toArray();
+
+            $subjectArray = explode('=>', $subject, 2);
+            $contentArray = explode('=>', $content, 2);
+
+            $subjectValue = trim(strip_tags($subjectArray[1] ?? '')); // Get the second element and remove HTML tags
+            $contentValue = trim(strip_tags($contentArray[1] ?? '')); // Get the second element and remove HTML tags
+
+            $dataToSend = [
+                'subject' => $subjectValue,
+                'content' => $contentValue,
+            ];
+
             Mail::bcc($recipientEmails)->send(new UpdateNotificationEmail($dataToSend));
         } catch (Exception $e) {
+            // Handle exception if needed
         }
     }
 }

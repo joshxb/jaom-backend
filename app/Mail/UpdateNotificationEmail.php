@@ -26,7 +26,7 @@ class UpdateNotificationEmail extends Mailable
     public function build()
     {
         $mail = $this->view('send_update_notification')
-            ->subject('Todo Schedule For Today');
+            ->subject('Update Notification Email');
 
         return $mail;
     }
@@ -37,7 +37,7 @@ class UpdateNotificationEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Todo Schedule Email',
+            subject: 'Update Notification Email',
         );
     }
 
