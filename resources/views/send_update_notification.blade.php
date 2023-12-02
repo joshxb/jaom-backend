@@ -110,7 +110,8 @@
                     <div class="appreciation-message">
                         Content: {{ $user['content'] }}
                     </div>
-                    <div class="offer-detail-item" style="font-size: 14px">For more details, please visit in the  <a href="{{ env('F_DEPLOYMENT_BASE_URL') }}">JAO Ministry</a> website.</div>
+                    <br>
+                    <div class="offer-detail-item" style="font-size: 14px;text-align:center">For more details, please visit in the  <a href="{{ env('F_DEPLOYMENT_BASE_URL') }}">JAO Ministry</a> website.</div>
                     <div class="footer">
                         <p>&copy; 2023 JAO Ministry. All rights reserved.</p>
                         <p><span>Contact Us:</span> jaomconnect.info@gmail.com</p>
