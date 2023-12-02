@@ -2,10 +2,14 @@
 
 namespace App\Response\Manager\api;
 
+use App\Mail\UpdateNotificationEmail;
 use App\Models\Notification;
 use App\Models\Update;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UpdateManagerResponse
 {
@@ -145,15 +149,7 @@ class UpdateManagerResponse
         $update->save();
 
         if ($user->type === 'admin') {
-            $notification = new Notification();
-            $notification->title = 'New Update Notification';
-            $notification->notification_object = json_encode([
-                'todo_id' => null,
-                'title' => 'New Update Posted A While Ago',
-                'content' => "There is a new update that has been posted, please check it out.",
-            ]);
-            $notification->user_id = null;
-            $notification->save();
+            $this->sendNotification($request->subject, $request->content);
         }
 
         return response()->json(['data' => $update], 201);
@@ -206,6 +202,10 @@ class UpdateManagerResponse
             return response()->json(['message' => 'Update not found'], 404);
         }
 
+        if (request()->permission == 'approved') {
+            $this->sendNotification($update->subject, $update->content);
+        }
+
         $update->permission = request()->permission;
         $update->save();
 
@@ -230,5 +230,30 @@ class UpdateManagerResponse
 
         $update->delete();
         return response()->json(['message' => 'Update(s) successfully deleted']);
+    }
+
+    private function sendNotification($subject = null, $content = null) {
+        $notification = new Notification();
+        $notification->title = 'New Update Notification';
+        $notification->notification_object = json_encode([
+            'todo_id' => null,
+            'title' => 'New Update Posted A While Ago',
+            'content' => "There is a new update that has been posted, please check it out.",
+        ]);
+        $notification->user_id = null;
+        $notification->save();
+
+        $users = User::whereNotNull("email_verified_at")->get()->shuffle();
+        $recipientEmails = $users->pluck('email')->toArray();
+
+        $dataToSend = [
+            'subject' => $subject,
+            'content' => $content,
+        ];
+
+        try {
+            Mail::bcc($recipientEmails)->send(new UpdateNotificationEmail($dataToSend));
+        } catch (Exception $e) {
+        }
     }
 }
