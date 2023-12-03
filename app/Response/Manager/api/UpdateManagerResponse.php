@@ -5,6 +5,7 @@ namespace App\Response\Manager\api;
 use App\Mail\UpdateNotificationEmail;
 use App\Models\Notification;
 use App\Models\Update;
+use App\Models\UpdatesBlobs;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -184,6 +185,8 @@ class UpdateManagerResponse
 
         $update->subject = $request->subject;
         $update->content = $request->content;
+        $update->updates_blob_id = $request->updates_blob_id;
+        $update->type = $request->type;
         $update->save();
 
         return response()->json(['data' => $update]);
@@ -228,6 +231,7 @@ class UpdateManagerResponse
             return response()->json(['message' => "You are not authorize to delete this updates"], 403);
         }
 
+        UpdatesBlobs::where('updates_blob_id', $update->updates_blob_id)->delete();
         $update->delete();
         return response()->json(['message' => 'Update(s) successfully deleted']);
     }
@@ -242,7 +246,7 @@ class UpdateManagerResponse
         ]);
         $notification->user_id = null;
         $notification->save();
-    
+
         try {
             $users = User::whereNotNull("email_verified_at")->get()->shuffle();
             $recipientEmails = $users->pluck('email')->toArray();

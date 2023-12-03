@@ -82,8 +82,8 @@ class UpdatesBlobManagerResponse
             // Validate the request data
             $request = request();
             $request->validate([
-                'updates_blob_id' => 'required',
-                'data_blob' => 'required',
+                'updates_blob_id' => '',
+                'data_blob' => '',
             ]);
 
             // Get data from the request
