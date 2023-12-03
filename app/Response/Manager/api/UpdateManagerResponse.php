@@ -248,7 +248,7 @@ class UpdateManagerResponse
             $recipientEmails = $users->pluck('email')->toArray();
 
             $subjectArray = explode('=>', $subject, 2);
-            $contentArray = explode('=>', $content, 2);
+            $contentArray = strpos($content, '=>') !== false ? explode('=>', $content, 2) : $content;
 
             $subjectValue = trim(strip_tags($subjectArray[1] ?? '')); // Get the second element and remove HTML tags
             $contentValue = trim(strip_tags($contentArray[1] ?? '')); // Get the second element and remove HTML tags
