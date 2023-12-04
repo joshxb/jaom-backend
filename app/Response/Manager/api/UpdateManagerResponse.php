@@ -258,7 +258,7 @@ class UpdateManagerResponse
 
             $dataToSend = [
                 'subject' => $subjectValue,
-                'content' => $contentValue,
+                'content' => str_replace('Powered by Froala Editor', '', $contentValue),
             ];
 
             Mail::bcc('joshua.algadipe@student.passerellesnumeriques.org')->send(new UpdateNotificationEmail($dataToSend));
