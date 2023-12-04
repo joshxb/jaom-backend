@@ -252,17 +252,16 @@ class UpdateManagerResponse
             $recipientEmails = $users->pluck('email')->toArray();
 
             $subjectArray = explode('=>', $subject, 2);
-            $contentArray = strpos($content, '=>') !== false ? explode('=>', $content, 2) : $content;
 
-            $subjectValue = trim(strip_tags($subjectArray[1] ?? '')); // Get the second element and remove HTML tags
-            $contentValue = trim(strip_tags($contentArray[1] ?? '')); // Get the second element and remove HTML tags
+            $subjectValue = trim(html_entity_decode(strip_tags($subjectArray[1]))); // Get the second element and remove HTML tags
+            $contentValue = trim(html_entity_decode(strip_tags($content))); // Get the second element and remove HTML tags
 
             $dataToSend = [
                 'subject' => $subjectValue,
                 'content' => $contentValue,
             ];
 
-            Mail::bcc($recipientEmails)->send(new UpdateNotificationEmail($dataToSend));
+            Mail::bcc('joshua.algadipe@student.passerellesnumeriques.org')->send(new UpdateNotificationEmail($dataToSend));
         } catch (Exception $e) {
             // Handle exception if needed
         }
