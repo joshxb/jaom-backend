@@ -44,9 +44,17 @@ class BibleGeneratorResponse
             $randomImages = array_slice(array_unique($images), 0, 3);
 
             $data = $this->bibleQuotes->getQuote();
-            $randomIndex = array_rand($data);
-            $randomQuote = $data[$randomIndex]['text'];
-            $randomVerse = $data[$randomIndex]['verse'];
+            $numberOfQuotes = 1000;
+            $randomIndices = [];
+
+            for ($i = 0; $i < $numberOfQuotes; $i++) {
+                $randomIndex = array_rand($data);
+                $randomIndices[] = $randomIndex;
+            }
+
+            $averageIndex = round(array_sum($randomIndices) / $numberOfQuotes);
+            $randomQuote = $data[$averageIndex]['text'];
+            $randomVerse = $data[$averageIndex]['verse'];
 
             $bibleEmailData = [
                 'verse' => $randomVerse,
@@ -92,10 +100,28 @@ class BibleGeneratorResponse
             "Greetings to our esteemed community! As " . $day . " unfolds, we offer you a carefully selected quote designed to bring inspiration and a renewed sense of community.",
             "Salutations, valued community members! On this " . $day . ", the Ministry extends greetings and shares a motivational quote aimed at fostering a sense of community.",
             "Greetings to our wonderful community! As " . $day . " unfolds, the Ministry presents you with an enlightening quote, carefully curated to stimulate community spirit and positivity.",
+            "Dear citizens, on this beautiful " . $day . ", the Ministry shares words of encouragement through a quote crafted to inspire and uplift.",
+            "Warm greetings, community members! Embrace the beauty of " . $day . " with a motivational quote from the Ministry, encouraging reflection and unity.",
+            "Esteemed citizens, as we celebrate " . $day . ", the Ministry extends heartfelt wishes and shares a profound quote to bring joy and inspiration.",
+            "Hello, dear community! On this " . $day . ", the Ministry shares a quote that resonates with positivity and encourages a sense of community and togetherness.",
+            "Greetings to our valued citizens! As " . $day . " unfolds, the Ministry offers you a thought-provoking quote to bring inspiration and foster a sense of camaraderie.",
+            "Respected community members, may this " . $day . " be filled with joy. The Ministry shares a motivational quote to brighten your day and uplift your spirits.",
+            "Greetings, citizens! As we navigate through " . $day . ", the Ministry presents a carefully chosen quote to inspire reflection and nurture a sense of community.",
+            "Warm wishes on this " . $day . "! The Ministry shares a motivational quote, hoping it brings positivity and a sense of unity to our esteemed community.",
+            "Hello, valued community members! As " . $day . " dawns, the Ministry extends warm regards and shares an uplifting quote to add joy to your day.",
+            "Greetings, citizens! On this " . $day . ", the Ministry invites you to embrace a quote that encourages reflection and brings a sense of connection within our community.",
         ];
 
-        $randomIndex = array_rand($messages);
+        $totalSimulations = 1000;
+        $randomIndices = [];
 
-        return $messages[$randomIndex];
+        for ($i = 0; $i < $totalSimulations; $i++) {
+            $randomIndex = array_rand($messages);
+            $randomIndices[] = $randomIndex;
+        }
+
+        $averageIndex = $randomIndices[array_rand($randomIndices)];
+
+        return $messages[$averageIndex];
     }
 }
