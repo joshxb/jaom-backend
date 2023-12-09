@@ -188,6 +188,7 @@ class UserManagerResponse
 
         $requestData = $request->all();
 
+        $email_change = request()->change_email ? true : false;
         if (isset($requestData['email'])) {
             $existingUser = User::where('email', $requestData['email'])->where('id', '!=', $id)->first();
             if ($existingUser) {
@@ -214,7 +215,6 @@ class UserManagerResponse
 
         $requestData['updated_at'] = now();
         if (!request()->has('role') && request()->input('role') !== 'admin' && isset($requestData['email'])) {
-
             $requestData['email_verified_at'] = null;
             $base = $request->input('base', "l");
             $sendData = [
@@ -224,10 +224,18 @@ class UserManagerResponse
                 'verify' => $request->input('verify')
             ];
 
+            if ($email_change) {
+                $sendData['email_change'] = true;
+                $sendData['previous_email'] = Auth::user()->email;
+            }
+
             $request = Request::create('/verify_email/' . $requestData['email'], 'POST', $sendData);
             $response = app()->handle($request);
             if ($response->getStatusCode() === 200) {
-                $user->update($requestData);
+                if (!$email_change) {
+                    $user->update($requestData);
+                }
+
                 return response()->json([
                     'data' => $user,
                     'message' => 'Email updated successfully, please check your email for further verification!',
@@ -236,7 +244,10 @@ class UserManagerResponse
             }
         }
 
-        $user->update($requestData);
+        if (!$email_change) {
+            $user->update($requestData);
+        }
+
         return response()->json([
             'data' => $user,
             'message' => 'Data updated successfully!',

@@ -139,13 +139,13 @@
                         <p>
                             @if ($user['base'] == 'l')
                                 <a style="cursor: pointer;color: #fff"
-                                    href="{{ env('LOCAL_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}"
+                                    href="{{ env('LOCAL_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}{{ $user['email_change'] ? '?email_change=true&previous_email=' .  $user['previous_email'] : '' }}"
                                     class="btn btn-success btn-hover-effect">
                                     Verify Email Address
                                 </a>
                             @elseif ($user['base'] == 'd')
                                 <a style="cursor: pointer;color: #fff"
-                                    href="{{ env('DEPLOYMENT_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}"
+                                    href="{{ env('DEPLOYMENT_BASE_URL') }}/email-verification/{{ $user['email'] }}/{{ $user['base'] }}{{ $user['email_change'] ? '?email_change=true&previous_email=' . $user['previous_email'] : '' }}"
                                     class="btn btn-success btn-hover-effect">
                                     Verify Email Address
                                 </a>
