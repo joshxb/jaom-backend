@@ -123,7 +123,7 @@ class UserManagerResponse
             'image' => 'nullable|string',
             'nickname' => 'nullable|string|max:50',
             'location' => 'nullable|string|max:255',
-            'age' => 'nullable|integer|min:0|max:150',
+            'age' => 'nullable|date',
             'visibility' => 'nullable|string',
             'status' => 'nullable|string',
         ]);

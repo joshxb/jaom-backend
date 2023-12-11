@@ -25,7 +25,7 @@ class UserFactory extends Factory
             'status' => 'active',
             'nickname' => $this->generateNickname(),
             'image_blob' => null,
-            'age' => $this->faker->numberBetween(18, 60),
+            'age' => "2001-09-16",
             'location' => $this->faker->address(['country' => 'Philippines']),
             'remember_token' => Str::random(10),
         ];
@@ -43,7 +43,7 @@ class UserFactory extends Factory
                 'email' => 'joshua.algadipe@student.passerellesnumeriques.org',
                 'phone' => '09319127640',
                 'location' => "Cabulihan, Vallehermoso, Negros Oriental",
-                'age' => 21
+                'age' => "2001-09-16"
             ];
         });
     }
