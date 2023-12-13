@@ -25,8 +25,11 @@ class NotificationManagerResponse
     public function currentIndex()
     {
         $user = auth()->user();
-        $notifications = Notification::where('user_id', $user->id)
-        ->orWhereNull('user_id')
+        $notifications = Notification::where(function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->orWhereNull('user_id');
+        })
+        ->where('created_at', '>=', $user->created_at)
         ->orderBy('created_at', 'desc')
         ->paginate(10);
 
